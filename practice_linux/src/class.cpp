@@ -1,7 +1,12 @@
 
 #include "class.h"
 
-void CTest::Func()
+int CTest::Func()
 {
-    return;
+    return 1;
+}
+
+int CTestChild::Func()
+{
+	return 2;
 }

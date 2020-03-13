@@ -4,10 +4,19 @@ class CTest
 {
 public:
     CTest() { a = 0; };
-    ~CTest() {};
+    virtual ~CTest() {};
 
-    void Func();
+    virtual int Func();
 
 private:
     int a;
+};
+
+class CTestChild : public CTest
+{
+public:
+	CTestChild() { }
+	~CTestChild() { }
+	
+	int Func();
 };

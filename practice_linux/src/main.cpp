@@ -3,9 +3,13 @@
 
 int main() 
 {
-    printf("Hello Sungsu!\r\n");
+	printf("Hello Sungsu!\r\n");
+	CTestChild testChild;
+	CTest* pTest = &testChild;
 
-    CTest test;
-    test.Func();
-    return 0;
+	int ret = 0;
+	ret = pTest->Func();
+
+	printf("%d=pTest->Func()\r\n", ret);
+	return 0;
 }
