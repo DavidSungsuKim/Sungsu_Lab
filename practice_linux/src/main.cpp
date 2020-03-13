@@ -3,7 +3,7 @@
 
 int main() 
 {
-	printf("Hello Sungsu!\r\n");
+	printf("Hello Sungsu! I am RP 4B!\r\n");
 	CTestChild testChild;
 	CTest* pTest = &testChild;
 
