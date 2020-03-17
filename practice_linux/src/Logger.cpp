@@ -20,7 +20,10 @@ CLogger::~CLogger()
 	if ( m_fdLogFile )
 	{
 		fdatasync( m_fdLogFile ); // To syncronize writing into the file
-		close( m_fdLogFile );
+		
+		int ret = close( m_fdLogFile );
+		if ( ret == -1 )
+			perror("close");
 	}
 }
 
