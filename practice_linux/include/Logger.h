@@ -14,9 +14,9 @@ public:
 	CLogger();
 	~CLogger();
 	
-	int		SetLogFilePath	( const char* aFile );
-	void 	Telemetry		( const char* aString, ... );
-	void 	Telemetry2		( const char* aFile, int aLineNo, const char* aString, ... );
+	int				SetLogFilePath	( const char* aFile );
+	virtual void 	Telemetry		( const char* aString, ... );
+	void 			Telemetry2		( const char* aFile, int aLineNo, const char* aString, ... );
 		
 private:
 	int		m_fdLogFile;

@@ -12,12 +12,12 @@ CLogger g_Logger;
 
 CLogger::CLogger()
 {
-	m_fdLogFile = 0;
+	m_fdLogFile = STDOUT_FILENO;
 }
 
 CLogger::~CLogger()
 {
-	if ( m_fdLogFile )
+	if ( STDOUT_FILENO < m_fdLogFile )
 	{
 		fdatasync( m_fdLogFile ); // To syncronize writing into the file
 		
@@ -30,9 +30,7 @@ CLogger::~CLogger()
 int		
 CLogger::SetLogFilePath( const char* aFile )
 {
-	int ret 		= 0;
-		
-	int fd 			= -1;
+	int fd 			= STDOUT_FILENO;
 	int	flags 		= ( O_RDWR | O_APPEND | O_CREAT );
 	mode_t	mode 	= S_IRWXU | S_IRWXG;
 	
@@ -40,17 +38,18 @@ CLogger::SetLogFilePath( const char* aFile )
 	
 	fd = open( path, flags, mode );
 	
-//	g_Logger.Telemetry( "fd=%d", fd );
+	g_Logger.Telemetry2( __FILE__, __LINE__, "fd=%d", fd );
 	
-	if ( fd == -1 )
+	if ( !fd )
 	{
-		m_fdLogFile = 0;		
+		m_fdLogFile = STDOUT_FILENO;
 		return -1;
 	}
-		
-	m_fdLogFile = fd;
-	
-	return ret;
+	else
+	{
+		m_fdLogFile = fd;
+		return 0;
+	}
 }
 
 void
@@ -66,20 +65,12 @@ CLogger::Telemetry( const char* aString, ...)
     vsprintf(buf + strlen(buf), aString, ap);
     va_end(ap);
 	
-    puts(buf);
+// 	puts(buf);
 	
 	message = buf;
 	message += "\r\n";
 	
-	if ( m_fdLogFile )
-	{
-		write( m_fdLogFile, message.c_str(), strlen( message.c_str()) );
-	}
-	else
-	{
-		// Print out to the screen (default)
-		printf("%s", message.c_str());
-	}
+	write( m_fdLogFile, message.c_str(), strlen( message.c_str()) );
 
 	return;
 }
@@ -89,6 +80,11 @@ CLogger::Telemetry2( const char* aFile, int aLineNo, const char* aString, ...)
 { 
 	std::string message;
 	
+	// Attach file and line info first.
+	char bufInfo[256] = {0,};
+	sprintf( bufInfo,"%s Line:%d ", aFile, aLineNo );	
+	message = bufInfo;
+	
 	// To make use of variable-length argument lists
     char buf[256] = {0,}; // This is a MUST to avoid repeating strings.
 	va_list ap;
@@ -97,25 +93,12 @@ CLogger::Telemetry2( const char* aFile, int aLineNo, const char* aString, ...)
     vsprintf(buf + strlen(buf), aString, ap);
     va_end(ap);
 	
-    puts(buf);
-			
-	// Attach file and line info first.
-	char bufInfo[256] = {0,};
-	sprintf( bufInfo,"%s Line:%d ", aFile, aLineNo );	
-	message = bufInfo;
+// 	puts(buf);
 	
 	message += buf;
 	message += "\r\n";
 	
-	if ( m_fdLogFile )
-	{
-		write( m_fdLogFile, message.c_str(), strlen( message.c_str()) );
-	}
-	else
-	{
-		// Print out to the screen (default)
-		printf("%s", message.c_str());
-	}
+	write( m_fdLogFile, message.c_str(), strlen( message.c_str()) );
 
 	return;
 }
