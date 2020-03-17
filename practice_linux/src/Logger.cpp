@@ -19,7 +19,8 @@ CLogger::~CLogger()
 {
 	if ( m_fdLogFile )
 	{
-		// Do something..
+		fdatasync( m_fdLogFile ); // To syncronize writing into the file
+		close( m_fdLogFile );
 	}
 }
 
