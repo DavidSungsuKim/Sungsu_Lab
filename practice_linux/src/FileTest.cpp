@@ -7,11 +7,14 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 #include <unistd.h>
 #include <poll.h>
 
 #include "FileTest.h"
 #include "Logger.h"
+
+extern int errno;
 
 CFileTest::CFileTest()
 {
@@ -26,6 +29,7 @@ CFileTest::~CFileTest()
 int
 CFileTest::Read(const char* aFilePath)
 {
+	// This function makes use of linux system calls to read something from a file.
 	int ret = -1;
 	int fd 	= -1;
 	
@@ -44,7 +48,10 @@ CFileTest::Read(const char* aFilePath)
 	
 	ret = read(fd, buf, eMaxLen);
 	if ( ret <= 0 )
+	{
+		ret = close(fd);
 		return ret;
+	}
 	
 //	g_Logger.Telemetry( "String read: %s\r\n# of characters read: %d\r\n", buf, ret );
 	
@@ -58,9 +65,48 @@ CFileTest::Read(const char* aFilePath)
 	return 0;
 }
 
+int		
+CFileTest::ReadStd(const char* aFilePath)
+{
+	// This function makes use of functions from <stdio.h> to read something from a file.
+	int ret = -1;
+	FILE*	pStream;
+	
+	const char* path = aFilePath;
+	
+	pStream = fopen( path, "r" );
+	if ( pStream == NULL )
+		return -1;
+	
+	enum 
+	{
+		eMaxLen = 256
+	};
+	
+	char buf[eMaxLen] = {0,};
+	
+	if ( fgets( buf, eMaxLen, pStream ) == NULL )
+	{
+		ret = fclose( pStream );
+		return -1;
+	}
+	
+//	g_Logger.Telemetry( "String read: %s\r\n# of characters read: %d\r\n", buf, ret );
+	
+	ret = fclose( pStream );
+	if ( ret == EOF )
+	{
+		g_Logger.Telemetry2( __FILE__, __LINE__, "errno=%d", errno );
+		return ret;
+	}
+	
+	return 0;	
+}
+
 int 
 CFileTest::Write(const char* aFilePath, const char* aString)
 {
+	// This function makes use of linux system calls to write something to a file.
 	int ret = -1;
 	int fd 	= -1;
 	int	flags = O_WRONLY | O_APPEND | O_CREAT;
@@ -79,12 +125,44 @@ CFileTest::Write(const char* aFilePath, const char* aString)
 	ret = write( fd, aString, len );
 	if ( ret == -1 )
 	{
-		g_Logger.Telemetry2( __FILE__, __LINE__, "error=%d", ret);		
+		g_Logger.Telemetry2( __FILE__, __LINE__, "error=%d", ret);
+		ret = close(fd);
 		return ret;
 	}	
 		
 	ret = close(fd);
 	if ( ret != 0 )
+	{
+		g_Logger.Telemetry2( __FILE__, __LINE__, "error=%d", ret);
+		return ret;
+	}	
+		
+	return 0;
+}
+
+int 	
+CFileTest::WriteStd(const char* aFilePath, const char* aString)
+{
+	// This function makes use of funtions from <stdio.h> to write something to a file.		
+	int 	ret = -1;
+	FILE*	pStream;
+	
+	const char* path = aFilePath;
+	
+	pStream = fopen( path, "a+" );
+	if ( pStream == NULL )
+		return -1;
+			
+	ret = fputs( aString, pStream );
+	if ( ret == EOF )
+	{
+		g_Logger.Telemetry2( __FILE__, __LINE__, "error=%d", ret);
+		ret = fclose( pStream );
+		return ret;
+	}	
+		
+	ret = fclose( pStream );
+	if ( ret == EOF )
 	{
 		g_Logger.Telemetry2( __FILE__, __LINE__, "error=%d", ret);
 		return ret;
@@ -197,7 +275,76 @@ CFileTest::Poll()
 	return ret;
 }
 
-
+int	
+CFileTest::ReadWriteBinaryStd(const char* aFilePath)
+{
+	int 	ret = 0;
+	
+	FILE*	pStreamIn;
+	FILE*	pStreamOut;
+	
+	// Prepare structure and data
+	struct Student
+	{
+		char	name[128];
+		int 	age;
+		long	grade;	
+	}who = {"SungsuKim", 8, 1}, who2;
+	
+	
+	// Write the data
+	pStreamOut = fopen( aFilePath, "w" );
+	if ( pStreamOut == NULL)
+	{
+		perror("fopen");
+		return -1;
+	}
+		
+	size_t numOfElement;
+	numOfElement = fwrite( &who, sizeof( struct Student ), 1, pStreamOut );
+	if ( numOfElement == 0 )
+	{
+		perror("fwrite");
+		fclose( pStreamOut );
+		return -1;
+	}
+	
+	g_Logger.Telemetry2( __FILE__, __LINE__, "sizeof(Student)=%d, numOfElement=%d", sizeof( struct Student ), numOfElement );	
+	g_Logger.Telemetry2( __FILE__, __LINE__, "WD_binary	: name=%s, age=%d, grade=%d", who.name, who.age, who.grade );
+	
+	if ( fclose( pStreamOut ) )
+	{
+		perror("fclose");
+		return -1;
+	}
+	
+	// Read the data written right before.
+	pStreamIn = fopen( aFilePath, "r" );
+	if ( pStreamIn == NULL )
+	{
+		perror("fopen");
+		return -1;
+	}
+	
+	size_t rcount;
+	rcount = fread( &who2, sizeof( struct Student ), 1, pStreamIn );
+	if ( rcount == 0 )
+	{
+		perror("fread");
+		fclose( pStreamIn );
+		return -1;
+	}
+		
+	g_Logger.Telemetry2( __FILE__, __LINE__, "RD_binary	: name=%s, age=%d, grade=%d", who2.name, who2.age, who2.grade );
+	
+	if ( fclose( pStreamIn ) )
+	{
+		perror("fclose");
+		return -1;
+	}
+	
+	return ret;
+}
 
 
 

@@ -15,5 +15,9 @@ public:
 	int 	Write	(const char* aFilePath, const char* aString);
 	int		Select	();	
 	int		Poll	();
+	
+	int		ReadStd				(const char* aFilePath);
+	int 	WriteStd			(const char* aFilePath, const char* aString);
+	int		ReadWriteBinaryStd	(const char* aFilePath);
 };
 	
