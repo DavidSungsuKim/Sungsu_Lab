@@ -10,8 +10,8 @@ int main()
 
 	pTest->Func();
 	
-	const char* fileLogging = "/home/pi/git_repository/Sungsu_Lab/practice_linux/bin/testLogging.txt";		
-	g_Logger.SetLogFilePath( fileLogging );
+//	const char* fileLogging = "/home/pi/git_repository/Sungsu_Lab/practice_linux/bin/testLogging.txt";		
+//	g_Logger.SetLogFilePath( fileLogging );
 
 	CFileTest testFile;
 
@@ -21,6 +21,7 @@ int main()
 	testFile.Read( fileRead );
 	testFile.Write( fileWrite, "test....write\r\n");
 	testFile.Select();	
+	testFile.Poll();
 			
 	return 0;
 }

@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <poll.h>
 
 #include "FileTest.h"
 #include "Logger.h"
@@ -103,8 +103,8 @@ CFileTest::Select()
 	fd_set	readfds;
 	int		ret = 0;
 	
-	int		fdStdIn = 0;
-	int		fd;
+	const int	fdStdIn = STDIN_FILENO;
+	int			fd;
 	fd = open("/home/pi/git_repository/Sungsu_Lab/practice_linux/bin/testSelectRead.txt", O_RDONLY);
 
 	FD_ZERO( &readfds );
@@ -126,8 +126,11 @@ CFileTest::Select()
 	if ( ret == 0 )
 	{
 		g_Logger.Telemetry2( __FILE__, __LINE__, "timeout:elapsed=%dsec", TIMEOUT );
-		if ( fd )
+		if ( fd != STDIN_FILENO )
+		{
 			close( fd );
+			return -1;
+		}
 	}
 			
 	int fdWait = -1;
@@ -143,13 +146,56 @@ CFileTest::Select()
 		int		len;		
 		
 		len = read( fdWait, buf, BUF_LEN );
-		g_Logger.Telemetry( "fd=%d, len=%d String:%s\r\n", fdWait, buf, len );
+	
+		g_Logger.Telemetry( "fd=%d, len=%d String:%s\r\n", fdWait, len, buf  );
+	
+		if ( fdWait != STDIN_FILENO )
+			close( fdWait );
 	}
 	
 	return ret;
 }
 
+int 
+CFileTest::Poll()
+{
+	struct 	pollfd fds[2];
+	int		ret;
+	
+	enum
+	{
+		eIndex0 = 0,
+		eIndex1 = 1
+	};
+	
+	fds[eIndex0].fd		= STDIN_FILENO;
+	fds[eIndex0].events	= POLLIN;
+	
+	fds[eIndex1].fd		= STDOUT_FILENO;
+	fds[eIndex1].events	= POLLOUT;
 
+	enum { eTIMEOUT = 10 };
+	
+	ret = poll( fds, 2, eTIMEOUT*1000 );
+	if ( ret == -1 )
+	{
+		perror("poll");
+		return -1;
+	}	
+	
+	if ( !ret ) 
+	{
+		g_Logger.Telemetry2( __FILE__, __LINE__, "timeout");
+	}
+	
+	if ( fds[eIndex0].revents & POLLIN )
+		g_Logger.Telemetry2( __FILE__, __LINE__, "stdin is readable" );
+
+	if ( fds[eIndex1].revents & POLLOUT )
+		g_Logger.Telemetry2( __FILE__, __LINE__, "stdout is writable");
+			
+	return ret;
+}
 
 
 

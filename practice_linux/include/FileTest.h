@@ -14,5 +14,6 @@ public:
 	int		Read	(const char* aFilePath);
 	int 	Write	(const char* aFilePath, const char* aString);
 	int		Select	();	
+	int		Poll	();
 };
 	

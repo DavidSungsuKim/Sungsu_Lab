@@ -17,8 +17,9 @@ CLogger::CLogger()
 
 CLogger::~CLogger()
 {
-	if ( STDOUT_FILENO < m_fdLogFile )
+	if ( STDOUT_FILENO != m_fdLogFile )
 	{
+	//	printf( "fd=%d in the deconstructor\r\n", m_fdLogFile );
 		fdatasync( m_fdLogFile ); // To syncronize writing into the file
 		
 		int ret = close( m_fdLogFile );
@@ -27,7 +28,7 @@ CLogger::~CLogger()
 	}
 }
 
-int		
+void		
 CLogger::SetLogFilePath( const char* aFile )
 {
 	int fd 			= STDOUT_FILENO;
@@ -40,16 +41,10 @@ CLogger::SetLogFilePath( const char* aFile )
 	
 	g_Logger.Telemetry2( __FILE__, __LINE__, "fd=%d", fd );
 	
-	if ( !fd )
-	{
-		m_fdLogFile = STDOUT_FILENO;
-		return -1;
-	}
-	else
-	{
-		m_fdLogFile = fd;
-		return 0;
-	}
+	if ( fd == -1 )
+		fd = STDOUT_FILENO;
+
+	m_fdLogFile = fd;	
 }
 
 void
