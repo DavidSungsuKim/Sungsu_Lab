@@ -44,7 +44,7 @@ CLogger::SetLogFilePath( const char* aFile )
 	if ( fd == -1 )
 		fd = STDOUT_FILENO;
 
-	m_fdLogFile = fd;	
+	m_fdLogFile = fd;
 }
 
 void
@@ -77,7 +77,7 @@ CLogger::Telemetry2( const char* aFile, int aLineNo, const char* aString, ...)
 	
 	// Attach file and line info first.
 	char bufInfo[256] = {0,};
-	sprintf( bufInfo,"%s Line:%d ", aFile, aLineNo );	
+	sprintf( bufInfo,"%s L:%d ", aFile, aLineNo );	
 	message = bufInfo;
 	
 	// To make use of variable-length argument lists

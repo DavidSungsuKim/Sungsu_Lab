@@ -2,17 +2,24 @@
 #include "class.h"
 #include "FileTest.h"
 #include "Logger.h"
+#include "ProcessTest.h"
 
-int main() 
+int main(int argc, char* argv[]) 
 {
 	CTestChild testChild;
 	CTest* pTest = &testChild;
-
 	pTest->Func();
+	
+	int i;
+	for( i = 0; i < argc; i++ )
+		printf("argc[%d]=%s\r\n", i, argv[i]);
 	
 //	const char* fileLogging = "/home/pi/git_repository/Sungsu_Lab/practice_linux/bin/testLogging.txt";		
 //	g_Logger.SetLogFilePath( fileLogging );
 
+#ifdef TEST_FILE
+	g_Logger.Telemetry("TEST_FILE is enabled...");
+	
 	CFileTest testFile;
 
 	const char* fileRead			= "/home/pi/git_repository/Sungsu_Lab/practice_linux/bin/test.txt";
@@ -27,6 +34,16 @@ int main()
 	testFile.ReadStd( fileRead );
 	testFile.WriteStd( fileWrite, "test....writeStd\r\n");
 	testFile.ReadWriteBinaryStd( fileReadWriteBinary );
+#endif
+	
+	CProcTest	testProc;
+	
+	testProc.GetPid();
+//	testProc.Exec();
+//	testProc.Fork();
+//	testProc.Exit();
+//	testProc.Wait();
+	testProc.WaitPid();
 	
 	return 0;
 }
