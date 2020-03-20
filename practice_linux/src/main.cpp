@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <unistd.h>
 #include "class.h"
 #include "FileTest.h"
 #include "Logger.h"
@@ -13,6 +14,10 @@ int main(int argc, char* argv[])
 	int i;
 	for( i = 0; i < argc; i++ )
 		printf("argc[%d]=%s\r\n", i, argv[i]);
+	
+	char currentdir[256] = {0,};
+	getcwd( currentdir, 256 );
+	printf( "currentdir=%s\n", currentdir );	
 	
 //	const char* fileLogging = "/home/pi/git_repository/Sungsu_Lab/practice_linux/bin/testLogging.txt";		
 //	g_Logger.SetLogFilePath( fileLogging );
