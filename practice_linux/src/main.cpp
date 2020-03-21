@@ -48,7 +48,8 @@ int main(int argc, char* argv[])
 //	testProc.Fork();
 //	testProc.Exit();
 //	testProc.Wait();
-	testProc.WaitPid();
+//	testProc.WaitPid();
+//	testProc.MySystem("vim testsystem.txt");
 	
 	return 0;
 }

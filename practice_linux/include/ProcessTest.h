@@ -15,7 +15,9 @@ public:
 	
 	int		Exit	();
 	int		Wait	();
-	int		WaitPid	();	
+	int		WaitPid	();
+	
+	int		MySystem( const char* aCmd );
 	
 	
 	static void ExitFunc1	();

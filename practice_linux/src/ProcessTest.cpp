@@ -184,13 +184,14 @@ CProcTest::WaitPid()
 
 	pid = waitid( idtype, id, &siginfo, WNOHANG );
 	
-	printf( "	siginfo.si_signo=%d\n", 	siginfo.si_signo );	
+/*	printf( "	siginfo.si_signo=%d\n", 	siginfo.si_signo );	
 	printf( "	siginfo.si_code=%d\n", 		siginfo.si_code );
 	printf( "	siginfo.si_pid=%d\n", 		siginfo.si_pid );
 	printf( "	siginfo.si_uid=%d\n", 		siginfo.si_uid );
 	printf( "	siginfo.*si_addr=0x%x\n", 	siginfo.si_addr);
 	printf( "	siginfo.si_status=%d\n", 	siginfo.si_status );
 	printf( "	siginfo.si_band=%d\n", 		siginfo.si_band );
+	*/ 
 #endif
 
 	printf( "pid=%d\n", pid );	
@@ -202,6 +203,83 @@ CProcTest::WaitPid()
 		printf( "Killed by signal=%d%s\n", WTERMSIG(status), WCOREDUMP(status) ? " (dumped core)" : "" );
 		
 	return ret;
+}
+
+int
+CProcTest::MySystem( const char* aCmd )
+{	
+	int ret;
+		
+#define MY_SYSTEM
+#ifndef MY_SYSTEM
+	int ret;
+	
+	ret = system("vim");
+	printf("%d=system()\r\n", ret);
+	
+	return ret;
+#else
+	int status;
+	pid_t	pid;
+	
+	pid = fork();
+	printf("MySystem:fork...pid=%d\r\n", pid);
+	
+	if ( pid == -1 )
+	{
+		printf("MySystem:pid=%d, L=%d\r\n", pid, __LINE__);
+		return -1;
+	}
+	else if ( pid == 0 )
+	{
+	//	case1)
+	//	char* const argv[] = {"sh", "-c", "vim", NULL};
+	
+	//	case2) So it can have command from input arguments.
+		char* argv[4];
+		argv[0] = (char*)"sh";
+		argv[1] = (char*)"-c";
+		argv[2] = (char*)aCmd;
+		argv[3] = NULL;
+		
+	/*	case3) This doesn't work since the type of 'argv' is char const*, 
+	 	which means all values in the container must be fixed in compile time and are not changeable.
+	 
+		char const* argv[4];
+		argv[0] = "sh";
+		argv[1] = "-c";
+		argv[2] = "vim"//aCmd;
+		argv[3] = NULL;
+		*/
+	
+		printf("MySystem:pid=%d, L=%d\r\n", pid, __LINE__);
+	
+		ret = execv( "/bin/sh", argv );
+		if ( ret == -1 )
+			perror("execv");
+		
+		exit(-1);
+	}
+	
+	printf("MySystem:wait..\r\n");
+	
+	sleep(1);
+	
+	if ( waitpid( pid, &status, 0 ) == -1 )
+	{
+		printf("MySystem:wait...(-1)\r\n");
+		return -1;
+	}
+	else if ( WIFEXITED( status ) )
+	{
+		printf("MySystem:wait...exited\r\n");
+		return WEXITSTATUS( status );
+	}
+	
+	printf("MySystem:wait...done\r\n");
+	
+	return -1;
+#endif
 }
 
 void 
