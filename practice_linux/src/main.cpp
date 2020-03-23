@@ -49,7 +49,9 @@ int main(int argc, char* argv[])
 //	testProc.Exit();
 //	testProc.Wait();
 //	testProc.WaitPid();
-//	testProc.MySystem("vim testsystem.txt");
+//	testProc.MySystem("vim");
+//	testProc.SessionID();
+	testProc.Demon();
 	
 	return 0;
 }

@@ -18,7 +18,8 @@ public:
 	int		WaitPid	();
 	
 	int		MySystem( const char* aCmd );
-	
+	int		SessionID();
+	int		Demon	();
 	
 	static void ExitFunc1	();
 	static void ExitFunc2	();

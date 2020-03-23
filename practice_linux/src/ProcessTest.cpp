@@ -1,9 +1,12 @@
 
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <linux/fs.h>
 
 #include "ProcessTest.h"
 #include "Logger.h"
@@ -221,9 +224,12 @@ CProcTest::MySystem( const char* aCmd )
 #else
 	int status;
 	pid_t	pid;
+	pid_t	sid;
+	
+	sid = getsid(0);
 	
 	pid = fork();
-	printf("MySystem:fork...pid=%d\r\n", pid);
+	printf("MySystem:fork...pid=%d sid=%d\r\n", pid, sid);
 	
 	if ( pid == -1 )
 	{
@@ -251,6 +257,12 @@ CProcTest::MySystem( const char* aCmd )
 		argv[2] = "vim"//aCmd;
 		argv[3] = NULL;
 		*/
+		
+		if ( setsid() == -1 )
+		{
+			perror("setsid");
+			return -1;
+		}
 	
 		printf("MySystem:pid=%d, L=%d\r\n", pid, __LINE__);
 	
@@ -280,6 +292,104 @@ CProcTest::MySystem( const char* aCmd )
 	
 	return -1;
 #endif
+}
+
+int
+CProcTest::SessionID()
+{
+	int ret = 0;
+	
+	pid_t pid;
+	pid_t sid;
+		
+	pid = fork();
+	if ( pid == -1 )
+	{
+		perror("fork");
+		return -1;
+	}
+	else if ( pid != 0 )
+	{
+		sid = getsid(0);
+		printf("SessionID:getsid=%d\r\n", sid);
+		exit(EXIT_SUCCESS);
+	}
+	
+	// Make new session by calling 'setsid()'
+	/* This makes these happen :
+	 * 	1. the process calling setsid() becomes the leader and the only member of a new session.
+	 * 	2. the process doesn't have control tty.
+	 * 	3. the process creates a new process group having ifself the leader and the only member in it.
+	 * 	4. the process's pid becomes the process group's id.
+	 */
+	
+	sid = setsid();	// new session id is returned.
+	if ( sid == -1 )
+	{
+		perror("setsid");
+		return -1;
+	}
+	else
+	{
+		pid_t sid2 = getsid(0);
+		printf("SessionID:getsid=%d(%d)\r\n", sid, sid2);		
+	}
+	
+	return ret;
+}
+
+int		
+CProcTest::Demon()
+{
+	pid_t 	pid;
+	int		i;
+	
+	// Fork to create a new process to be a daemon process.
+	pid = fork();
+	if ( pid == -1 )
+	{
+		return -1;
+	}
+	else if ( pid != 0 )
+	{
+		// Call exit not to make daemon process the leader of any process group.
+		exit(EXIT_SUCCESS);
+	}
+	
+	// Call setsid() to make this process the leader of a new process group and of a new session.
+	if ( setsid() == -1 )
+	{
+		return -1;
+	}
+	
+#ifdef AUTO_POST_PROCESSING	
+	if ( deamon(0 /*nochdir*/, 0 /*noclose*/) == -1 )
+		return -1;
+#else	
+	// Change the current directory root to avoid situation making unable to unmount file systems associated.
+	if ( chdir("/") == -1 )
+	{
+		return -1;
+	}
+	
+	// Close all file descriptors that might be opened.
+	for ( i = 0; i < 1024/*NR_OPEN*/; i++ )
+		close(i);
+		
+	// Redirect all standard i/o file descriptors to /dev/null
+	open( "/dev/null", O_RDWR );
+	dup (0);
+	dup (0);
+	
+	/*
+	 * Do whatever you want as a DEAMON
+	 * 
+	 * Let's test laster with some threads and signals....
+	 * 
+	 */
+#endif
+
+	return 0;
 }
 
 void 
