@@ -51,7 +51,15 @@ int main(int argc, char* argv[])
 //	testProc.WaitPid();
 //	testProc.MySystem("vim");
 //	testProc.SessionID();
-	testProc.Demon();
+//	testProc.Demon();
+//	testProc.FdRedirecting();
+
+//	testProc.Nice();
+//	testProc.Priority();
+//	testProc.CpuAffinity();
+//	testProc.Scheduling();
+//	testProc.RetrieveResourceLimit();
+	testProc.ChangeResourceLimit();
 	
 	return 0;
 }

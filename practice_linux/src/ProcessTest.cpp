@@ -2,14 +2,21 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <fcntl.h>
+#include <errno.h>
+#include <sched.h>
 #include <linux/fs.h>
 
 #include "ProcessTest.h"
 #include "Logger.h"
+
+extern int errno;
 
 CProcTest::CProcTest()
 {
@@ -377,21 +384,302 @@ CProcTest::Demon()
 		close(i);
 		
 	// Redirect all standard i/o file descriptors to /dev/null
-	open( "/dev/null", O_RDWR );
-	dup (0);
-	dup (0);
+	FdRedirecting();
+//	open( "/dev/null", O_RDWR );
+//	dup (0);
+//	dup (0);
 	
 	/*
 	 * Do whatever you want as a DEAMON
 	 * 
 	 * Let's test laster with some threads and signals....
 	 * 
-	 */
+	 */	 
+	 
 #endif
 
 	return 0;
 }
 
+int		
+CProcTest::Nice()
+{
+	int ret = 0;
+	
+	// Get the current NICE
+	errno 	= 0;
+	ret 	= nice( 0 );
+
+	printf( "Nice:nice=%d\r\n", ret );
+	
+	// Try to update NICE below 0.
+	errno = 0;			// Clear errno first.	
+	int incNice = -10; 	// NICE can be between -29~10. 
+						// But this process must have 'CAP_SYS_NICE' function to go below 0 for NICE.
+	ret	= nice( incNice );
+	if ( errno )
+	{
+		perror("nice");
+	}
+	else
+		printf( "Nice:nice=%d(updated)\r\n", ret );
+	
+	return ret;
+}
+
+int
+CProcTest::Priority()
+{
+	int ret = 0;
+	
+	// Get the priority of the current process
+	int which 	= PRIO_PROCESS;	// or PRIO_PGRP, PRIO_USER
+	int who		= 0; 			// 0 means id of the current process, of the process group, or of user.
+	
+	errno = 0;
+	ret = getpriority( which, who );
+	if ( ret == -1 )
+		perror("getpriority");
+	else
+		printf("Priority: nice(current)=%d\r\n", ret );
+	
+	// Try to update the priority
+	which 	= PRIO_PGRP;
+	who		= 0;
+	
+	int priority = 10;
+	
+	errno = 0;
+	ret = setpriority( which, who, priority );
+	if ( ret == -1 )
+		perror("setpriority");
+	else
+	{
+		errno = 0;
+		ret = getpriority( which, who );
+		if ( ret == -1 ) 
+			perror("setpriority");
+		else
+			printf("Priority: nice(updated)=%d\r\n", ret );	
+	}
+	
+	return ret;
+}
+
+int		
+CProcTest::CpuAffinity()
+{
+	int ret = 0;
+		
+	cpu_set_t 	set;
+	pid_t		pid = 0; // current process	
+
+	// Check the current status.
+	CPU_ZERO( &set );
+	ret = sched_getaffinity( pid, sizeof(cpu_set_t), &set );
+	if ( ret == -1 )
+		perror("sched_getaffinity");
+	
+	int i;	
+	int cpuCheck = 8; // CPU_SETSIZE
+	for ( i = 0; i < cpuCheck; i++ )
+	{
+		int cpu;
+		
+		cpu = CPU_ISSET ( i, &set );
+		printf("cpu=%i, is %s\n", i, cpu ? "set" : "unset" );
+	}	
+	printf("\n");
+	
+	// Try to modify
+	CPU_ZERO( &set );
+	CPU_SET( 0, &set );
+	CPU_CLR( 1, &set );
+	CPU_CLR( 2, &set );
+	CPU_CLR( 3, &set );
+
+	for ( i = 0; i < cpuCheck; i++ )
+	{
+		int cpu;
+		
+		cpu = CPU_ISSET ( i, &set );
+		printf("cpu=%i, is %s\n", i, cpu ? "set" : "unset" );
+	}
+		
+	return ret;
+}
+
+int		
+CProcTest::Scheduling()
+{
+	int ret = 0;
+	
+	pid_t 	pid = 0; // current process
+	int 	policy;
+	
+	// Check the current scheduling policy
+	policy = sched_getscheduler( pid );
+	
+	std::string policyName = "Policy: ";
+	
+	switch ( policy )
+	{
+		case SCHED_OTHER:	policyName += "SCHED_OTHER( default policy for non real-time processes in Linux)"; 	break;
+		case SCHED_RR:		policyName += "SCHED_RR"; 		break;
+		case SCHED_FIFO:	policyName += "SCHED_FIFO"; 	break;
+		case SCHED_BATCH:	policyName += "SCHED_BATCH";	break;
+		case -1:			policyName += "-1"; break;
+		default: break;
+	}
+	
+	printf("%s\n", policyName.c_str() );
+	
+	// Try to update scheduling policy to a different one.
+	// It doesn't seem to work because of....limitations in users...?
+	struct sched_param sp = { .sched_priority = 1 };
+	
+	if ( sched_setscheduler( pid, SCHED_RR, &sp ) == -1 )
+	{
+		perror("sched_setscheduler");
+		return -1;
+	}
+	
+	policyName = "Policy(Updated): ";
+	
+	switch ( policy )
+	{
+		case SCHED_OTHER:	policyName += "SCHED_OTHER( default policy for non real-time processes in Linux)"; 	break;
+		case SCHED_RR:		policyName += "SCHED_RR"; 		break;
+		case SCHED_FIFO:	policyName += "SCHED_FIFO"; 	break;
+		case SCHED_BATCH:	policyName += "SCHED_BATCH";	break;
+		case -1:			policyName += "-1"; break;
+		default: break;
+	}
+	
+	printf("%s\n", policyName.c_str() );
+	
+	return ret;
+}
+
+int 
+CProcTest::RetrieveResourceLimit()
+{
+	int ret = 0;
+	
+	struct rlimit limit;
+	
+	enum
+	{
+		eNumResource = 16
+	};
+	
+	int typesResource[ eNumResource ] =
+	{
+		RLIMIT_AS,			// The maximum number of bytes of the address space for the processes
+		RLIMIT_CORE,		// The size of the maximum core file
+		RLIMIT_CPU,			// The maximum CPU time that this process can consume (second unit)
+		RLIMIT_DATA,		// The maximum size of data segment and heap all together for the processes
+		RLIMIT_FSIZE,		// The maximum size of a file that this process can produce
+		RLIMIT_LOCKS,		// The maximum number of file locks that processes can use
+		RLIMIT_MEMLOCK,		// The maximum number of bytes that can be locked
+		RLIMIT_MSGQUEUE,	// The maximum number of bytes that the user can allocate for POSIX message queues.
+		RLIMIT_NICE,		// The maximum value for nice to be lowered
+		RLIMIT_NOFILE,		// One number bigger than the maximum number of files that processes can open
+		RLIMIT_NPROC,		// The maximum number of processes that can be executed at a certain time
+		RLIMIT_RSS,			// The maximum nmber of pages on which processes reside
+		RLIMIT_RTTIME,		// The CPU time that FIFO processes can consume without blocking system calls
+		RLIMIT_RTPRIO,		// The maximum value for priority level that processes without 'CAP_SYS_NICE' can request
+		RLIMIT_SIGPENDING,	// The maximum number of signals that can be inserted to queues.
+		RLIMIT_STACK		// The maximum size of process stack in byte units
+	};
+	
+	const char* namesResource[eNumResource] =
+	{
+		"RLIMIT_AS",
+		"RLIMIT_CORE",
+		"RLIMIT_CPU",
+		"RLIMIT_DATA",
+		"RLIMIT_FSIZE",
+		"RLIMIT_LOCKS",
+		"RLIMIT_MEMLOCK",
+		"RLIMIT_MSGQUEUE",
+		"RLIMIT_NICE",
+		"RLIMIT_NOFILE",
+		"RLIMIT_NPROC",
+		"RLIMIT_RSS",
+		"RLIMIT_RTTIME",
+		"RLIMIT_RTPRIO",
+		"RLIMIT_SIGPENDING",
+		"RLIMIT_STACK"
+	};
+	
+	
+	printf("Retrieve resource limit information for the current process:\n");
+	printf("rlim_cur:soft limit, rlim_max:hard limit, (-): infinite\n");
+		
+	int i;
+	for ( i = 0; i < (int)eNumResource; i++ )
+	{
+		ret = getrlimit( typesResource[i], &limit );
+		
+		if ( ret == -1 )
+		{
+			perror("getrlimit");
+			break;
+		}
+		
+		printf("%18s	rlim_cur=%10ld, rlim_max=%10ld\n", namesResource[i], limit.rlim_cur, limit.rlim_max );
+	}
+	
+	return ret;
+}
+
+int 
+CProcTest::ChangeResourceLimit()
+{
+	int ret = 0;
+	
+	struct rlimit rlim;
+	
+	RetrieveResourceLimit();
+	
+	rlim.rlim_cur 	= 32*1024*1024;
+	rlim.rlim_max	= RLIM_INFINITY;
+
+	printf("ChangeResourceLimit: RLIMIT_CORE.rlim_cur=%ld\n",  rlim.rlim_cur);
+		
+	ret = setrlimit( RLIMIT_CORE, &rlim );
+	if ( ret == -1 )
+		perror("setrlimit");
+	
+	RetrieveResourceLimit();
+	
+	return ret;
+}
+
+int	
+CProcTest::FdRedirecting()
+{
+	const char*	path = "/dev/null";	// default
+//	const char* path = "/home/pi/git_repository/Sungsu_Lab/practice_linux/bin/testRedirecting.txt";
+	
+	int	fd0, fd1, fd2;
+
+	// I don't exactly understand how these works.
+	fd0	= open( path, O_RDWR );
+	fd1	= dup (0);
+	fd2	= dup (0);
+	
+	// At this time, fd0, fd1, and fd2 should be 0, 1, and 2 respectably.
+	// If not, this is dealt with an error according to Advanced Programming in Unix.... p.428.
+		
+	printf("test..fdStdIn=%d\r\n", 	fd0);
+	printf("test..fdStdOut=%d\r\n", fd1);
+	printf("test..fdStdErr=%d\r\n",	fd2);	
+	
+	return 0;
+}
+	
 void 
 CProcTest::ExitFunc1()
 {

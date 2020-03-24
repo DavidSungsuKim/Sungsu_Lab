@@ -9,17 +9,29 @@ public:
 	CProcTest();
 	~CProcTest();
 	
-	void 	GetPid	();
-	int		Exec	();
-	int		Fork	();
+	// Fundamental
+	void 	GetPid			();
+	int		Exec			();
+	int		Fork			();
 	
-	int		Exit	();
-	int		Wait	();
-	int		WaitPid	();
+	int		Exit			();
+	int		Wait			();
+	int		WaitPid			();
 	
-	int		MySystem( const char* aCmd );
-	int		SessionID();
-	int		Demon	();
+	int		MySystem		( const char* aCmd );
+	int		SessionID		();
+	int		Demon			();
+	
+	// Advanced
+	int		Nice			();
+	int		Priority		();
+	int		CpuAffinity		();
+	int		Scheduling		();
+	int		RetrieveResourceLimit();
+	int		ChangeResourceLimit();
+	
+	// Etc
+	int		FdRedirecting();
 	
 	static void ExitFunc1	();
 	static void ExitFunc2	();
