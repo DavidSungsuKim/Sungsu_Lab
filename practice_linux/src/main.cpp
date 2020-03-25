@@ -4,6 +4,7 @@
 #include "FileTest.h"
 #include "Logger.h"
 #include "ProcessTest.h"
+#include "PThreadTest.h"
 
 int main(int argc, char* argv[]) 
 {
@@ -42,7 +43,6 @@ int main(int argc, char* argv[])
 #endif
 	
 	CProcTest	testProc;
-	
 	testProc.GetPid();
 //	testProc.Exec();
 //	testProc.Fork();
@@ -59,7 +59,10 @@ int main(int argc, char* argv[])
 //	testProc.CpuAffinity();
 //	testProc.Scheduling();
 //	testProc.RetrieveResourceLimit();
-	testProc.ChangeResourceLimit();
+//	testProc.ChangeResourceLimit();
+	
+	CPThreadTest testPThread;
+	testPThread.CreateJoin();
 	
 	return 0;
 }
