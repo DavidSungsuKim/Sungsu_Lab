@@ -62,7 +62,8 @@ int main(int argc, char* argv[])
 //	testProc.ChangeResourceLimit();
 	
 	CPThreadTest testPThread;
-	testPThread.CreateJoin();
+//	testPThread.CreateJoin();
+	testPThread.SyncMutex();
 	
 	return 0;
 }

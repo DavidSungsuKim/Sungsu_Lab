@@ -1,7 +1,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <pthread.h>
 #include <unistd.h>
 //#include <sys/time.h>
 
@@ -12,7 +11,8 @@ int	CPThreadTest::m_retThread2	= 0;
 
 CPThreadTest::CPThreadTest()
 {
-	
+	m_mutex1 = PTHREAD_MUTEX_INITIALIZER;
+	m_mutex2 = PTHREAD_MUTEX_INITIALIZER;
 }
 
 CPThreadTest::~CPThreadTest()
@@ -72,6 +72,43 @@ CPThreadTest::CreateJoin()
 	return ret;
 }
 
+int 
+CPThreadTest::SyncMutex()
+{
+	int ret = 0;
+	pthread_t	thread1, thread2;
+	
+	// Create threads.
+	ret = pthread_create( &thread1, NULL, ThreadProcMutex1, this );
+	if ( ret )
+	{
+		perror("pthread_create");
+		return ret;
+	}
+	
+	printf("pthread_create, TID=%ld\n", thread1 );
+		
+	ret = pthread_create( &thread2, NULL, ThreadProcMutex2, this );
+	if ( ret )
+	{
+		perror("pthread_create");
+		return ret;
+	}
+
+	printf("pthread_create, TID=%ld\n", thread2 );
+
+	// Wait until threads finish their job.
+	ret = pthread_join( thread1, NULL );
+	if ( ret )
+		perror("pthread_join");
+	
+	ret = pthread_join( thread2, NULL );
+	if ( ret )
+		perror("pthread_join");
+		
+	return ret;
+}
+
 void* 
 CPThreadTest::ThreadProc1( void *arg )
 {
@@ -118,4 +155,58 @@ CPThreadTest::ThreadProc2( void *arg )
 #else	
 	return ( &m_retThread2 );
 #endif
+}
+
+void* 
+CPThreadTest::ThreadProcMutex1( void *arg )
+{
+	pthread_t	tid = pthread_self();
+	printf("ThreadProcMutex1: TID=%ld\n", tid );
+	
+	CPThreadTest* pThis = (CPThreadTest*)arg;
+	
+	int i = 5;
+	while(i--)
+	{
+		printf("ThreadProcMutex1:wait for mutex1\n");
+		pthread_mutex_lock( &pThis->m_mutex1 );
+		printf("ThreadProcMutex1:mutex1 locked, %d/%d\n", 5-i, 5);
+		
+		sleep(1);
+		
+		pthread_mutex_unlock( &pThis->m_mutex1 );
+		
+		sleep(0);
+		
+		printf("ThreadProcMutex1:mutex1 unlocked, %d/%d\n", 5-i, 5);
+	}
+	
+	return NULL;
+}
+
+void* 
+CPThreadTest::ThreadProcMutex2( void *arg )
+{
+	pthread_t	tid = pthread_self();
+	printf("ThreadProcMutex2: TID=%ld\n", tid );
+	
+	CPThreadTest* pThis = (CPThreadTest*)arg;
+	
+	int i = 5;
+	while(i--)
+	{
+		printf("ThreadProcMutex2:wait for mutex1\n");
+		pthread_mutex_lock( &pThis->m_mutex1 );
+		printf("ThreadProcMutex2:mutex1 locked, %d/%d\n", 5-i, 5);
+		
+		sleep(1);
+		
+		pthread_mutex_unlock( &pThis->m_mutex1 );
+		
+		sleep(0);
+				
+		printf("ThreadProcMutex2:mutex1 unlocked, %d/%d\n", 5-i, 5);
+	}
+	
+	return NULL;
 }
