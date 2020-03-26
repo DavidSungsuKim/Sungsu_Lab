@@ -11,8 +11,19 @@ int	CPThreadTest::m_retThread2	= 0;
 
 CPThreadTest::CPThreadTest()
 {
-	m_mutex1 = PTHREAD_MUTEX_INITIALIZER;
-	m_mutex2 = PTHREAD_MUTEX_INITIALIZER;
+	m_bMakeDeadLock = false;
+	
+	// Initialize mutexes by Option 1 or 2.
+	// Note that if mutexes are created on dynamic memory,
+	// users need to call pthread_mutex_destroy() before freeing memory.
+	
+	// Option 1.
+//	m_SharedResource.mutex = PTHREAD_MUTEX_INITIALIZER;
+	
+	// Option 2.
+	pthread_mutex_init( &m_SharedResource.mutex, NULL );
+	
+	m_SharedResource.data = 0;
 }
 
 CPThreadTest::~CPThreadTest()
@@ -72,43 +83,6 @@ CPThreadTest::CreateJoin()
 	return ret;
 }
 
-int 
-CPThreadTest::SyncMutex()
-{
-	int ret = 0;
-	pthread_t	thread1, thread2;
-	
-	// Create threads.
-	ret = pthread_create( &thread1, NULL, ThreadProcMutex1, this );
-	if ( ret )
-	{
-		perror("pthread_create");
-		return ret;
-	}
-	
-	printf("pthread_create, TID=%ld\n", thread1 );
-		
-	ret = pthread_create( &thread2, NULL, ThreadProcMutex2, this );
-	if ( ret )
-	{
-		perror("pthread_create");
-		return ret;
-	}
-
-	printf("pthread_create, TID=%ld\n", thread2 );
-
-	// Wait until threads finish their job.
-	ret = pthread_join( thread1, NULL );
-	if ( ret )
-		perror("pthread_join");
-	
-	ret = pthread_join( thread2, NULL );
-	if ( ret )
-		perror("pthread_join");
-		
-	return ret;
-}
-
 void* 
 CPThreadTest::ThreadProc1( void *arg )
 {
@@ -157,6 +131,47 @@ CPThreadTest::ThreadProc2( void *arg )
 #endif
 }
 
+int 
+CPThreadTest::SyncMutex( bool abMakeDeadLock )
+{
+	int ret = 0;
+	pthread_t	thread1, thread2;
+	
+	m_bMakeDeadLock = abMakeDeadLock;
+	
+	// Create threads.
+	ret = pthread_create( &thread1, NULL, ThreadProcMutex1, this );
+	if ( ret )
+	{
+		perror("pthread_create");
+		return ret;
+	}
+	
+	printf("pthread_create, TID=%ld\n", thread1 );
+		
+	ret = pthread_create( &thread2, NULL, ThreadProcMutex2, this );
+	if ( ret )
+	{
+		perror("pthread_create");
+		return ret;
+	}
+
+	printf("pthread_create, TID=%ld\n", thread2 );
+
+	// Wait until threads finish their job.
+	ret = pthread_join( thread1, NULL );
+	if ( ret )
+		perror("pthread_join");
+	
+	ret = pthread_join( thread2, NULL );
+	if ( ret )
+		perror("pthread_join");
+		
+	m_bMakeDeadLock = false;
+	
+	return ret;
+}
+
 void* 
 CPThreadTest::ThreadProcMutex1( void *arg )
 {
@@ -168,17 +183,25 @@ CPThreadTest::ThreadProcMutex1( void *arg )
 	int i = 5;
 	while(i--)
 	{
-		printf("ThreadProcMutex1:wait for mutex1\n");
-		pthread_mutex_lock( &pThis->m_mutex1 );
-		printf("ThreadProcMutex1:mutex1 locked, %d/%d\n", 5-i, 5);
+		printf("ThreadProcMutex1:wait for mutex\n");
+		pthread_mutex_lock( &pThis->m_SharedResource.mutex );
+		
+		pThis->m_SharedResource.data++;
+		
+		if ( pThis->m_bMakeDeadLock )
+		{
+			printf("ThreadProcMutex1:Deadlock will happen...\n");	
+			// Try to lock the mutex twice and get stuck.
+			pthread_mutex_lock( &pThis->m_SharedResource.mutex );
+		}
+		
+		printf("ThreadProcMutex1:mutex locked, %d/%d, data=%d\n", 5-i, 5, pThis->m_SharedResource.data );
 		
 		sleep(1);
 		
-		pthread_mutex_unlock( &pThis->m_mutex1 );
+		pthread_mutex_unlock( &pThis->m_SharedResource.mutex );
 		
-		sleep(0);
-		
-		printf("ThreadProcMutex1:mutex1 unlocked, %d/%d\n", 5-i, 5);
+	//	sleep(0);
 	}
 	
 	return NULL;
@@ -195,18 +218,79 @@ CPThreadTest::ThreadProcMutex2( void *arg )
 	int i = 5;
 	while(i--)
 	{
-		printf("ThreadProcMutex2:wait for mutex1\n");
-		pthread_mutex_lock( &pThis->m_mutex1 );
-		printf("ThreadProcMutex2:mutex1 locked, %d/%d\n", 5-i, 5);
+		printf("ThreadProcMutex2:wait for mutex\n");
+		pthread_mutex_lock( &pThis->m_SharedResource.mutex );
+		printf("ThreadProcMutex2:mutex locked, %d/%d\n", 5-i, 5);
 		
+		pThis->m_SharedResource.data++;
+		
+		printf("ThreadProcMutex2:mutex locked, %d/%d, data=%d\n", 5-i, 5, pThis->m_SharedResource.data );
+				
 		sleep(1);
 		
-		pthread_mutex_unlock( &pThis->m_mutex1 );
+		pthread_mutex_unlock( &pThis->m_SharedResource.mutex );
 		
-		sleep(0);
-				
-		printf("ThreadProcMutex2:mutex1 unlocked, %d/%d\n", 5-i, 5);
+	//	sleep(0);
 	}
+	
+	return NULL;
+}
+
+int	
+CPThreadTest::ReaderWriterLocks()
+{
+	int ret = 0;
+	pthread_t	thread1, thread2;
+	
+	// Create threads.
+	ret = pthread_create( &thread1, NULL, ThreadProcRWLocks1, this );
+	if ( ret )
+	{
+		perror("pthread_create");
+		return ret;
+	}
+	
+	printf("pthread_create, TID=%ld\n", thread1 );
+		
+	ret = pthread_create( &thread2, NULL, ThreadProcRWLocks2, this );
+	if ( ret )
+	{
+		perror("pthread_create");
+		return ret;
+	}
+
+	printf("pthread_create, TID=%ld\n", thread2 );
+
+	// Wait until threads finish their job.
+	ret = pthread_join( thread1, NULL );
+	if ( ret )
+		perror("pthread_join");
+	
+	ret = pthread_join( thread2, NULL );
+	if ( ret )
+		perror("pthread_join");
+		
+	return ret;
+}
+
+void* 
+CPThreadTest::ThreadProcRWLocks1(void* arg)
+{
+	CPThreadTest* pThis = (CPThreadTest*)arg;
+	
+	/* TBD */
+	pThis;
+	
+	return NULL;
+}
+
+void* 
+CPThreadTest::ThreadProcRWLocks2(void* arg)
+{
+	CPThreadTest* pThis = (CPThreadTest*)arg;
+
+	/* TBD */		
+	pThis;
 	
 	return NULL;
 }

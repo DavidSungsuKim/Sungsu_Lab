@@ -12,11 +12,22 @@ public:
 	~CPThreadTest();
 	
 	int CreateJoin	();
-	int SyncMutex	();
+	int SyncMutex	( bool abMakeDeadLock = false );
 	
+	int	ReaderWriterLocks();
+		
 	// Callback functions for threads
 	
 protected:
+	bool			m_bMakeDeadLock;
+
+	struct 
+	{
+		int data;
+		pthread_mutex_t mutex;
+		
+	}m_SharedResource;
+
 	pthread_mutex_t	m_mutex1;
 	pthread_mutex_t	m_mutex2;
 	
@@ -27,5 +38,8 @@ protected:
 	static void* ThreadProc2		(void* arg);
 	
 	static void* ThreadProcMutex1	(void* arg);	
-	static void* ThreadProcMutex2	(void* arg);	
+	static void* ThreadProcMutex2	(void* arg);
+	
+	static void* ThreadProcRWLocks1	(void* arg);
+	static void* ThreadProcRWLocks2	(void* arg);
 };
