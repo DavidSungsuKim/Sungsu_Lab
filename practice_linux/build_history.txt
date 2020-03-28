@@ -1,4 +1,6 @@
-
+Mar 28, 2020
+	1. added attibutes setting codes for mutex.
+			modified:   src/PThreadTest.cpp
 
 Mar 27, 2020
 	1. added ConditionVariable() and related test functions.
