@@ -63,8 +63,9 @@ int main(int argc, char* argv[])
 	
 	CPThreadTest testPThread;
 //	testPThread.CreateJoin();
-	testPThread.SyncMutex( false /*abMakedeadlock*/ );
-//	testPThread.ReaderWriterLocks();
+//	testPThread.SyncMutex( false /*abMakedeadlock*/ );
+//	testPThread.ReaderWriterLocks();	/*TBD*/
+	testPThread.ConditionVariable();
 	
 	return 0;
 }

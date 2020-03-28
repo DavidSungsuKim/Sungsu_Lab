@@ -1,6 +1,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 //#include <sys/time.h>
 
@@ -24,11 +25,15 @@ CPThreadTest::CPThreadTest()
 	pthread_mutex_init( &m_SharedResource.mutex, NULL );
 	
 	m_SharedResource.data = 0;
+	
+	InitConditionVariable();
 }
 
 CPThreadTest::~CPThreadTest()
 {
+	pthread_mutex_destroy( &m_SharedResource.mutex );
 	
+	UninitConditionVariable();
 }
 
 int 
@@ -279,7 +284,7 @@ CPThreadTest::ThreadProcRWLocks1(void* arg)
 	CPThreadTest* pThis = (CPThreadTest*)arg;
 	
 	/* TBD */
-	pThis;
+	pThis = pThis;
 	
 	return NULL;
 }
@@ -290,7 +295,128 @@ CPThreadTest::ThreadProcRWLocks2(void* arg)
 	CPThreadTest* pThis = (CPThreadTest*)arg;
 
 	/* TBD */		
-	pThis;
+	pThis = pThis;
 	
+	return NULL;
+}
+
+int
+CPThreadTest::ConditionVariable()
+{
+	int ret = 0;
+	pthread_t	thread1, thread2;
+	
+	// Create threads.
+	ret = pthread_create( &thread1, NULL, ThreadProducer, this );
+	if ( ret )
+	{
+		perror("pthread_create");
+		return ret;
+	}
+	
+	printf("pthread_create, TID=%ld\n", thread1 );
+		
+	ret = pthread_create( &thread2, NULL, ThreadConsumer, this );
+	if ( ret )
+	{
+		perror("pthread_create");
+		return ret;
+	}
+
+	printf("pthread_create, TID=%ld\n", thread2 );
+
+	// Wait until threads finish their job.
+	ret = pthread_join( thread1, NULL );
+	if ( ret )
+		perror("pthread_join");
+	
+	ret = pthread_join( thread2, NULL );
+	if ( ret )
+		perror("pthread_join");
+		
+	return ret;
+}
+
+void
+CPThreadTest::InitConditionVariable()
+{
+	pthread_mutex_init( &m_Cond.mutex, NULL );
+	pthread_cond_init( &m_Cond.cond, NULL );
+	memset( m_Cond.msg, 0, sizeof(m_Cond.msg));
+}
+
+void		
+CPThreadTest::UninitConditionVariable()
+{
+	pthread_mutex_destroy( &m_Cond.mutex );
+	pthread_cond_destroy( &m_Cond.cond );	
+}
+	
+void* 
+CPThreadTest::ThreadProducer(void* arg)
+{
+	CPThreadTest* 	pThis = (CPThreadTest*)arg;
+	StCondition*	pCond = &pThis->m_Cond;
+	if ( !pCond )
+		return NULL;
+	
+	printf("ThreadProducer: Start...\n");
+	printf("ThreadProducer: Put any message.\n(Put 'quit' if you want to finish.)\n");
+	
+	for(;;)
+	{
+		char msg[256] = {0,};
+		scanf("%s", msg);
+			
+		pthread_mutex_lock( &pCond->mutex );
+		
+		memcpy( pCond->msg, msg, sizeof(msg));		
+		
+		pthread_mutex_unlock( &pCond->mutex );
+		pthread_cond_signal( &pCond->cond );
+		
+		if( !strcmp( msg, "quit" ) )
+		{
+			printf("Quit okay...\n");
+			break;
+		}
+		
+		sleep(0);
+	}	
+	
+	printf("ThreadProducer: End...\n");
+	return NULL;
+}
+
+void* 
+CPThreadTest::ThreadConsumer(void* arg)
+{
+	CPThreadTest* 	pThis = (CPThreadTest*)arg;
+	StCondition*	pCond = &pThis->m_Cond;
+	if ( !pCond )
+		return NULL;
+	
+	printf("	ThreadConsumer: Start...\n");
+		
+	for(;;)
+	{
+		pthread_mutex_lock( &pCond->mutex );
+		while( pCond->msg[0] == '\0' )
+			pthread_cond_wait( &pCond->cond, &pCond->mutex );
+	
+		printf("	ThreadConsumer: Msg=%s\n", pCond->msg );
+		
+		if ( !strcmp( pCond->msg, "quit" ) )
+		{
+			pthread_mutex_unlock( &pCond->mutex );
+			break;
+		}
+		
+		memset( pCond->msg, 0, sizeof(pCond->msg));
+		
+		pthread_mutex_unlock( &pCond->mutex );
+	}	
+	
+	printf("	ThreadConsumer: End...\n");
 	return NULL;
 }
