@@ -340,6 +340,25 @@ CPThreadTest::ConditionVariable()
 void
 CPThreadTest::InitConditionVariable()
 {
+	// Refer these when attributes should be changed from default values.
+/*	pthread_mutexattr_t mutexAttr;
+	pthread_mutexattr_init( &mutexAttr);
+
+//	pthread_mutexattr_gettype( &mutexAttr );
+	pthread_mutexattr_settype( &mutexAttr, PTHREAD_MUTEX_RECURSIVE );		
+	// PTHREAD_MUTEX_NORMAL		: default type on Linux
+	// PTHREAD_MUTEX_DEFAULT	: 
+	// PTHREAD_MUTEX_RECURSIVE	: multiple locking is allowed. 
+	
+	pthread_mutexattr_setpshared( &mutexAttr, PTHREAD_PROCESS_PRIVATE ); 	
+	// PTHREAD_PROCESS_SHARED	: the mutex can be shared between processes, but it requires more resources.
+	// PTHREAD_PROCESS_PRIVATE	: the default and it's more efficient
+	
+	pthread_mutexattr_
+	pthread_mutex_init( &m_Cond.mutex, &mutexAttr );
+	*/
+		
+	// Codes used
 	pthread_mutex_init( &m_Cond.mutex, NULL );
 	pthread_cond_init( &m_Cond.cond, NULL );
 	memset( m_Cond.msg, 0, sizeof(m_Cond.msg));
@@ -400,9 +419,19 @@ CPThreadTest::ThreadConsumer(void* arg)
 		
 	for(;;)
 	{
-		pthread_mutex_lock( &pCond->mutex );
+		pthread_mutex_lock( &pCond->mutex );	// I think the reason we lock the mutex here is for situations 
+												// we deal with some data protected by the mutex.
 		while( pCond->msg[0] == '\0' )
-			pthread_cond_wait( &pCond->cond, &pCond->mutex );
+		{
+			int ret;
+			ret = pthread_cond_wait( &pCond->cond, &pCond->mutex );
+			if ( ret )
+			{
+				pthread_mutex_unlock( &pCond->mutex );				
+				printf("	ThreadConsumer: %d=pthread_mutex_unlock'n", ret );
+				break;
+			}
+		}
 	
 		printf("	ThreadConsumer: Msg=%s\n", pCond->msg );
 		
