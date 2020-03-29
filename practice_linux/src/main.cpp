@@ -65,7 +65,8 @@ int main(int argc, char* argv[])
 //	testPThread.CreateJoin();
 //	testPThread.SyncMutex( false /*abMakedeadlock*/ );
 //	testPThread.ReaderWriterLocks();	/*TBD*/
-	testPThread.ConditionVariable();
+//	testPThread.ConditionVariable();
+	testPThread.RecursiveMutex();
 	
 	return 0;
 }

@@ -4,6 +4,8 @@
 #endif
 
 #include <pthread.h>
+#include <time.h>
+#include <sys/time.h>
 
 class CPThreadTest
 {
@@ -16,9 +18,8 @@ public:
 	
 	int	ReaderWriterLocks	();
 	int ConditionVariable	();
+	int RecursiveMutex		();
 		
-	// Callback functions for threads
-	
 protected:
 	bool	m_bMakeDeadLock;
 
@@ -29,6 +30,22 @@ protected:
 		
 	}m_SharedResource;
 
+	pthread_mutex_t	m_mutex1;
+	pthread_mutex_t	m_mutex2;
+	
+	static int		m_retThread1;
+	static int		m_retThread2;
+		
+	static void* ThreadProc1		(void* arg);
+	static void* ThreadProc2		(void* arg);
+	
+	static void* ThreadProcMutex1	(void* arg);	
+	static void* ThreadProcMutex2	(void* arg);
+	
+	static void* ThreadProcRWLocks1	(void* arg);
+	static void* ThreadProcRWLocks2	(void* arg);
+	
+	// For ConditionVariable()
 	typedef struct stCondition
 	{
 	/*	struct message
@@ -44,26 +61,22 @@ protected:
 	}StCondition;
 
 	StCondition		m_Cond;
-
-	pthread_mutex_t	m_mutex1;
-	pthread_mutex_t	m_mutex2;
 	
-	static int		m_retThread1;
-	static int		m_retThread2;
+	void	InitConditionVariable	();
+	void	UninitConditionVariable	();
 	
-	void		InitConditionVariable	();
-	void		UninitConditionVariable	();
-	
-	static void* ThreadProc1		(void* arg);
-	static void* ThreadProc2		(void* arg);
-	
-	static void* ThreadProcMutex1	(void* arg);	
-	static void* ThreadProcMutex2	(void* arg);
-	
-	static void* ThreadProcRWLocks1	(void* arg);
-	static void* ThreadProcRWLocks2	(void* arg);
-	
-	// For ConditionVariable()
 	static void* ThreadProducer		(void* arg);
 	static void* ThreadConsumer		(void* arg);
+	
+	// For RecursiveMutex()
+	pthread_mutex_t	m_mutexRecur;
+	
+	void	InitRecursiveMutex		();
+	void	UninitRecursiveMutex	();
+	
+	void	Timeout					( /*const*/ struct timespec* when, void (*func)(void*), void* arg );	
+	
+	static void* 	Timeout_helper		(void* arg);
+	static void  	Retry				(void* arg);
+	static void*	TimeStamp			(void* arg);
 };

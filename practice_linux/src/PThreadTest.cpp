@@ -10,6 +10,13 @@
 int	CPThreadTest::m_retThread1 	= 0;
 int	CPThreadTest::m_retThread2	= 0;
 
+struct to_info
+{
+	void	(*to_fn)(void*);
+	void*	to_arg;
+	struct 	timespec to_wait;
+};
+
 CPThreadTest::CPThreadTest()
 {
 	m_bMakeDeadLock = false;
@@ -27,6 +34,7 @@ CPThreadTest::CPThreadTest()
 	m_SharedResource.data = 0;
 	
 	InitConditionVariable();
+	InitRecursiveMutex();
 }
 
 CPThreadTest::~CPThreadTest()
@@ -34,6 +42,7 @@ CPThreadTest::~CPThreadTest()
 	pthread_mutex_destroy( &m_SharedResource.mutex );
 	
 	UninitConditionVariable();
+	UninitRecursiveMutex();
 }
 
 int 
@@ -447,5 +456,178 @@ CPThreadTest::ThreadConsumer(void* arg)
 	}	
 	
 	printf("	ThreadConsumer: End...\n");
+	return NULL;
+}
+
+int		
+CPThreadTest::RecursiveMutex()
+{	
+	int condition;
+	
+	struct timeval	tv;
+	struct timespec when;
+	gettimeofday( &tv, NULL );
+	
+	time_t 	sec 	= 5;
+	long	nsec	= 0;
+	
+	when.tv_sec 	= tv.tv_sec + sec;
+	when.tv_nsec	= tv.tv_usec * 1000 + nsec;
+	condition		= 1;
+	
+	printf("RecursiveMutex: timeout %ld.%ld[sec]\n", sec, nsec/1000 );
+		
+	pthread_mutex_lock( &m_mutexRecur );
+	printf("RecursiveMutex: mutex locked\n");
+		
+	if ( condition )
+	{
+		Timeout( &when, Retry, (void*)this );
+	}
+	
+	pthread_mutex_unlock( &m_mutexRecur );
+	printf("RecursiveMutex: mutex unlocked\n");
+	
+	sleep( sec + 3 );
+		
+	return 0;
+}
+
+void	
+CPThreadTest::InitRecursiveMutex()
+{
+	pthread_mutexattr_t mutexAttr;
+	pthread_mutexattr_init( &mutexAttr);
+
+	pthread_mutexattr_settype( &mutexAttr, PTHREAD_MUTEX_RECURSIVE );
+	pthread_mutex_init( &m_mutexRecur, &mutexAttr );
+	
+	pthread_mutexattr_destroy( &mutexAttr );
+}
+
+void	
+CPThreadTest::UninitRecursiveMutex()
+{
+	pthread_mutex_destroy( &m_mutexRecur );	
+}
+
+void	
+CPThreadTest::Timeout( /*const*/ struct timespec* when, void (*func)(void*), void* arg )
+{
+#define SECTONSEC 	1000000000
+#define USECTONSEC	1000
+
+	struct timespec now;
+	struct timeval	tv;
+	struct to_info*	tip;
+	
+	gettimeofday( &tv, NULL );
+	now.tv_sec		= tv.tv_sec;
+	now.tv_nsec		= tv.tv_usec * USECTONSEC;
+		
+	if (( when->tv_sec > now.tv_sec ) ||
+		(( when->tv_sec == now.tv_sec ) && ( when->tv_nsec > now.tv_nsec )))
+	{	
+		tip = (struct to_info*)malloc( sizeof(struct to_info) );	// This must be deleted
+		if ( tip != NULL )
+		{
+			tip->to_fn				= func;
+			tip->to_arg				= arg;
+			tip->to_wait.tv_sec		= when->tv_sec	- now.tv_sec;
+			
+			if ( when->tv_nsec >= now.tv_nsec )
+			{
+				tip->to_wait.tv_nsec = when->tv_nsec - now.tv_nsec;
+			}
+			else
+			{
+				tip->to_wait.tv_sec--;
+				tip->to_wait.tv_nsec = SECTONSEC - now.tv_nsec + when->tv_nsec;
+			}
+			
+			printf("Timeout: wait time=%ld.%ld[sec]\n", tip->to_wait.tv_sec, tip->to_wait.tv_nsec/1000 );
+						
+			pthread_t	thread, threadCheck;
+			int 		err;
+							
+			err = pthread_create( &thread, NULL, Timeout_helper, (void*)tip  );
+			if ( err == 0 )
+			{
+				pthread_create( &threadCheck, NULL, TimeStamp, (void*)tip  );
+				return;
+			}
+		}
+	}
+		
+	(*func)(arg);	
+}
+
+void* 
+CPThreadTest::Timeout_helper(void* arg)
+{
+	struct to_info*	tip;
+	
+	tip = (struct to_info*)arg;
+	
+	struct timeval	tStart;
+	struct timeval	tEnd;
+	
+	printf("Timeout_helper: nanosleep start...%ld.%ld[sec]\n", tip->to_wait.tv_sec, tip->to_wait.tv_nsec/1000 );
+	
+	gettimeofday( &tStart, NULL );
+	
+	nanosleep( &tip->to_wait, NULL );
+
+	gettimeofday( &tEnd, NULL );
+	
+	time_t 	tElapsedSec 	= tEnd.tv_sec - tStart.tv_sec;
+	long	tElapsedUsec;
+	
+	if ( tEnd.tv_usec < tStart.tv_usec )
+	{
+		tElapsedSec--;
+		tElapsedUsec = 1000000000 + tEnd.tv_usec - tStart.tv_usec;
+	}
+	else
+		tElapsedUsec = tEnd.tv_usec - tStart.tv_usec;
+	
+	printf("Timeout_helper: nanosleep end...elapsed=%ld.%ld[sec]\n", (long)tElapsedSec, tElapsedUsec );
+	
+	(*tip->to_fn)( tip->to_arg );
+	
+	// Important
+	free( tip );
+	
+	return (0);
+}
+
+void
+CPThreadTest::Retry(void* arg)
+{
+	CPThreadTest* pThis = (CPThreadTest*)arg;
+	
+	pthread_mutex_lock( &pThis->m_mutexRecur );
+	printf("Retry: mutex is locked...\n");
+	
+	pthread_mutex_unlock( &pThis->m_mutexRecur );
+	printf("Retry: mutex is unlocked...\n");
+}
+
+void*	
+CPThreadTest::TimeStamp(void* arg)
+{
+	struct to_info*	tip;
+	
+	tip = (struct to_info*)arg;
+
+	int timeSec = tip->to_wait.tv_sec + 1;
+	int i = 0;
+	
+	while( timeSec-- )
+	{
+		sleep(1);
+		printf("TimePrint:	%d[sec]\n", ++i );
+	}
+	
 	return NULL;
 }
