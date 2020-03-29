@@ -1,6 +1,11 @@
 Mar 28, 2020
 	1. added attibutes setting codes for mutex.
 		modified:   src/PThreadTest.cpp
+		
+	1. added RecursiveMutex() and supporting functions for it.
+		modified:   include/PThreadTest.h
+		modified:   src/PThreadTest.cpp
+		modified:   src/main.cpp
 
 Mar 27, 2020
 	1. added ConditionVariable() and related test functions.
