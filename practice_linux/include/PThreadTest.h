@@ -19,6 +19,8 @@ public:
 	int	ReaderWriterLocks	();
 	int ConditionVariable	();
 	int RecursiveMutex		();
+
+	int	ThreadNSignal		();
 		
 protected:
 	bool	m_bMakeDeadLock;
@@ -79,4 +81,14 @@ protected:
 	static void* 	Timeout_helper		(void* arg);
 	static void  	Retry				(void* arg);
 	static void*	TimeStamp			(void* arg);
+	
+	// For ThreadNSignal
+	int				m_quitFlag;
+	sigset_t		m_mask;
+	pthread_mutex_t	m_mutexSig;
+	pthread_cond_t	m_condSig;
+	
+	void 	InitThreadSignal		();
+	void	UninitThreadSignal		();
+	static void*	ThreadSignal	(void* arg);
 };

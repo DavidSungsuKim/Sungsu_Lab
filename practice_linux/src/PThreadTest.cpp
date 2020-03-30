@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 //#include <sys/time.h>
 
 #include "PThreadTest.h"
@@ -35,6 +36,7 @@ CPThreadTest::CPThreadTest()
 	
 	InitConditionVariable();
 	InitRecursiveMutex();
+	InitThreadSignal();
 }
 
 CPThreadTest::~CPThreadTest()
@@ -43,6 +45,7 @@ CPThreadTest::~CPThreadTest()
 	
 	UninitConditionVariable();
 	UninitRecursiveMutex();
+	UninitThreadSignal();
 }
 
 int 
@@ -629,5 +632,135 @@ CPThreadTest::TimeStamp(void* arg)
 		printf("TimePrint:	%d[sec]\n", ++i );
 	}
 	
+	return NULL;
+}
+
+int	
+CPThreadTest::ThreadNSignal()
+{
+	int err;
+	sigset_t	oldmask;
+	pthread_t	tid;
+	
+	printf("ThreadNSignal: start..\n");
+	
+	sigemptyset( &m_mask );
+	sigaddset( &m_mask, SIGINT );
+	sigaddset( &m_mask, SIGQUIT );
+	
+	err = pthread_sigmask( SIG_BLOCK, &m_mask, &oldmask);
+	if ( err != 0 )
+	{
+		printf("ThreadNSignal: SIG_BLOCK error\n");
+		return -1;
+	}
+		
+	err = pthread_create( &tid, NULL, ThreadSignal, this );
+	if ( err != 0 )
+	{
+		printf("ThreadNSignal: pthread_create\n");
+		return -1;		
+	}
+	
+	pthread_mutex_lock( &m_mutexSig );
+	while( m_quitFlag < 3 )
+	{
+		// Would it be okay if I wait for the condition repeatedly like this?
+		pthread_cond_wait( &m_condSig, &m_mutexSig );
+		printf("ThreadNSignal: condition signaled...m_quitFlag=%d\n", m_quitFlag );
+		
+		// Once pthread_cond_wait() is returned, the mutex can remain unlocked. Is that okay?
+		// 	: I think we should have taken mutex before evaluating 'm_quitFlag' again.		
+		int ret;
+	//	sleep(1);	
+	//	pthread_mutex_unlock( &m_mutexSig );
+		
+		ret = pthread_mutex_trylock( &m_mutexSig );	// But it doesn't seem to lock again since it appear to remain locked.
+		if ( ret != 0 )								// Interesting...hm...
+			printf("ThreadNSignal: trylock fail, EBUSY?, which means it's alread locked?\n");
+	}
+		
+	pthread_mutex_unlock( &m_mutexSig );
+	
+	m_quitFlag = 0;
+	
+	if ( sigprocmask( SIG_SETMASK, &oldmask, NULL ) < 0 )
+	{
+		printf("ThreadNSignal: SIG_SETMASK error\n");
+		return -1;
+	}
+	
+	printf("ThreadNSignal: end...\n");
+		
+	return 0;		
+}
+
+void 	
+CPThreadTest::InitThreadSignal()
+{
+	m_mutexSig 	= PTHREAD_MUTEX_INITIALIZER;
+	m_condSig	= PTHREAD_COND_INITIALIZER;
+	
+	m_quitFlag	= 0;
+}
+
+void	
+CPThreadTest::UninitThreadSignal()
+{
+	
+}
+
+void*	
+CPThreadTest::ThreadSignal(void* arg)
+{
+	CPThreadTest*	pThis = (CPThreadTest*)arg;
+	
+	int err, signo;	
+
+	printf("	ThreadSignal: start...\n" );
+	
+	for(;;)
+	{
+		err = sigwait( &pThis->m_mask, &signo );
+		if ( err != 0 )
+		{
+			printf("	ThreadSignal: sigwait err=%d\n", err );
+			break;
+		}
+		
+		switch( signo )
+		{
+		case SIGINT:
+			printf("	ThreadSignal: SIGINT, signo=%d\n", signo );				
+			break;
+			
+		case SIGQUIT:
+			printf("	ThreadSignal: SIGQUIT, signo=%d\n", signo );			
+			
+			int quit;
+			pthread_mutex_lock( &pThis->m_mutexSig );
+		
+			quit = ++(pThis->m_quitFlag);
+						
+			pthread_mutex_unlock( &pThis->m_mutexSig );
+			
+			printf("	ThreadSignal: m_quitFlag=%d\n", quit );
+						
+			pthread_cond_signal( &pThis->m_condSig );
+	
+			if ( pThis->m_quitFlag > 3 )
+			{
+				printf("	ThreadSignal: end...by SIGQUIT\n" );
+				return(0);
+			}
+			break;
+			
+		default:		
+			printf("	ThreadSignal: Unexpected signal, signo=%d\n", signo );
+			break;
+		}
+	}
+	
+	printf("	ThreadSignal: end...\n" );	
 	return NULL;
 }
