@@ -1,3 +1,8 @@
+Mar 30, 2020
+	1. added new files.
+		practice_linux/include/SignalTest.h
+		practice_linux/src/SignalTest.cpp	
+
 Mar 28, 2020
 	1. added 'int ThreadNSignal	()' and supporting functions.
 		modified:   include/PThreadTest.h
