@@ -3,12 +3,20 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 //#include <sys/time.h>
 
 #include "PThreadTest.h"
 
 int	CPThreadTest::m_retThread1 	= 0;
 int	CPThreadTest::m_retThread2	= 0;
+
+struct to_info
+{
+	void	(*to_fn)(void*);
+	void*	to_arg;
+	struct 	timespec to_wait;
+};
 
 CPThreadTest::CPThreadTest()
 {
@@ -27,6 +35,8 @@ CPThreadTest::CPThreadTest()
 	m_SharedResource.data = 0;
 	
 	InitConditionVariable();
+	InitRecursiveMutex();
+	InitThreadSignal();
 }
 
 CPThreadTest::~CPThreadTest()
@@ -34,6 +44,8 @@ CPThreadTest::~CPThreadTest()
 	pthread_mutex_destroy( &m_SharedResource.mutex );
 	
 	UninitConditionVariable();
+	UninitRecursiveMutex();
+	UninitThreadSignal();
 }
 
 int 
@@ -340,6 +352,25 @@ CPThreadTest::ConditionVariable()
 void
 CPThreadTest::InitConditionVariable()
 {
+	// Refer these when attributes should be changed from default values.
+/*	pthread_mutexattr_t mutexAttr;
+	pthread_mutexattr_init( &mutexAttr);
+
+//	pthread_mutexattr_gettype( &mutexAttr );
+	pthread_mutexattr_settype( &mutexAttr, PTHREAD_MUTEX_RECURSIVE );		
+	// PTHREAD_MUTEX_NORMAL		: default type on Linux
+	// PTHREAD_MUTEX_DEFAULT	: 
+	// PTHREAD_MUTEX_RECURSIVE	: multiple locking is allowed. 
+	
+	pthread_mutexattr_setpshared( &mutexAttr, PTHREAD_PROCESS_PRIVATE ); 	
+	// PTHREAD_PROCESS_SHARED	: the mutex can be shared between processes, but it requires more resources.
+	// PTHREAD_PROCESS_PRIVATE	: the default and it's more efficient
+	
+	pthread_mutexattr_
+	pthread_mutex_init( &m_Cond.mutex, &mutexAttr );
+	*/
+		
+	// Codes used
 	pthread_mutex_init( &m_Cond.mutex, NULL );
 	pthread_cond_init( &m_Cond.cond, NULL );
 	memset( m_Cond.msg, 0, sizeof(m_Cond.msg));
@@ -400,9 +431,19 @@ CPThreadTest::ThreadConsumer(void* arg)
 		
 	for(;;)
 	{
-		pthread_mutex_lock( &pCond->mutex );
+		pthread_mutex_lock( &pCond->mutex );	// I think the reason we lock the mutex here is for situations 
+												// we deal with some data protected by the mutex.
 		while( pCond->msg[0] == '\0' )
-			pthread_cond_wait( &pCond->cond, &pCond->mutex );
+		{
+			int ret;
+			ret = pthread_cond_wait( &pCond->cond, &pCond->mutex );
+			if ( ret )
+			{
+				pthread_mutex_unlock( &pCond->mutex );				
+				printf("	ThreadConsumer: %d=pthread_mutex_unlock'n", ret );
+				break;
+			}
+		}
 	
 		printf("	ThreadConsumer: Msg=%s\n", pCond->msg );
 		
@@ -418,5 +459,308 @@ CPThreadTest::ThreadConsumer(void* arg)
 	}	
 	
 	printf("	ThreadConsumer: End...\n");
+	return NULL;
+}
+
+int		
+CPThreadTest::RecursiveMutex()
+{	
+	int condition;
+	
+	struct timeval	tv;
+	struct timespec when;
+	gettimeofday( &tv, NULL );
+	
+	time_t 	sec 	= 5;
+	long	nsec	= 0;
+	
+	when.tv_sec 	= tv.tv_sec + sec;
+	when.tv_nsec	= tv.tv_usec * 1000 + nsec;
+	condition		= 1;
+	
+	printf("RecursiveMutex: timeout %ld.%ld[sec]\n", sec, nsec/1000 );
+		
+	pthread_mutex_lock( &m_mutexRecur );
+	printf("RecursiveMutex: mutex locked\n");
+		
+	if ( condition )
+	{
+		Timeout( &when, Retry, (void*)this );
+	}
+	
+	pthread_mutex_unlock( &m_mutexRecur );
+	printf("RecursiveMutex: mutex unlocked\n");
+	
+	sleep( sec + 3 );
+		
+	return 0;
+}
+
+void	
+CPThreadTest::InitRecursiveMutex()
+{
+	pthread_mutexattr_t mutexAttr;
+	pthread_mutexattr_init( &mutexAttr);
+
+	pthread_mutexattr_settype( &mutexAttr, PTHREAD_MUTEX_RECURSIVE );
+	pthread_mutex_init( &m_mutexRecur, &mutexAttr );
+	
+	pthread_mutexattr_destroy( &mutexAttr );
+}
+
+void	
+CPThreadTest::UninitRecursiveMutex()
+{
+	pthread_mutex_destroy( &m_mutexRecur );	
+}
+
+void	
+CPThreadTest::Timeout( /*const*/ struct timespec* when, void (*func)(void*), void* arg )
+{
+#define SECTONSEC 	1000000000
+#define USECTONSEC	1000
+
+	struct timespec now;
+	struct timeval	tv;
+	struct to_info*	tip;
+	
+	gettimeofday( &tv, NULL );
+	now.tv_sec		= tv.tv_sec;
+	now.tv_nsec		= tv.tv_usec * USECTONSEC;
+		
+	if (( when->tv_sec > now.tv_sec ) ||
+		(( when->tv_sec == now.tv_sec ) && ( when->tv_nsec > now.tv_nsec )))
+	{	
+		tip = (struct to_info*)malloc( sizeof(struct to_info) );	// This must be deleted
+		if ( tip != NULL )
+		{
+			tip->to_fn				= func;
+			tip->to_arg				= arg;
+			tip->to_wait.tv_sec		= when->tv_sec	- now.tv_sec;
+			
+			if ( when->tv_nsec >= now.tv_nsec )
+			{
+				tip->to_wait.tv_nsec = when->tv_nsec - now.tv_nsec;
+			}
+			else
+			{
+				tip->to_wait.tv_sec--;
+				tip->to_wait.tv_nsec = SECTONSEC - now.tv_nsec + when->tv_nsec;
+			}
+			
+			printf("Timeout: wait time=%ld.%ld[sec]\n", tip->to_wait.tv_sec, tip->to_wait.tv_nsec/1000 );
+						
+			pthread_t	thread, threadCheck;
+			int 		err;
+							
+			err = pthread_create( &thread, NULL, Timeout_helper, (void*)tip  );
+			if ( err == 0 )
+			{
+				pthread_create( &threadCheck, NULL, TimeStamp, (void*)tip  );
+				return;
+			}
+		}
+	}
+		
+	(*func)(arg);	
+}
+
+void* 
+CPThreadTest::Timeout_helper(void* arg)
+{
+	struct to_info*	tip;
+	
+	tip = (struct to_info*)arg;
+	
+	struct timeval	tStart;
+	struct timeval	tEnd;
+	
+	printf("Timeout_helper: nanosleep start...%ld.%ld[sec]\n", tip->to_wait.tv_sec, tip->to_wait.tv_nsec/1000 );
+	
+	gettimeofday( &tStart, NULL );
+	
+	nanosleep( &tip->to_wait, NULL );
+
+	gettimeofday( &tEnd, NULL );
+	
+	time_t 	tElapsedSec 	= tEnd.tv_sec - tStart.tv_sec;
+	long	tElapsedUsec;
+	
+	if ( tEnd.tv_usec < tStart.tv_usec )
+	{
+		tElapsedSec--;
+		tElapsedUsec = 1000000000 + tEnd.tv_usec - tStart.tv_usec;
+	}
+	else
+		tElapsedUsec = tEnd.tv_usec - tStart.tv_usec;
+	
+	printf("Timeout_helper: nanosleep end...elapsed=%ld.%ld[sec]\n", (long)tElapsedSec, tElapsedUsec );
+	
+	(*tip->to_fn)( tip->to_arg );
+	
+	// Important
+	free( tip );
+	
+	return (0);
+}
+
+void
+CPThreadTest::Retry(void* arg)
+{
+	CPThreadTest* pThis = (CPThreadTest*)arg;
+	
+	pthread_mutex_lock( &pThis->m_mutexRecur );
+	printf("Retry: mutex is locked...\n");
+	
+	pthread_mutex_unlock( &pThis->m_mutexRecur );
+	printf("Retry: mutex is unlocked...\n");
+}
+
+void*	
+CPThreadTest::TimeStamp(void* arg)
+{
+	struct to_info*	tip;
+	
+	tip = (struct to_info*)arg;
+
+	int timeSec = tip->to_wait.tv_sec + 1;
+	int i = 0;
+	
+	while( timeSec-- )
+	{
+		sleep(1);
+		printf("TimePrint:	%d[sec]\n", ++i );
+	}
+	
+	return NULL;
+}
+
+int	
+CPThreadTest::ThreadNSignal()
+{
+	int err;
+	sigset_t	oldmask;
+	pthread_t	tid;
+	
+	printf("ThreadNSignal: start..\n");
+	
+	sigemptyset( &m_mask );
+	sigaddset( &m_mask, SIGINT );
+	sigaddset( &m_mask, SIGQUIT );
+	
+	err = pthread_sigmask( SIG_BLOCK, &m_mask, &oldmask);
+	if ( err != 0 )
+	{
+		printf("ThreadNSignal: SIG_BLOCK error\n");
+		return -1;
+	}
+		
+	err = pthread_create( &tid, NULL, ThreadSignal, this );
+	if ( err != 0 )
+	{
+		printf("ThreadNSignal: pthread_create\n");
+		return -1;		
+	}
+	
+	pthread_mutex_lock( &m_mutexSig );
+	while( m_quitFlag < 3 )
+	{
+		// Would it be okay if I wait for the condition repeatedly like this?
+		pthread_cond_wait( &m_condSig, &m_mutexSig );
+		printf("ThreadNSignal: condition signaled...m_quitFlag=%d\n", m_quitFlag );
+		
+		// Once pthread_cond_wait() is returned, the mutex can remain unlocked. Is that okay?
+		// 	: I think we should have taken mutex before evaluating 'm_quitFlag' again.		
+		int ret;
+	//	sleep(1);	
+	//	pthread_mutex_unlock( &m_mutexSig );
+		
+		ret = pthread_mutex_trylock( &m_mutexSig );	// But it doesn't seem to lock again since it appear to remain locked.
+		if ( ret != 0 )								// Interesting...hm...
+			printf("ThreadNSignal: trylock fail, EBUSY?, which means it's alread locked?\n");
+	}
+		
+	pthread_mutex_unlock( &m_mutexSig );
+	
+	m_quitFlag = 0;
+	
+	if ( sigprocmask( SIG_SETMASK, &oldmask, NULL ) < 0 )
+	{
+		printf("ThreadNSignal: SIG_SETMASK error\n");
+		return -1;
+	}
+	
+	printf("ThreadNSignal: end...\n");
+		
+	return 0;		
+}
+
+void 	
+CPThreadTest::InitThreadSignal()
+{
+	m_mutexSig 	= PTHREAD_MUTEX_INITIALIZER;
+	m_condSig	= PTHREAD_COND_INITIALIZER;
+	
+	m_quitFlag	= 0;
+}
+
+void	
+CPThreadTest::UninitThreadSignal()
+{
+	
+}
+
+void*	
+CPThreadTest::ThreadSignal(void* arg)
+{
+	CPThreadTest*	pThis = (CPThreadTest*)arg;
+	
+	int err, signo;	
+
+	printf("	ThreadSignal: start...\n" );
+	
+	for(;;)
+	{
+		err = sigwait( &pThis->m_mask, &signo );
+		if ( err != 0 )
+		{
+			printf("	ThreadSignal: sigwait err=%d\n", err );
+			break;
+		}
+		
+		switch( signo )
+		{
+		case SIGINT:
+			printf("	ThreadSignal: SIGINT, signo=%d\n", signo );				
+			break;
+			
+		case SIGQUIT:
+			printf("	ThreadSignal: SIGQUIT, signo=%d\n", signo );			
+			
+			int quit;
+			pthread_mutex_lock( &pThis->m_mutexSig );
+		
+			quit = ++(pThis->m_quitFlag);
+						
+			pthread_mutex_unlock( &pThis->m_mutexSig );
+			
+			printf("	ThreadSignal: m_quitFlag=%d\n", quit );
+						
+			pthread_cond_signal( &pThis->m_condSig );
+	
+			if ( pThis->m_quitFlag > 3 )
+			{
+				printf("	ThreadSignal: end...by SIGQUIT\n" );
+				return(0);
+			}
+			break;
+			
+		default:		
+			printf("	ThreadSignal: Unexpected signal, signo=%d\n", signo );
+			break;
+		}
+	}
+	
+	printf("	ThreadSignal: end...\n" );	
 	return NULL;
 }

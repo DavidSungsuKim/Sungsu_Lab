@@ -5,6 +5,7 @@
 #include "Logger.h"
 #include "ProcessTest.h"
 #include "PThreadTest.h"
+#include "SignalTest.h"
 
 int main(int argc, char* argv[]) 
 {
@@ -61,11 +62,18 @@ int main(int argc, char* argv[])
 //	testProc.RetrieveResourceLimit();
 //	testProc.ChangeResourceLimit();
 	
-	CPThreadTest testPThread;
+//	CPThreadTest testPThread;
 //	testPThread.CreateJoin();
 //	testPThread.SyncMutex( false /*abMakedeadlock*/ );
 //	testPThread.ReaderWriterLocks();	/*TBD*/
-	testPThread.ConditionVariable();
-	
+//	testPThread.ConditionVariable();
+//	testPThread.RecursiveMutex();
+//	testPThread.ThreadNSignal();
+
+	CSignalTest	testSignal;
+//	testSignal.SignalFundamental();
+//	testSignal.SignalFundamental2();
+	testSignal.SignalDeadLock();
+		
 	return 0;
 }

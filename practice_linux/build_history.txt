@@ -1,7 +1,34 @@
+Mar 30, 2020
+	1. added functions below and its support functions.
+		void SignalFundamental();
+		void SignalFundamental2	();
+		void SignalDeadLock();
+		
+		modified:   practice_linux/include/SignalTest.h
+		modified:   practice_linux/src/SignalTest.cpp
+		modified:   practice_linux/src/main.cpp
 
+	1. added new files.
+		practice_linux/include/SignalTest.h
+		practice_linux/src/SignalTest.cpp	
+
+Mar 28, 2020
+	1. added 'int ThreadNSignal	()' and supporting functions.
+		modified:   include/PThreadTest.h
+		modified:   src/PThreadTest.cpp
+		modified:   src/main.cpp
+
+Mar 28, 2020
+	1. added attibutes setting codes for mutex.
+		modified:   src/PThreadTest.cpp
+		
+	1. added RecursiveMutex() and supporting functions for it.
+		modified:   include/PThreadTest.h
+		modified:   src/PThreadTest.cpp
+		modified:   src/main.cpp
 
 Mar 27, 2020
 	1. added ConditionVariable() and related test functions.
-            modified:   include/PThreadTest.h
-            modified:   src/PThreadTest.cpp
-            modified:   src/main.cpp
+		modified:   include/PThreadTest.h
+		modified:   src/PThreadTest.cpp
+		modified:   src/main.cpp
