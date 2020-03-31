@@ -1,4 +1,13 @@
 Mar 30, 2020
+	1. added functions below and its support functions.
+		void SignalFundamental();
+		void SignalFundamental2	();
+		void SignalDeadLock();
+		
+		modified:   practice_linux/include/SignalTest.h
+		modified:   practice_linux/src/SignalTest.cpp
+		modified:   practice_linux/src/main.cpp
+
 	1. added new files.
 		practice_linux/include/SignalTest.h
 		practice_linux/src/SignalTest.cpp	
