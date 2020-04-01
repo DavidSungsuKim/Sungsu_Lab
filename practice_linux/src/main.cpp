@@ -73,7 +73,8 @@ int main(int argc, char* argv[])
 	CSignalTest	testSignal;
 //	testSignal.SignalFundamental();
 //	testSignal.SignalFundamental2();
-	testSignal.SignalDeadLock();
+//	testSignal.SignalDeadLock();
+	testSignal.SignalFundamental3();
 		
 	return 0;
 }
