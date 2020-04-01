@@ -239,7 +239,7 @@ CSignalTest::SignalHandlerAdvanced(int signo, siginfo_t* pSi, void* pContext )
 
 	ucontext_t*	pUcontext = (ucontext_t*)pContext;
 	    
-	printf("	uc_stack.ss_sp    = 0x%ld\n", 	pUcontext->uc_stack.ss_sp );
+	printf("	uc_stack.ss_sp    = 0x%ld\n", 	(long)pUcontext->uc_stack.ss_sp );
 	printf("	uc_stack.ss_size  = 0x%ld\n", 	(long)pUcontext->uc_stack.ss_size );
 	printf("	uc_stack.ss_flags = 0x%d\n", 	pUcontext->uc_stack.ss_flags );
 	printf("\n");

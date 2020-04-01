@@ -6,6 +6,7 @@
 #include "ProcessTest.h"
 #include "PThreadTest.h"
 #include "SignalTest.h"
+#include "TimeTest.h"
 
 int main(int argc, char* argv[]) 
 {
@@ -70,12 +71,20 @@ int main(int argc, char* argv[])
 //	testPThread.RecursiveMutex();
 //	testPThread.ThreadNSignal();
 
-	CSignalTest	testSignal;
+//	CSignalTest	testSignal;
 //	testSignal.SignalFundamental();
 //	testSignal.SignalFundamental2();
 //	testSignal.SignalDeadLock();
 //	testSignal.SignalFundamental3();
-	testSignal.SignalAdvanced();
-		
+//	testSignal.SignalAdvanced();
+
+	CTimeTest	testTime;
+//	testTime.SysConf();
+//	testTime.ClockResolution();
+//	testTime.GetCurrentTime();
+//	testTime.GetProcessTime();
+//	testTime.ConversionTime();
+	testTime.CalculateTimeBasic();
+	
 	return 0;
 }
