@@ -1,4 +1,9 @@
 April 1, 2020
+	1. changed SignalHandlerAdvanced(), but codes regarding ucontext_t should be checked.
+		modified:   practice_linux/build_history.txt
+		modified:   practice_linux/src/SignalTest.cpp
+		modified:   practice_linux/src/main.cpp
+	
 	1. added SignalAdvanced() and its support functions.
 		modified:   practice_linux/include/SignalTest.h
 		modified:   practice_linux/src/SignalTest.cpp

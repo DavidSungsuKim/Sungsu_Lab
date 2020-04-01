@@ -229,23 +229,54 @@ void
 CSignalTest::SignalHandlerAdvanced(int signo, siginfo_t* pSi, void* pContext )
 {
 	printf("SignalHandlerAdvanced, sig=%d(%s)\n", signo, sys_siglist[signo] );
+	
+/*	struct ucontext_t
+	{
+		uc_stack.ss_sp
+		uc_stack.ss_size
+		uc_stack.ss_flags
+	}*/
 
 	ucontext_t*	pUcontext = (ucontext_t*)pContext;
-
-	printf("si_signo=%d\n", pSi->si_signo );
-	printf("si_errno=%d\n", pSi->si_errno );	
-	printf("si_code=%d\n", pSi->si_code );
-/*	printf("si_pid=%d\n", pSi->si_pid );
-	printf("si_uid=%d\n", pSi->si_uid );
-	printf("si_status=%d\n", pSi->si_status );
-	printf("si_utime=%d\n", pSi->si_utime );
-	printf("si_stime=%d\n", pSi->si_stime );
-	printf("si_value=%d\n", pSi->si_value );	// signal payload value
-	printf("si_int=%d\n", pSi->si_int );
-	printf("*si_ptr=%d\n", pSi->si_ptr );
-	printf("*si_addr=%d\n", pSi->si_addr );
-	printf("si_band=%d\n", pSi->si_band );
-	printf("si_fd=%d\n", pSi->si_fd );*/
+	    
+	printf("	uc_stack.ss_sp    = 0x%ld\n", 	pUcontext->uc_stack.ss_sp );
+	printf("	uc_stack.ss_size  = 0x%ld\n", 	(long)pUcontext->uc_stack.ss_size );
+	printf("	uc_stack.ss_flags = 0x%d\n", 	pUcontext->uc_stack.ss_flags );
+	printf("\n");
+	printf("	si_signo = %d (%s)\n", pSi->si_signo, sys_siglist[signo] );
+	printf("	si_errno = %d\n", pSi->si_errno );
+	printf("	si_code  = %d", pSi->si_code );
+	
+	switch( pSi->si_code )
+	{
+	case SI_ASYNCIO: 	printf(" (SI_ASYNCIO)\n");	break;
+	case SI_KERNEL: 	printf(" (SI_KERNEL)\n");	break;
+	case SI_MESGQ: 		printf(" (SI_MESGQ)\n");	break;
+	case SI_QUEUE: 		printf(" (SI_QUEUE)\n");	break;
+	case SI_TIMER: 		printf(" (SI_TIMER)\n");	break;
+	case SI_TKILL: 		printf(" (SI_TKILL)\n");	break;
+	case SI_SIGIO: 		printf(" (SI_SIGIO)\n");	break;
+	case SI_USER: 		printf(" (SI_USER)\n");		break;
+	// effective only if signal is 'SIGBUS'.
+	case BUS_ADRALN: 	printf(" (BUS_ADRALN)\n");	break;
+	case BUS_ADRERR: 	printf(" (BUS_ADRERR)\n");	break;
+	case BUS_OBJERR: 	printf(" (BUS_OBJERR)\n");	break;
+	default:
+		printf(" (unknown)\n");	
+		break;
+	}	
+	
+/*	printf("	si_pid=%d\n", pSi->si_pid );
+	printf("	si_uid=%d\n", pSi->si_uid );
+	printf("	si_status=%d\n", pSi->si_status );
+	printf("	si_utime=%d\n", pSi->si_utime );
+	printf("	si_stime=%d\n", pSi->si_stime );
+	printf("	si_value=%d\n", pSi->si_value );	// signal payload value
+	printf("	si_int=%d\n", pSi->si_int );
+	printf("	si_ptr=%d\n", pSi->si_ptr );
+	printf("	*si_addr=%d\n", pSi->si_addr );
+	printf("	*si_band=%d\n", pSi->si_band );
+	printf("	si_fd=%d\n", pSi->si_fd );*/
 	printf("SignalHandlerAdvanced, end...\n");
 	
 	exit( EXIT_SUCCESS );	
