@@ -1,3 +1,9 @@
+April 2, 2020
+	1. added sleep and timer-related functions.
+		modified:   practice_linux/include/TimeTest.h
+		modified:   practice_linux/src/TimeTest.cpp
+		modified:   practice_linux/src/main.cpp
+
 April 1, 2020
 	1. added CTimeTest class and a few test functions 
 		modified:   practice_linux/src/SignalTest.cpp

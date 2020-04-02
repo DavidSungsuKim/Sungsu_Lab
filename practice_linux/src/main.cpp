@@ -84,7 +84,13 @@ int main(int argc, char* argv[])
 //	testTime.GetCurrentTime();
 //	testTime.GetProcessTime();
 //	testTime.ConversionTime();
-	testTime.CalculateTimeBasic();
+//	testTime.CalculateTimeBasic();
+//	testTime.Sleep();
+//	testTime.AdvancedSleep();
+//	testTime.TimerWithAlarm();
+//	testTime.IntervalTimer();
+//	testTime.AdvancedTimerSignal();
+	testTime.AdvancedTimerThread();
 	
 	return 0;
 }
