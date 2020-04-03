@@ -1,3 +1,8 @@
+April 3, 2020
+	1. added FileTestAdvancec.h,.cpp.
+		practice_linux/include/FileTestAdvanced.h
+		practice_linux/src/FileTestAdvanced.cpp
+
 April 2, 2020
 	1. added sleep and timer-related functions.
 		modified:   practice_linux/include/TimeTest.h

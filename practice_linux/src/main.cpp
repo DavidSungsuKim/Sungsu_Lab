@@ -7,6 +7,7 @@
 #include "PThreadTest.h"
 #include "SignalTest.h"
 #include "TimeTest.h"
+#include "FileTestAdvanced.h"
 
 int main(int argc, char* argv[]) 
 {
@@ -78,7 +79,7 @@ int main(int argc, char* argv[])
 //	testSignal.SignalFundamental3();
 //	testSignal.SignalAdvanced();
 
-	CTimeTest	testTime;
+//	CTimeTest	testTime;
 //	testTime.SysConf();
 //	testTime.ClockResolution();
 //	testTime.GetCurrentTime();
@@ -90,7 +91,12 @@ int main(int argc, char* argv[])
 //	testTime.TimerWithAlarm();
 //	testTime.IntervalTimer();
 //	testTime.AdvancedTimerSignal();
-	testTime.AdvancedTimerThread();
+//	testTime.AdvancedTimerThread();
+	
+	CFileTestAdv	testFileAdv;
+//	testFileAdv.WriteVector();
+//	testFileAdv.ReadVector();	
+	testFileAdv.Epoll();
 	
 	return 0;
 }
