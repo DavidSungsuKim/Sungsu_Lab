@@ -10,6 +10,8 @@
 
 #include <sys/epoll.h>
 
+#include <sys/mman.h>
+
 #include "FileTestAdvanced.h"
 
 CFileTestAdv::CFileTestAdv()
@@ -174,4 +176,135 @@ CFileTestAdv::Epoll()
 		perror("close");
 	
 	return;
+}
+
+void	
+CFileTestAdv::MemoryMappedRead()
+{
+	int  ret;
+
+	long pagesize = sysconf(_SC_PAGESIZE);
+	printf("MemoryMappedRead: page size=%ld[byte]\n", pagesize );
+	
+	int fd;
+	fd = open("testMemoryMappedRead.txt", O_RDONLY );
+	if ( fd == -1 )
+	{
+		perror("open");
+		return;
+	}
+		
+	struct stat sb;
+	ret = fstat( fd, &sb );
+	if ( ret == -1 )
+	{
+		perror("fstat");
+		return;
+	}
+	
+	printf("MemoryMappedRead: sb.st_mode=%d\n", sb.st_mode);
+	printf("MemoryMappedRead: sb.st_size=%ld\n", sb.st_size);
+	
+	void* 	pFile;	
+	void* 	pAddrDesired	= 0; 			// 0 means it has no preferences
+	size_t	len				= sb.st_size;
+	int		prot			= PROT_READ;	// PROT_NONE, PROT_READ, PROT_WRITE, or PROT_EXEC
+	int		flags			= MAP_SHARED;	// MAP_SHARED or MAP_PRIVATE
+	off_t	offset			= 0;			// It should be multiple of the page size in the system
+	
+	pFile = mmap( pAddrDesired, len, prot, flags, fd, offset );
+	if ( pFile == MAP_FAILED )
+	{
+		perror("mmap");
+		close( fd );
+		return;
+	}
+	
+	printf("%s\n", (char*)pFile);
+}
+
+void	
+CFileTestAdv::MemoryMappedWrite()
+{
+	int  ret;
+
+	long pagesize = sysconf(_SC_PAGESIZE);
+	printf("MemoryMappedWrite: page size=%ld[byte]\n", pagesize );
+	
+	// 1. Open a file.
+	int fd;
+	fd = open("testMemoryMappedWrite.txt", O_RDWR );
+	if ( fd == -1 )
+	{
+		perror("open");	// This can happen if it has no proper permissions.
+		return;
+	}
+	
+	struct stat sb;
+	ret = fstat( fd, &sb );
+	if ( ret == -1 )
+	{
+		perror("fstat");
+		return;
+	}
+	
+	printf("MemoryMappedWrite: sb.st_mode=%d\n", sb.st_mode);
+	printf("MemoryMappedWrite: sb.st_size=%ld\n", sb.st_size);
+	
+	// 2. Open a map for the file.
+	void* 	pFile;	
+	void* 	pAddrDesired	= 0; 						// 0 means it has no preferences
+	size_t	len				= pagesize;					// It doesn't seem to affect when writing. Why?
+	int		prot			= PROT_READ | PROT_WRITE;	// PROT_NONE, PROT_READ, PROT_WRITE, or PROT_EXEC
+	int		flags			= MAP_SHARED;				// MAP_SHARED or MAP_PRIVATE
+	off_t	offset			= 0;						// It should be multiple of the page size in the system
+	
+	pFile = mmap( pAddrDesired, len, prot, flags, fd, offset );
+	if ( pFile == MAP_FAILED )
+	{
+		perror("mmap");
+		close( fd );
+		return;
+	}
+	
+	close( fd );										// The file may be closed after getting a proper map regarding it.
+	
+#ifdef USE_MADVISE // not mandatory
+	printf("MemoryMappedWrite: call madvise()\n");
+
+	int advice = MADV_NORMAL;	
+/*	MADV_NORMAL	
+ * 	MADV_RANDOM
+ *	MADV_SEQUENTIAL	: addresses in the ascending order
+ * 	MADV_WILLNEED
+ * 	MADV_DONTNEED	: reasonable for applications like video streaming where data is not used anymore after being displayed once.
+ */ 
+	ret = madvise( pFile, len, advice );				// if len=0, it supposes that the advice is applied to all memory region starting from pFile.
+	if ( ret == -1 )
+		perror("madvice");
+#endif	
+	
+	// 3. Test writing into file via mapping
+	printf("MemoryMappedWrite: Test Writing...\n");
+		
+	const char* strTest = "Hello. I live in Canada. This sentence will overwrite some of the content already existing.\n";
+	int			strLen 	= strlen( strTest );
+	
+	char* 	pChar = (char*)pFile;
+	int 	i;
+	for ( i = 0; i < strLen; i++ )
+		*pChar++ = *strTest++;
+
+#ifdef USE_MSYNC // not mandatory
+	printf("MemoryMappedWrite: call msync()\n");
+	
+	int flagsSync = MS_SYNC; // MS_SYNC, MS_ASYNC, or MS_INVALIDATE
+	ret = msync( pFile, len, flagsSync );
+	if ( ret == -1 )
+		perror("msync");
+#endif
+
+	printf("%s\n", (char*)pFile);						// Here I can see overwritten strings in the file.
+
+	munmap( pFile, len );
 }

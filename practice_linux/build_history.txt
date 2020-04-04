@@ -1,3 +1,11 @@
+April 4, 2020
+	1. added functions below
+		void	MemoryMappedRead	();
+		void	MemoryMappedWrite	();
+		modified:   practice_linux/include/FileTestAdvanced.h
+		modified:   practice_linux/src/FileTestAdvanced.cpp
+		modified:   practice_linux/src/main.cpp
+	
 April 3, 2020
 	1. added FileTestAdvancec.h,.cpp.
 		practice_linux/include/FileTestAdvanced.h

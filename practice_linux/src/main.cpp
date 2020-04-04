@@ -96,7 +96,9 @@ int main(int argc, char* argv[])
 	CFileTestAdv	testFileAdv;
 //	testFileAdv.WriteVector();
 //	testFileAdv.ReadVector();	
-	testFileAdv.Epoll();
+//	testFileAdv.Epoll();
+	testFileAdv.MemoryMappedRead();
+	testFileAdv.MemoryMappedWrite();
 	
 	return 0;
 }

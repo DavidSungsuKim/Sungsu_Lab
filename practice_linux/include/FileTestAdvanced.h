@@ -9,4 +9,7 @@ public:
 	void 	ReadVector	();
 		
 	void	Epoll		();	
+	
+	void	MemoryMappedRead	();
+	void	MemoryMappedWrite	();
 };
