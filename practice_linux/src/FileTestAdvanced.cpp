@@ -313,8 +313,13 @@ CFileTestAdv::MemoryMappedWrite()
 }
 
 void	
-CFileTestAdv::GetFileINode(const char* pFilePath)
+CFileTestAdv::GetFileINode(int argc, const char* argv[])
 {
+	if ( argc < 2 )
+		return;
+	
+	const char* pFilePath = argv[1];
+			
 	int fd;
 	
 	fd = open( pFilePath, O_RDONLY );
@@ -342,8 +347,13 @@ CFileTestAdv::GetFileINode(const char* pFilePath)
 }
 
 void	
-CFileTestAdv::SortFilebyPhysicalBlock(const char* pFilePath)
+CFileTestAdv::SortFilebyPhysicalBlock(int argc, const char* argv[])
 {
+	if ( argc < 2 )
+		return;
+	
+	const char* pFilePath = argv[1];
+			
 	int fd;
 	
 	fd = open( pFilePath, O_RDONLY );

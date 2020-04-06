@@ -1,4 +1,13 @@
 April 6 Mon, 2020
+	1. added new class CDirectoryTest and a few functions.
+		practice_linux/include/DirectoryTest.h
+		practice_linux/src/DirectoryTest.cpp
+		modified:   practice_linux/src/main.cpp
+		
+	2. changed some of the functions' interface so they can use input parameter from terminal.	
+		modified:   practice_linux/include/FileTestAdvanced.h
+		modified:   practice_linux/src/FileTestAdvanced.cpp
+		
 	1. added functions below
 		void	GetFileINode			(const char* pFilePath);
 		void	SortFilebyPhysicalBlock	(const char* pFilePath);	// with 'sudo'

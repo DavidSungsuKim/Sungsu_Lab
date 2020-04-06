@@ -8,6 +8,7 @@
 #include "SignalTest.h"
 #include "TimeTest.h"
 #include "FileTestAdvanced.h"
+#include "DirectoryTest.h"
 
 int main(int argc, char* argv[]) 
 {
@@ -93,17 +94,23 @@ int main(int argc, char* argv[])
 //	testTime.AdvancedTimerSignal();
 //	testTime.AdvancedTimerThread();
 	
-	CFileTestAdv	testFileAdv;
+//	CFileTestAdv	testFileAdv;
 //	testFileAdv.WriteVector();
 //	testFileAdv.ReadVector();	
 //	testFileAdv.Epoll();
 //	testFileAdv.MemoryMappedRead();
 //	testFileAdv.MemoryMappedWrite();
-	if ( argc >= 1 )
-	{
-	//	testFileAdv.GetFileINode( argv[1] );
-		testFileAdv.SortFilebyPhysicalBlock( argv[1] );
-	} 
+//	testFileAdv.GetFileINode			( argc, (const char**)argv );
+//	testFileAdv.SortFilebyPhysicalBlock	( argc, (const char**)argv );
+
+	CDirectoryTest	testDir;
+//	testDir.Stat				(argc, (const char**)argv );
+//	testDir.ChangePermission	(argc, (const char**)argv );
+//	testDir.ChangeOwnership		(argc, (const char**)argv );
+//	testDir.ChangeOwnershipRoot	(argc, (const char**)argv );
+//	testDir.GetCurrentDir();
+//	testDir.ChangeCurrentDir		(argc, (const char**)argv );
+	testDir.ChangeCurrentDirResotore(argc, (const char**)argv );
 	
 	return 0;
 }

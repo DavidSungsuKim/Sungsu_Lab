@@ -13,8 +13,8 @@ public:
 	void	MemoryMappedRead	();
 	void	MemoryMappedWrite	();
 	
-	void	GetFileINode			(const char* pFilePath);
-	void	SortFilebyPhysicalBlock	(const char* pFilePath);	// with 'sudo'
+	void	GetFileINode			(int argc, const char* argv[]);
+	void	SortFilebyPhysicalBlock	(int argc, const char* argv[]);	// with 'sudo'
 		
 protected:
 	// For SortFilebyPhysicalBlock()
