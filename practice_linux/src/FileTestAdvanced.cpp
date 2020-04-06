@@ -12,6 +12,9 @@
 
 #include <sys/mman.h>
 
+#include <sys/ioctl.h>
+#include <linux/fs.h>
+
 #include "FileTestAdvanced.h"
 
 CFileTestAdv::CFileTestAdv()
@@ -154,17 +157,17 @@ CFileTestAdv::Epoll()
 	
 	struct epoll_event events[ MAX_EVENTS ];
 	int	timeout = -1; // Infinite
-	int nr_events;
+	int logical_events;
 	
-	nr_events = epoll_wait( epfd, events, MAX_EVENTS, timeout );
-	if ( nr_events < 0 )
+	logical_events = epoll_wait( epfd, events, MAX_EVENTS, timeout );
+	if ( logical_events < 0 )
 	{
 		perror("epoll_wait");
 		return;
 	}
 	
 	int i;
-	for ( i = 0; i < nr_events; i++ )
+	for ( i = 0; i < logical_events; i++ )
 	{
 		printf("i=%d event=%ld on fd=%d\n",
 				i,
@@ -307,4 +310,118 @@ CFileTestAdv::MemoryMappedWrite()
 	printf("%s\n", (char*)pFile);						// Here I can see overwritten strings in the file.
 
 	munmap( pFile, len );
+}
+
+void	
+CFileTestAdv::GetFileINode(const char* pFilePath)
+{
+	int fd;
+	
+	fd = open( pFilePath, O_RDONLY );
+	if ( fd < 0 )
+	{
+		perror("open");
+		return;
+	}
+	
+	int 	ret;
+	long	inode;	
+	struct stat buf;
+	
+	ret = fstat( fd, &buf );
+	if ( ret < 0 )
+	{
+		perror("fstat");
+		return;
+	}
+	
+	inode = buf.st_ino;
+	
+	printf("GetFileINode: FileName=%s inode=%ld\n", pFilePath, inode );
+	return;
+}
+
+void	
+CFileTestAdv::SortFilebyPhysicalBlock(const char* pFilePath)
+{
+	int fd;
+	
+	fd = open( pFilePath, O_RDONLY );
+	if ( fd < 0 )
+	{
+		perror("open");
+		return;
+	}
+	
+	PrintBlocks(fd);
+	return;	
+}
+
+void	
+CFileTestAdv::PrintBlocks(int fd)
+{
+	int logical_blocks, i;
+	
+	logical_blocks = GetNrBlocks( fd );
+	if ( logical_blocks < 0 )
+	{
+		fprintf( stderr, "GetNrBlocks failed!\n");
+		return;
+	}
+
+	printf("PrintBlocks: %d logical blocks\n", logical_blocks);
+	
+	if ( logical_blocks == 0 )
+		return;
+		
+	for( i = 0; i < logical_blocks; i++ )
+	{
+		int phys_block;
+		
+		phys_block = GetBlock( fd, i );
+		if ( phys_block < 0 )
+		{
+			fprintf( stderr, "GetBlock failed!\n");
+			return;
+		}
+		
+		if ( !phys_block )
+			continue;
+			
+		printf("i=%d, physical_block=%d\n", i, phys_block );
+	}
+	
+	putchar('\n');	
+}
+
+int		
+CFileTestAdv::GetBlock(int fd, int logical_block)
+{
+	int ret;
+	
+	// This ioctl function requires 'sudo'
+	ret = ioctl( fd, FIBMAP, &logical_block );
+	if ( ret < 0 )
+	{
+		perror("ioctl");
+		return -1;
+	}
+	
+	return logical_block;	// physical block
+}
+
+int		
+CFileTestAdv::GetNrBlocks(int fd)
+{
+	int ret;
+	struct stat buf;
+	
+	ret = fstat( fd, &buf );
+	if ( ret < 0 )
+	{
+		perror("fstat");
+		return -1;
+	}
+	
+	return buf.st_blocks;
 }

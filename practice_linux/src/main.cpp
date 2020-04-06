@@ -97,8 +97,13 @@ int main(int argc, char* argv[])
 //	testFileAdv.WriteVector();
 //	testFileAdv.ReadVector();	
 //	testFileAdv.Epoll();
-	testFileAdv.MemoryMappedRead();
-	testFileAdv.MemoryMappedWrite();
+//	testFileAdv.MemoryMappedRead();
+//	testFileAdv.MemoryMappedWrite();
+	if ( argc >= 1 )
+	{
+	//	testFileAdv.GetFileINode( argv[1] );
+		testFileAdv.SortFilebyPhysicalBlock( argv[1] );
+	} 
 	
 	return 0;
 }
