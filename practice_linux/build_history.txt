@@ -1,3 +1,9 @@
+April 7 Tue, 2020
+	1. added functions - MakeDir(), RemoveDir(), and DirStream().		
+		modified:   practice_linux/include/DirectoryTest.h
+		modified:   practice_linux/src/DirectoryTest.cpp
+		modified:   practice_linux/src/main.cpp
+
 April 6 Mon, 2020
 	1. added new class CDirectoryTest and a few functions.
 		practice_linux/include/DirectoryTest.h

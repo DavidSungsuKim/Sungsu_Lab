@@ -6,10 +6,13 @@
 #include <sys/sysmacros.h>
 #include <fcntl.h>
 #include <grp.h>
- 
+#include <dirent.h>
+#include <errno.h> 
 #include <string>
 
 #include "DirectoryTest.h"
+
+extern int errno;
 
 CDirectoryTest::CDirectoryTest()
 {
@@ -321,4 +324,102 @@ CDirectoryTest::ChangeCurrentDirResotore(int argc, const char* argv[])
 	printf("ChangeCurrentDirResotore: check if it's been recovered.\n");
 	
 	GetCurrentDir();
+}
+
+void
+CDirectoryTest::MakeDir(int argc, const char* argv[])
+{
+	if ( argc < 2 )
+		return;
+
+	int ret;		
+	const char* path 	= argv[1];
+	mode_t		mode	= S_IRUSR | S_IWUSR;
+	
+	ret = mkdir( path, mode );
+	if ( ret == -1 )
+	{
+		perror("mkdir");
+		return;
+	}
+	
+	if ( path[0] == '/' )
+	{		
+		// absolute path
+		printf("MakeDir: %s\n", path );		
+	}
+	else
+	{
+		// relative path
+		char currentdir[256] = {0,};
+		if ( getcwd( currentdir, 256 ) == NULL )
+		{
+			perror("getcwd");
+			return;
+		}
+		
+		printf("MakeDir: %s/%s\n", currentdir, path );				
+	}
+}
+
+void	
+CDirectoryTest::RemoveDir(int argc, const char* argv[])
+{
+	if ( argc < 2 )
+		return;
+
+	int ret;		
+	const char* path 	= argv[1];	
+		
+	ret = rmdir( path );
+	if ( ret == -1 )
+	{
+		perror("rmdir");
+		return;
+	}
+	
+	printf("RemoveDir: directory was deleted(%s)\n", path );
+}
+
+void	
+CDirectoryTest::DirStream(int argc, const char* argv[])
+{
+	std::string path;
+	
+	if ( argc < 2 )
+	{
+		char currentdir[256] = {0,};
+		getcwd( currentdir, 256 );
+	
+		path = currentdir;
+		printf("DirStream: start(current directory)...\n");
+	}
+	else
+	{
+		path = argv[1];
+		printf("DirStream: start(%s)...\n", path.c_str() );
+	}
+	
+	struct dirent* entry;
+/*	ino_t			d_ino		: inode number
+ * 	off_t			d_off		: offset for the next dir entry
+ * 	unsigned short	d_reclen	: the length of this content?
+ * 	unsigned char	d_type		: file type
+ * 	char			d_name[256]	: file name	(This is the only mandatory field by POSIX; The others may not compatible on other system)
+ */			
+	DIR* dir;
+	
+	// 1. Open dir stream
+	dir = opendir( path.c_str() );
+	
+	// 2. Browse entries
+	errno = 0;
+	int i = 0;
+	while( (entry = readdir( dir )) != NULL )
+		printf("	%d	(%d)	%s\n", i++, entry->d_type, entry->d_name );
+
+	// 3. Close dir stream
+	closedir( dir );
+
+	printf("DirStream: end...\n");	
 }

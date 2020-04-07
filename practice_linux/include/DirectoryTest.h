@@ -13,4 +13,8 @@ public:
 	void	GetCurrentDir			();
 	void	ChangeCurrentDir		(int argc, const char* argv[]);
 	void	ChangeCurrentDirResotore(int argc, const char* argv[]);
+	
+	void	MakeDir					(int argc, const char* argv[]);
+	void	RemoveDir				(int argc, const char* argv[]);
+	void	DirStream				(int argc, const char* argv[]);
 };

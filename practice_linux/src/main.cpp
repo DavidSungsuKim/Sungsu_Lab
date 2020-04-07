@@ -110,7 +110,10 @@ int main(int argc, char* argv[])
 //	testDir.ChangeOwnershipRoot	(argc, (const char**)argv );
 //	testDir.GetCurrentDir();
 //	testDir.ChangeCurrentDir		(argc, (const char**)argv );
-	testDir.ChangeCurrentDirResotore(argc, (const char**)argv );
-	
+//	testDir.ChangeCurrentDirResotore(argc, (const char**)argv );
+//	testDir.MakeDir					(argc, (const char**)argv );
+//	testDir.RemoveDir				(argc, (const char**)argv );
+	testDir.DirStream				(argc, (const char**)argv );
+		
 	return 0;
 }
