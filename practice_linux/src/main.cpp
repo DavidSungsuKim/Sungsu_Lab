@@ -117,7 +117,8 @@ int main(int argc, char* argv[])
 //	testDir.MakeHardLink			(argc, (const char**)argv );
 //	testDir.MakeSymbolicLink		(argc, (const char**)argv );
 //	testDir.DoUnLink				(argc, (const char**)argv );
-	testDir.MoveFile				(argc, (const char**)argv );
+//	testDir.MoveFile				(argc, (const char**)argv );
+	testDir.TestInotify				(argc, (const char**)argv );
 	
 	return 0;
 }

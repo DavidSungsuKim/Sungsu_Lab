@@ -23,4 +23,6 @@ public:
 	void	DoUnLink				(int argc, const char* argv[]);	
 	
 	void	MoveFile				(int argc, const char* argv[]);
+	
+	void	TestInotify				(int argc, const char* argv[]);
 };

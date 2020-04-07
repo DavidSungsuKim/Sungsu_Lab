@@ -1,12 +1,14 @@
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <sys/sysmacros.h>
 #include <fcntl.h>
 #include <grp.h>
 #include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/sysmacros.h>
+#include <sys/inotify.h>
+
 #include <errno.h> 
 #include <string>
 
@@ -512,4 +514,128 @@ CDirectoryTest::MoveFile(int argc, const char* argv[])
 	}
 
 	printf("MoveFile: check if the file has been moved.\n");
+}
+
+void	
+CDirectoryTest::TestInotify(int argc, const char* argv[])
+{
+	if ( argc < 2 )
+		return;
+	
+	const char* path = argv[1];
+	
+	printf("TestInotify: path=%s\n", path );	
+	
+	int ret;	
+	int fdInot;
+	int flags = 0;
+	
+	fdInot = inotify_init1( flags );
+	if ( fdInot == -1 )
+	{
+		perror("inotify_init1");
+		return;
+	}
+	
+	uint32_t mask =   IN_OPEN 
+					| IN_CLOSE_WRITE 
+					| IN_CLOSE_NOWRITE 
+					| IN_MODIFY 
+					| IN_DELETE;
+/*	Masks available(https://stackoverflow.com/questions/23644313/inotify-add-watch-for-several-masks)
+	// the following are legal, implemented events that user-space can watch for  
+	#define IN_ACCESS           0x00000001  // File was accessed  
+	#define IN_MODIFY           0x00000002  // File was modified  
+	#define IN_ATTRIB           0x00000004  // Metadata changed  
+	#define IN_CLOSE_WRITE      0x00000008  // Writtable file was closed  
+	#define IN_CLOSE_NOWRITE    0x00000010  // Unwrittable file closed  
+	#define IN_OPEN             0x00000020  // File was opened  
+	#define IN_MOVED_FROM       0x00000040  // File was moved from X  
+	#define IN_MOVED_TO         0x00000080  // File was moved to Y  
+	#define IN_CREATE           0x00000100  // Subfile was created  
+	#define IN_DELETE           0x00000200  // Subfile was deleted  
+	#define IN_DELETE_SELF      0x00000400  // Self was deleted  
+
+	// the following are legal events.  they are sent as needed to any watch  
+	#define IN_UNMOUNT          0x00002000  // Backing fs was unmounted  
+	#define IN_Q_OVERFLOW       0x00004000  // Event queued overflowed  
+	#define IN_IGNORED          0x00008000  // File was ignored  
+
+	// helper events  
+	#define IN_CLOSE            (IN_CLOSE_WRITE | IN_CLOSE_NOWRITE) // close  
+	#define IN_MOVE             (IN_MOVED_FROM | IN_MOVED_TO) // moves  
+
+	// special flags  
+	#define IN_ISDIR            0x40000000  // event occurred against dir  
+	#define IN_ONESHOT          0x80000000  // only send event once  	
+	*/
+	
+	ret = inotify_add_watch( fdInot, path, mask );
+	if ( ret == -1 )
+	{
+		perror("inotify_add_watch");
+		return;
+	}
+		
+	printf("TestInotify: start waiting for some events on the file...\n");
+
+	enum { eBUF_SIZE = 1024 };
+	
+	bool 	bFinish 	= false;
+	int		countEvent 	= 0;
+	
+	for(;;)
+	{			
+		char buf[eBUF_SIZE] __attribute__((aligned(4)));	// Is aligning necessary?
+		ssize_t	len, i = 0;
+		
+		// Note that this call for fdInot blocks unless there is something to read; 
+		len = read( fdInot, buf, eBUF_SIZE );
+
+		printf("TestInotify: event notified, len=%d\n", len );		
+		while( i < len )
+		{
+			struct inotify_event* event = (struct inotify_event*)&buf[i];
+			
+			printf(" 	countevent=%d\n", 	countEvent );
+			
+			printf("\t\t wd    = %d\n", 	event->wd );
+			printf("\t\t mask  = 0x%x\n",	event->mask );
+			printf("\t\t cookie= %d\n", 	event->cookie );
+			printf("\t\t len   = %d\n",		event->len );
+			
+			if ( event->len )
+				printf("	name=%s\n", event->name );	// If there's no name, this mustn't be tried. You know...
+						
+			if ( event->mask & IN_DELETE )
+			{
+				printf("TestInotify: IN_DELETE\n");		// I don't know why this doesn't seem to work.
+				bFinish = true;
+				break;
+			}
+			
+			if ( event->mask & IN_IGNORED )
+			{
+				printf("TestInotify: IN_IGNORED\n");	
+				bFinish = true;
+				break;
+			}
+			
+			i += ( sizeof(struct inotify_event) + event->len );
+			
+			countEvent++;
+			
+			if ( len <= i )
+				break;
+		}
+		
+		if ( bFinish )
+			break;
+	}
+	
+	printf("TestInotify: finish event monitoring..\n");	
+	
+	ret = close ( fdInot );
+	if ( ret )
+		perror("close");
 }
