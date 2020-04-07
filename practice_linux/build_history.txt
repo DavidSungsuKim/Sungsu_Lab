@@ -1,4 +1,9 @@
 April 7 Tue, 2020
+	1. added functions - MakeHardLink(), MakeSymbolicLink(), DoUnLink(), and MoveFile().		
+		modified:   practice_linux/include/DirectoryTest.h
+		modified:   practice_linux/src/DirectoryTest.cpp
+		modified:   practice_linux/src/main.cpp	
+
 	1. added functions - MakeDir(), RemoveDir(), and DirStream().		
 		modified:   practice_linux/include/DirectoryTest.h
 		modified:   practice_linux/src/DirectoryTest.cpp

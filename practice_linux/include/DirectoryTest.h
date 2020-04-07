@@ -17,4 +17,10 @@ public:
 	void	MakeDir					(int argc, const char* argv[]);
 	void	RemoveDir				(int argc, const char* argv[]);
 	void	DirStream				(int argc, const char* argv[]);
+	
+	void	MakeHardLink			(int argc, const char* argv[]);
+	void	MakeSymbolicLink		(int argc, const char* argv[]);	
+	void	DoUnLink				(int argc, const char* argv[]);	
+	
+	void	MoveFile				(int argc, const char* argv[]);
 };

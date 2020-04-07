@@ -423,3 +423,93 @@ CDirectoryTest::DirStream(int argc, const char* argv[])
 
 	printf("DirStream: end...\n");	
 }
+
+void	
+CDirectoryTest::MakeHardLink(int argc, const char* argv[])
+{
+	if ( argc < 3 )
+		return;
+	
+	int ret;	
+	const char* pathOld = argv[1];
+	const char* pathNew	= argv[2];
+	
+	printf("MakeHardLink: pathOld=%s\n", pathOld );
+	printf("MakeHardLink: pathNew=%s\n", pathNew );
+	
+	ret = link( pathOld, pathNew );
+	if ( ret == -1 )
+	{
+		perror("link");
+		return;
+	}
+	
+	printf("MakeHardLink: check the link you made.\n");
+}
+
+void
+CDirectoryTest::MakeSymbolicLink(int argc, const char* argv[])
+{
+	if ( argc < 3 )
+		return;
+	
+	int ret;	
+	const char* pathOld = argv[1];
+	const char* pathNew	= argv[2];
+	
+	printf("MakeSymbolicLink: pathOld=%s\n", pathOld );
+	printf("MakeSymbolicLink: pathNew=%s\n", pathNew );
+	
+	ret = symlink( pathOld, pathNew );
+	if ( ret == -1 )
+	{
+		perror("symlink");
+		return;
+	}
+	
+	printf("MakeSymbolicLink: check the link you made.\n");
+}
+
+void	
+CDirectoryTest::DoUnLink(int argc, const char* argv[])
+{
+	if ( argc < 2 )
+		return;
+	
+	int ret;	
+	const char* path = argv[1];
+	
+	printf("DoUnLink: path=%s\n", path );
+
+	ret = unlink( path );
+	if ( ret == -1 )
+	{
+		perror("unlink");
+		return;
+	}
+	
+	printf("DoUnLink: check if the link has been removed.\n");		
+}
+
+void	
+CDirectoryTest::MoveFile(int argc, const char* argv[])
+{
+	if ( argc < 3 )
+		return;
+	
+	int ret;	
+	const char* pathOld = argv[1];
+	const char* pathNew	= argv[2];
+	
+	printf("MoveFile: pathOld=%s\n", pathOld );
+	printf("MoveFile: pathNew=%s\n", pathNew );
+	
+	ret = rename( pathOld, pathNew );
+	if ( ret == -1 )
+	{
+		perror("rename");
+		return;
+	}
+
+	printf("MoveFile: check if the file has been moved.\n");
+}
