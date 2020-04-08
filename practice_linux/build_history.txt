@@ -1,3 +1,8 @@
+April 8 Wed, 2020
+	1. added new class CMemoryTest and functions.
+		practice_linux/include/MemoryTest.h
+		practice_linux/src/MemoryTest.cpp
+
 April 7 Tue, 2020
 	1. added function TestInotify().
 		modified:   practice_linux/include/DirectoryTest.h

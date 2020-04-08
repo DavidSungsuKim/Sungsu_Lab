@@ -9,6 +9,7 @@
 #include "TimeTest.h"
 #include "FileTestAdvanced.h"
 #include "DirectoryTest.h"
+#include "MemoryTest.h"
 
 int main(int argc, char* argv[]) 
 {
@@ -103,7 +104,7 @@ int main(int argc, char* argv[])
 //	testFileAdv.GetFileINode			( argc, (const char**)argv );
 //	testFileAdv.SortFilebyPhysicalBlock	( argc, (const char**)argv );
 
-	CDirectoryTest	testDir;
+//	CDirectoryTest	testDir;
 //	testDir.Stat				(argc, (const char**)argv );
 //	testDir.ChangePermission	(argc, (const char**)argv );
 //	testDir.ChangeOwnership		(argc, (const char**)argv );
@@ -118,7 +119,14 @@ int main(int argc, char* argv[])
 //	testDir.MakeSymbolicLink		(argc, (const char**)argv );
 //	testDir.DoUnLink				(argc, (const char**)argv );
 //	testDir.MoveFile				(argc, (const char**)argv );
-	testDir.TestInotify				(argc, (const char**)argv );
+//	testDir.TestInotify				(argc, (const char**)argv );
+	
+	CMemoryTest	testMemory;
+//	testMemory.AllocDynamicMemory();
+//	testMemory.AlignMem();
+//	testMemory.DataSegment();
+//	testMemory.AnonymousMapping();
+	testMemory.UseDevZeroObsolete();
 	
 	return 0;
 }
