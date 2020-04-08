@@ -1,7 +1,6 @@
 
 #ifndef __LOGGER_H__
 #define __LOGGER_H__
-#endif
 
 // Forward decleration
 class CLogger;
@@ -21,3 +20,5 @@ public:
 private:
 	int		m_fdLogFile;
 };
+
+#endif

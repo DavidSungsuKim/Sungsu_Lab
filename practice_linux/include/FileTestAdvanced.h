@@ -1,4 +1,7 @@
 
+#ifndef __FILE_TEST_ADVANCED__
+#define __FILE_TEST_ADVANCED__
+
 class CFileTestAdv
 {
 public:
@@ -22,3 +25,5 @@ protected:
 	int		GetBlock				(int fd, int logical_block);
 	int		GetNrBlocks				(int fd);
 };
+
+#endif

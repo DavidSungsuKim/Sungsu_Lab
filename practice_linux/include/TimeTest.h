@@ -1,7 +1,6 @@
 
 #ifndef __TIMETEST_H__
 #define __TIMETEST_H__
-#endif
 
 #include <time.h>
 #include <signal.h>
@@ -43,3 +42,5 @@ public:
 	
 	static void AdvancedTimerHandlerThread	(union sigval arg);
 };
+
+#endif

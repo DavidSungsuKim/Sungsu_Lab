@@ -1,7 +1,6 @@
 
 #ifndef __SIGNAL_TEST_H__
 #define __SIGNAL_TEST_H__
-#endif
 
 #include <signal.h>
 #include <pthread.h>
@@ -35,3 +34,5 @@ protected:
 	// For SignalAdvanced()
 	static	void SignalHandlerAdvanced(int signo, siginfo_t* pSi, void* pContext);
 };
+
+#endif

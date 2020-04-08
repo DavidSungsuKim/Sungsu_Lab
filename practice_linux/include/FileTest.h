@@ -1,7 +1,6 @@
 
 #ifndef __FILE_TEST__
 #define __FILE_TEST__
-#endif
 
 class CLogger;
 
@@ -21,3 +20,4 @@ public:
 	int		ReadWriteBinaryStd	(const char* aFilePath);
 };
 	
+#endif

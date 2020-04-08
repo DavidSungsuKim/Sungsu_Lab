@@ -1,7 +1,6 @@
 
-#ifdef __PTHREAD_TEST_H__
+#ifndef __PTHREAD_TEST_H__
 #define __PTHREAD_TEST_H__
-#endif
 
 #include <pthread.h>
 #include <time.h>
@@ -92,3 +91,5 @@ protected:
 	void	UninitThreadSignal		();
 	static void*	ThreadSignal	(void* arg);
 };
+
+#endif
