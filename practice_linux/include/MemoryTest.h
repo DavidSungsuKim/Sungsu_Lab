@@ -14,6 +14,10 @@ public:
 	void	DataSegment			();
 	void	AnonymousMapping	();
 	void	UseDevZeroObsolete	();
+	
+	void	AdvancedMemoryAlloc	();
+	void	AllocBasedOnStack	( int a );
+	void	ManipulateMem		();
 };
 
 #endif

@@ -126,7 +126,10 @@ int main(int argc, char* argv[])
 //	testMemory.AlignMem();
 //	testMemory.DataSegment();
 //	testMemory.AnonymousMapping();
-	testMemory.UseDevZeroObsolete();
+//	testMemory.UseDevZeroObsolete();
+//	testMemory.AdvancedMemoryAlloc();
+//	testMemory.AllocBasedOnStack( 1 );
+	testMemory.ManipulateMem();
 	
 	return 0;
 }

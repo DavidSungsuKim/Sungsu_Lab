@@ -1,3 +1,9 @@
+April 9 Thu, 2020
+	1. added functions : AdvancedMemoryAlloc(), AllocBasedOnStack(), and ManipulateMem().
+		modified:   practice_linux/include/MemoryTest.h
+		modified:   practice_linux/src/MemoryTest.cpp
+		modified:   practice_linux/src/main.cpp
+		
 April 8 Wed, 2020
 	1. added new class CMemoryTest and functions.
 		practice_linux/include/MemoryTest.h
