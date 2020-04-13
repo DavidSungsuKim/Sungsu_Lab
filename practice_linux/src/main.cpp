@@ -10,6 +10,7 @@
 #include "FileTestAdvanced.h"
 #include "DirectoryTest.h"
 #include "MemoryTest.h"
+#include "DriverTest.h"
 
 int main(int argc, char* argv[]) 
 {
@@ -129,7 +130,10 @@ int main(int argc, char* argv[])
 //	testMemory.UseDevZeroObsolete();
 //	testMemory.AdvancedMemoryAlloc();
 //	testMemory.AllocBasedOnStack( 1 );
-	testMemory.ManipulateMem();
-	
+//	testMemory.ManipulateMem();
+
+	CDriverTest	testDriver;
+	testDriver.FirstDriver();
+		
 	return 0;
 }
