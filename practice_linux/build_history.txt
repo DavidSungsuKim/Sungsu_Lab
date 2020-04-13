@@ -1,3 +1,9 @@
+April 13 Mon, 2020
+	1. added new class CDriverTest and a function.
+		practice_linux/include/DriverTest.h
+		practice_linux/src/DriverTest.cpp
+		practice_linux_driver/
+
 April 9 Thu, 2020
 	1. added functions : AdvancedMemoryAlloc(), AllocBasedOnStack(), and ManipulateMem().
 		modified:   practice_linux/include/MemoryTest.h
