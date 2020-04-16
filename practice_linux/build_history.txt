@@ -1,3 +1,7 @@
+April 16 Mon, 2020
+	1. modified CDriverTest::FirstDriver() to test myscull device.
+		practice_linux/src/DriverTest.cpp
+
 April 13 Mon, 2020
 	1. added new class CDriverTest and a function.
 		practice_linux/include/DriverTest.h
