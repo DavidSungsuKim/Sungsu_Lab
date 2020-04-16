@@ -1,4 +1,0 @@
-April 13 Mon, 2020
-	1. added helloworld and virtual_device.
-		Here virtual_device doesn't seem to be properly registered in "/dev".
-		I don't know why at the moment.
