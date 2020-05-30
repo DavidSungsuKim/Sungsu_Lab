@@ -35,10 +35,11 @@ CMemoryTest::AllocDynamicMemory()
 	pName3 = (char*)malloc( size );	
 	
 	printf("AllocDynamicMemory: malloc()...\n");
-	printf("pName1=0x%x\n", (int)pName1);
-	printf("pName2=0x%x\n", (int)pName2);
-	printf("pName3=0x%x\n", (int)pName3);
-	
+
+	printf("pName1=0x%lx\n", (long)pName1);
+	printf("pName2=0x%lx\n", (long)pName2);
+	printf("pName3=0x%lx\n", (long)pName3);	
+
 	char* 	pName1c;
 	char* 	pName2c;
 	char* 	pName3c;
@@ -48,10 +49,11 @@ CMemoryTest::AllocDynamicMemory()
 	pName3c = (char*)calloc( size, sizeof(char) );	
 
 	printf("AllocDynamicMemory: calloc()...\n");	
-	printf("pName1c=0x%x\n", (int)pName1c);
-	printf("pName2c=0x%x\n", (int)pName2c);
-	printf("pName3c=0x%x\n", (int)pName3c);	
-	
+
+	printf("pName1c=0x%lx\n", (long)pName1c);
+	printf("pName2c=0x%lx\n", (long)pName2c);
+	printf("pName3c=0x%lx\n", (long)pName3c);	
+
 	free( pName1 );
 	free( pName2 );
 	free( pName3 );
@@ -66,24 +68,25 @@ CMemoryTest::AlignMem()
 {
 	int ret;
 	
-	int*	pNormal;	
-	int*	pAligned;
+	long*	pNormal;	
+	long*	pAligned;
 	size_t	alignment	= 8 * sizeof(int);	// Note that alignment must be a power of 2 and be a multiple of the pointer
 	size_t	size		= 8;
 
-	int		rem;
+	long	rem;
 	
 	// Get memory
-	pNormal	= (int*)malloc( size );	
+	pNormal	= (long*)malloc( size );	
 	if ( !pNormal )
 	{
 		perror("malloc");
 		return;
 	}
 	
-	rem = (int)pNormal % alignment;
-	printf("AlignMem: pNormal=0x%x, 	size=%d, rem=%d\n", (int)pNormal, size, rem );
-	
+	rem = (long)pNormal % alignment;
+
+	printf("AlignMem: pNormal=0x%lx, 	size=%ld, rem=%ld\n", (long)pNormal, size, rem );
+
 	// Get aligned memory
 	ret = posix_memalign( (void**)&pAligned, alignment, size );
 	if ( ret )
@@ -93,8 +96,8 @@ CMemoryTest::AlignMem()
 	}
 	
 	// Check if it is aligned as intended
-	rem = (int)pAligned % alignment;
-	printf("AlignMem: pAlingned=0x%x, alignment=%d, size=%d rem=%d\n", (int)pAligned, alignment, size, rem );
+	rem = (long)pAligned % alignment;
+	printf("AlignMem: pAlingned=0x%lx, alignment=%ld, size=%ld rem=%ld\n", (long)pAligned, alignment, size, rem );
 	
 	// Release them
 	free( pNormal );
@@ -141,7 +144,7 @@ CMemoryTest::AnonymousMapping()
 		return;
 	}
 	
-	printf("AnonymousMapping: p=0x%x, length=%d\n", (int)p, length );
+	printf("AnonymousMapping: p=0x%lx, length=%ld\n", (long)p, length );
 	
 	// Check if it's really all zero in the memory obtained
 	//	; There shouldn't be any value rather than zero since the memory is from pages pre-filled with zero.
@@ -151,7 +154,7 @@ CMemoryTest::AnonymousMapping()
 	{
 		if ( *pByte != 0 )
 		{
-			printf("AnonymousMapping: not zero! 0x%x\n", (int)pByte );
+			printf("AnonymousMapping: not zero! 0x%lx\n", (long)pByte );
 			break;
 		}
 		
@@ -205,7 +208,7 @@ CMemoryTest::UseDevZeroObsolete()
 		return;
 	}
 	
-	printf("UseDevZeroObsolete: p=0x%x, length=%d\n", (int)p, length );
+	printf("UseDevZeroObsolete: p=0x%lx, length=%ld\n", (long)p, length );
 	
 	if ( close( fd ))
 		perror("close");
@@ -217,7 +220,7 @@ CMemoryTest::UseDevZeroObsolete()
 	{
 		if ( *pByte != 0 )
 		{
-			printf("UseDevZeroObsolete: not zero! 0x%x\n", (int)pByte );
+			printf("UseDevZeroObsolete: not zero! 0x%lx\n", (long)pByte );
 			break;
 		}
 		
@@ -259,10 +262,10 @@ CMemoryTest::AdvancedMemoryAlloc()
 	
 	// Get the actual memory size	
 	size = malloc_usable_size( buf );
-	printf("AdvancedMemoryAlloc: alloc=%d byte, actual size alloc=%d\n", len, size );
+	printf("AdvancedMemoryAlloc: alloc=%ld byte, actual size alloc=%ld\n", len, size );
 	
 	buf[size-1] = 'A';
-	printf("AdvancedMemoryAlloc: buf[%d]=%c\n", size-1, buf[size-1] );
+	printf("AdvancedMemoryAlloc: buf[%ld]=%c\n", size-1, buf[size-1] );
 		
 	// Try to trim the memory
 	int padding = M_TOP_PAD;
@@ -271,7 +274,7 @@ CMemoryTest::AdvancedMemoryAlloc()
 		perror("malloc_trim");
 
 	size = malloc_usable_size( buf );
-	printf("AdvancedMemoryAlloc: alloc=%d byte, actual size trimed=%d\n", len, size );	
+	printf("AdvancedMemoryAlloc: alloc=%ld byte, actual size trimed=%ld\n", len, size );	
 
 	// Statistics information
 	struct mallinfo info;
@@ -309,11 +312,11 @@ CMemoryTest::AllocBasedOnStack( int a )
 	int* m = (int*)malloc( size );
 	*m = 5;
 	
-	printf("AllocBasedOnStack: a=0x%x\n", (int)&a );
-	printf("AllocBasedOnStack: x=0x%x\n", (int)&x );
-	printf("AllocBasedOnStack: y=0x%x\n", (int)&y );
-	printf("AllocBasedOnStack: p=0x%x\n", (int)p );
-	printf("AllocBasedOnStack: m=0x%x\n", (int)m );	
+	printf("AllocBasedOnStack: a=0x%lx\n", (long)&a );
+	printf("AllocBasedOnStack: x=0x%lx\n", (long)&x );
+	printf("AllocBasedOnStack: y=0x%lx\n", (long)&y );
+	printf("AllocBasedOnStack: p=0x%lx\n", (long)p );
+	printf("AllocBasedOnStack: m=0x%lx\n", (long)m );	
 	
 	// Working of memory by alloca().
 	// Although it's made from stack, it doesn't disapear getting out of a loop; it works as if that from malloc().
@@ -357,7 +360,7 @@ CMemoryTest::ManipulateMem()
 		
 		ret = memcmp( buf1, buf2, n );
 		if ( ret == 0 )
-			printf("ManipulateMem: same the first n=%d bytes\n", n );
+			printf("ManipulateMem: same the first n=%ld bytes\n", n );
 		else
 			printf("ManipulateMem: diff\n");
 			
@@ -427,8 +430,8 @@ CMemoryTest::ManipulateMem()
 		char  needle[] 	= "se";
 		char* pFound;
 		
-		printf("ManipulateMem: sizeof(name)=%d sizeof(needle)=%d\n", sizeof(name), sizeof(needle));
-		printf("ManipulateMem: strlen(name)=%d strlen(needle)=%d\n", strlen(name), strlen(needle));
+		printf("ManipulateMem: sizeof(name)=%ld sizeof(needle)=%ld\n", sizeof(name), sizeof(needle));
+		printf("ManipulateMem: strlen(name)=%ld strlen(needle)=%ld\n", strlen(name), strlen(needle));
 		
 	/*	Note that here I have to use 'strlen(needle)' or 'sizeof(needle)-1'
 	 * 	since needle contains '\0' at the end of it.

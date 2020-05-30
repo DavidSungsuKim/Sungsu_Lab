@@ -171,7 +171,7 @@ CProcTest::WaitPid()
 {
 	int ret = 0;
 
-	int status;
+	int status = 0;
 	pid_t	pid;
 	
 	pid = fork();
@@ -207,7 +207,7 @@ CProcTest::WaitPid()
 	printf( "pid=%d\n", pid );	
 
 	if ( WIFEXITED(status))
-	printf( "Normal termination with exit status=%d\n", WEXITSTATUS( status ));
+		printf( "Normal termination with exit status=%d\n", WEXITSTATUS( status ));
 
 	if ( WIFSIGNALED(status))
 		printf( "Killed by signal=%d%s\n", WTERMSIG(status), WCOREDUMP(status) ? " (dumped core)" : "" );

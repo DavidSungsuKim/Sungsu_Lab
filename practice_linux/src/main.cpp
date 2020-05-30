@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
 //	testDir.MoveFile				(argc, (const char**)argv );
 //	testDir.TestInotify				(argc, (const char**)argv );
 	
-	CMemoryTest	testMemory;
+//	CMemoryTest	testMemory;
 //	testMemory.AllocDynamicMemory();
 //	testMemory.AlignMem();
 //	testMemory.DataSegment();

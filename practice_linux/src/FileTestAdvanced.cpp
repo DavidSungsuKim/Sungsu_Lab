@@ -61,7 +61,7 @@ CFileTestAdv::WriteVector()
 		perror("writev");
 		return;
 	}
-	printf("WriteVector: word %d bytes\n", nr);
+	printf("WriteVector: word %ld bytes\n", nr);
 	
 	if ( close(fd) )
 		perror("close");
