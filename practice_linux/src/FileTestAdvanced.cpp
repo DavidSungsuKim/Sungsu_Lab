@@ -61,7 +61,12 @@ CFileTestAdv::WriteVector()
 		perror("writev");
 		return;
 	}
+
+#if ( __SIZEOF_LONG__ == 8 )	
 	printf("WriteVector: word %ld bytes\n", nr);
+#else
+	printf("WriteVector: word %d bytes\n", nr);
+#endif
 	
 	if ( close(fd) )
 		perror("close");

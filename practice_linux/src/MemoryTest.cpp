@@ -85,7 +85,11 @@ CMemoryTest::AlignMem()
 	
 	rem = (long)pNormal % alignment;
 
+#if ( __SIZEOF_LONG == 8 )
 	printf("AlignMem: pNormal=0x%lx, 	size=%ld, rem=%ld\n", (long)pNormal, size, rem );
+#else
+	printf("AlignMem: pNormal=0x%lx, 	size=%d, rem=%ld\n", (long)pNormal, size, rem );
+#endif
 
 	// Get aligned memory
 	ret = posix_memalign( (void**)&pAligned, alignment, size );
@@ -97,7 +101,12 @@ CMemoryTest::AlignMem()
 	
 	// Check if it is aligned as intended
 	rem = (long)pAligned % alignment;
+	
+#if ( __SIZEOF_LONG == 8 )
 	printf("AlignMem: pAlingned=0x%lx, alignment=%ld, size=%ld rem=%ld\n", (long)pAligned, alignment, size, rem );
+#else	
+	printf("AlignMem: pAlingned=0x%lx, alignment=%d, size=%d rem=%ld\n", (long)pAligned, alignment, size, rem );
+#endif
 	
 	// Release them
 	free( pNormal );
@@ -144,7 +153,11 @@ CMemoryTest::AnonymousMapping()
 		return;
 	}
 	
+#if ( __SIZEOF_LONG__ == 8 )	
 	printf("AnonymousMapping: p=0x%lx, length=%ld\n", (long)p, length );
+#else
+	printf("AnonymousMapping: p=0x%lx, length=%d\n", (long)p, length );
+#endif
 	
 	// Check if it's really all zero in the memory obtained
 	//	; There shouldn't be any value rather than zero since the memory is from pages pre-filled with zero.
@@ -208,7 +221,11 @@ CMemoryTest::UseDevZeroObsolete()
 		return;
 	}
 	
+#if ( __SIZEOF_LONG__ == 8 )	
 	printf("UseDevZeroObsolete: p=0x%lx, length=%ld\n", (long)p, length );
+#else
+	printf("UseDevZeroObsolete: p=0x%lx, length=%d\n", (long)p, length );
+#endif
 	
 	if ( close( fd ))
 		perror("close");
@@ -262,11 +279,21 @@ CMemoryTest::AdvancedMemoryAlloc()
 	
 	// Get the actual memory size	
 	size = malloc_usable_size( buf );
+	
+#if ( __SIZEOF_LONG__ == 8 )
 	printf("AdvancedMemoryAlloc: alloc=%ld byte, actual size alloc=%ld\n", len, size );
+#else
+	printf("AdvancedMemoryAlloc: alloc=%d byte, actual size alloc=%d\n", len, size );
+#endif
 	
 	buf[size-1] = 'A';
+	
+#if ( __SIZEOF_LONG__ == 8 )
 	printf("AdvancedMemoryAlloc: buf[%ld]=%c\n", size-1, buf[size-1] );
-		
+#else
+	printf("AdvancedMemoryAlloc: buf[%d]=%c\n", size-1, buf[size-1] );
+#endif
+
 	// Try to trim the memory
 	int padding = M_TOP_PAD;
 	ret = malloc_trim( padding ); 	
@@ -274,7 +301,12 @@ CMemoryTest::AdvancedMemoryAlloc()
 		perror("malloc_trim");
 
 	size = malloc_usable_size( buf );
+	
+#if ( __SIZEOF_LONG__ == 8 )		
 	printf("AdvancedMemoryAlloc: alloc=%ld byte, actual size trimed=%ld\n", len, size );	
+#else
+	printf("AdvancedMemoryAlloc: alloc=%d byte, actual size trimed=%d\n", len, size );	
+#endif
 
 	// Statistics information
 	struct mallinfo info;
@@ -360,7 +392,11 @@ CMemoryTest::ManipulateMem()
 		
 		ret = memcmp( buf1, buf2, n );
 		if ( ret == 0 )
+#if ( __SIZEOF_LONG__ == 8 )				
 			printf("ManipulateMem: same the first n=%ld bytes\n", n );
+#else
+			printf("ManipulateMem: same the first n=%d bytes\n", n );			
+#endif
 		else
 			printf("ManipulateMem: diff\n");
 			
@@ -430,8 +466,13 @@ CMemoryTest::ManipulateMem()
 		char  needle[] 	= "se";
 		char* pFound;
 		
+#if ( __SIZEOF__LONG == 8 )
 		printf("ManipulateMem: sizeof(name)=%ld sizeof(needle)=%ld\n", sizeof(name), sizeof(needle));
 		printf("ManipulateMem: strlen(name)=%ld strlen(needle)=%ld\n", strlen(name), strlen(needle));
+#else
+		printf("ManipulateMem: sizeof(name)=%d sizeof(needle)=%d\n", sizeof(name), sizeof(needle));
+		printf("ManipulateMem: strlen(name)=%d strlen(needle)=%d\n", strlen(name), strlen(needle));
+#endif
 		
 	/*	Note that here I have to use 'strlen(needle)' or 'sizeof(needle)-1'
 	 * 	since needle contains '\0' at the end of it.

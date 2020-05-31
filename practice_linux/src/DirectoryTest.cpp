@@ -592,7 +592,12 @@ CDirectoryTest::TestInotify(int argc, const char* argv[])
 		// Note that this call for fdInot blocks unless there is something to read; 
 		len = read( fdInot, buf, eBUF_SIZE );
 
+#if ( __SIZEOF_LONG == 8 )
 		printf("TestInotify: event notified, len=%ld\n", len );		
+#else
+		printf("TestInotify: event notified, len=%d\n", len );		
+#endif
+
 		while( i < len )
 		{
 			struct inotify_event* event = (struct inotify_event*)&buf[i];
