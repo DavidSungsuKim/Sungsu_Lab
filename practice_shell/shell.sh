@@ -45,6 +45,6 @@ else
 	echo "false"
 fi
 
-# testing?
+# branch named "test"
 
 exit 0
