@@ -1,4 +1,6 @@
 
+#include "Common.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -62,7 +64,7 @@ CFileTestAdv::WriteVector()
 		return;
 	}
 
-#if ( __SIZEOF_LONG__ == 8 )	
+#ifdef _LONG_8BYTE__
 	printf("WriteVector: word %ld bytes\n", nr);
 #else
 	printf("WriteVector: word %d bytes\n", nr);

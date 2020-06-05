@@ -1,4 +1,6 @@
 
+#include "Common.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -85,7 +87,7 @@ CMemoryTest::AlignMem()
 	
 	rem = (long)pNormal % alignment;
 
-#if ( __SIZEOF_LONG == 8 )
+#ifdef _LONG_8BYTE__
 	printf("AlignMem: pNormal=0x%lx, 	size=%ld, rem=%ld\n", (long)pNormal, size, rem );
 #else
 	printf("AlignMem: pNormal=0x%lx, 	size=%d, rem=%ld\n", (long)pNormal, size, rem );
@@ -102,7 +104,7 @@ CMemoryTest::AlignMem()
 	// Check if it is aligned as intended
 	rem = (long)pAligned % alignment;
 	
-#if ( __SIZEOF_LONG == 8 )
+#ifdef _LONG_8BYTE__
 	printf("AlignMem: pAlingned=0x%lx, alignment=%ld, size=%ld rem=%ld\n", (long)pAligned, alignment, size, rem );
 #else	
 	printf("AlignMem: pAlingned=0x%lx, alignment=%d, size=%d rem=%ld\n", (long)pAligned, alignment, size, rem );
@@ -153,7 +155,7 @@ CMemoryTest::AnonymousMapping()
 		return;
 	}
 	
-#if ( __SIZEOF_LONG__ == 8 )	
+#ifdef _LONG_8BYTE__
 	printf("AnonymousMapping: p=0x%lx, length=%ld\n", (long)p, length );
 #else
 	printf("AnonymousMapping: p=0x%lx, length=%d\n", (long)p, length );
@@ -221,7 +223,7 @@ CMemoryTest::UseDevZeroObsolete()
 		return;
 	}
 	
-#if ( __SIZEOF_LONG__ == 8 )	
+#ifdef _LONG_8BYTE__
 	printf("UseDevZeroObsolete: p=0x%lx, length=%ld\n", (long)p, length );
 #else
 	printf("UseDevZeroObsolete: p=0x%lx, length=%d\n", (long)p, length );
@@ -280,7 +282,7 @@ CMemoryTest::AdvancedMemoryAlloc()
 	// Get the actual memory size	
 	size = malloc_usable_size( buf );
 	
-#if ( __SIZEOF_LONG__ == 8 )
+#ifdef _LONG_8BYTE__
 	printf("AdvancedMemoryAlloc: alloc=%ld byte, actual size alloc=%ld\n", len, size );
 #else
 	printf("AdvancedMemoryAlloc: alloc=%d byte, actual size alloc=%d\n", len, size );
@@ -288,7 +290,7 @@ CMemoryTest::AdvancedMemoryAlloc()
 	
 	buf[size-1] = 'A';
 	
-#if ( __SIZEOF_LONG__ == 8 )
+#ifdef _LONG_8BYTE__
 	printf("AdvancedMemoryAlloc: buf[%ld]=%c\n", size-1, buf[size-1] );
 #else
 	printf("AdvancedMemoryAlloc: buf[%d]=%c\n", size-1, buf[size-1] );
@@ -302,7 +304,7 @@ CMemoryTest::AdvancedMemoryAlloc()
 
 	size = malloc_usable_size( buf );
 	
-#if ( __SIZEOF_LONG__ == 8 )		
+#ifdef _LONG_8BYTE__	
 	printf("AdvancedMemoryAlloc: alloc=%ld byte, actual size trimed=%ld\n", len, size );	
 #else
 	printf("AdvancedMemoryAlloc: alloc=%d byte, actual size trimed=%d\n", len, size );	
@@ -392,7 +394,7 @@ CMemoryTest::ManipulateMem()
 		
 		ret = memcmp( buf1, buf2, n );
 		if ( ret == 0 )
-#if ( __SIZEOF_LONG__ == 8 )				
+#ifdef _LONG_8BYTE__			
 			printf("ManipulateMem: same the first n=%ld bytes\n", n );
 #else
 			printf("ManipulateMem: same the first n=%d bytes\n", n );			
@@ -466,7 +468,7 @@ CMemoryTest::ManipulateMem()
 		char  needle[] 	= "se";
 		char* pFound;
 		
-#if ( __SIZEOF__LONG == 8 )
+#ifdef _LONG_8BYTE__
 		printf("ManipulateMem: sizeof(name)=%ld sizeof(needle)=%ld\n", sizeof(name), sizeof(needle));
 		printf("ManipulateMem: strlen(name)=%ld strlen(needle)=%ld\n", strlen(name), strlen(needle));
 #else

@@ -1,4 +1,6 @@
 
+#include "Common.h"
+
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -592,7 +594,7 @@ CDirectoryTest::TestInotify(int argc, const char* argv[])
 		// Note that this call for fdInot blocks unless there is something to read; 
 		len = read( fdInot, buf, eBUF_SIZE );
 
-#if ( __SIZEOF_LONG == 8 )
+#ifdef _LONG_8BYTE__
 		printf("TestInotify: event notified, len=%ld\n", len );		
 #else
 		printf("TestInotify: event notified, len=%d\n", len );		
