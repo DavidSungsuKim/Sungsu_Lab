@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/bin/bin",
             "preLaunchTask": "Build C++ project",
-            "args": [],
+            "args": [1,"0x10"]
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
