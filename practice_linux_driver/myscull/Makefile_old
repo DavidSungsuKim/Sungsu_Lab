@@ -1,0 +1,15 @@
+KERNELDIR = /home/pi/git_repository/Kernel/linux-5.4.44
+
+obj-m = myscull.o
+
+KDIR := /home/pi/git_repository/Kernel/linux-5.4.44
+PWD := $(shell pwd)
+
+default:
+	$(MAKE) -C $(KERNELDIR) SUBDIRS=$(PWD) modules
+	
+clean:
+	rm -rf *.ko
+	rm -rf *.mod.*
+	rm -rf *.cmd
+	rm -rf *.o
