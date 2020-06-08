@@ -1,12 +1,12 @@
-KERNELDIR = /home/pi/git_repository/Kernel/linux-4.19.114
+KERNELDIR = /lib/modules/$(shell uname -r)/build
 
 obj-m = myscull.o
 
-KDIR := /home/pi/git_repository/Kernel/linux-4.19.114
+KDIR := /lib/modules/$(shell uname -r)/build
 PWD := $(shell pwd)
 
 default:
-	$(MAKE) -C $(KERNELDIR) SUBDIRS=$(PWD) modules
+	$(MAKE) -C $(KDIR) M=$(PWD) modules
 	
 clean:
 	rm -rf *.ko
