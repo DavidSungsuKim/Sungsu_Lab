@@ -1,6 +1,4 @@
 
-#pragma once
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -91,7 +89,7 @@ int		ListCount(StList *apList);
 
 int main()
 {
-	{
+/*	{
 		Func1(1, &Func11);
 		Func1(1, &Func2);
 
@@ -115,7 +113,7 @@ int main()
 		}
 
 		i = 0;
-	}
+	}*/
 
 	int i;
 

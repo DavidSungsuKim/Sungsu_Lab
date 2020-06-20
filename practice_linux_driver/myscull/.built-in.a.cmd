@@ -1,0 +1,1 @@
+cmd_/home/pi/git_repository/Sungsu_Lab/practice_linux_driver/myscull/built-in.a := rm -f /home/pi/git_repository/Sungsu_Lab/practice_linux_driver/myscull/built-in.a; ar cDPrST /home/pi/git_repository/Sungsu_Lab/practice_linux_driver/myscull/built-in.a 
