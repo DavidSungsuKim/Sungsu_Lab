@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "..//include/LinkedList.h"
+#include "..//include/DoublyLinkedList.h"
 
 extern "C"
 {
@@ -95,7 +96,7 @@ int main()
 		i = 0;
 	}*/
 
-	int i;
+/*	int i;
 
 	StList list;
 	ListInit(&list);
@@ -114,6 +115,42 @@ int main()
 		printf("data(removed)=%d, count=%d\n", data, ListCount(&list));
 
 	ListTerminate(&list);
+	*/
+
+	CDoublyList list;
+
+	int i;
+	Data a;
+	
+	for(i = 0; i < 10; i++)
+	{
+		a = i;
+	//	list.PushBack(a);
+		list.PushFront(a);
+	}
+
+	list.First(a);
+	printf("first=%d\n\n", a);
+	for (i = 0; i < 10; i++)
+	{
+		list.Next(a);
+		printf("next=%d\n", a);
+	}
+	printf("\n");
+
+	for (i = 0; i < 10; i++)
+	{
+		list.Prev(a);
+		printf("prev=%d\n", a);
+	}
+
+//	for (i = 0; i < 10; i++)
+//		list.PopBack(a);
+
+	a = 3;
+	printf("find %d == %s\n", a, list.Find(a) == 0 ? "found" : "not found");
+
+	list.RemoveAll();
 
 	return 0;
 }
