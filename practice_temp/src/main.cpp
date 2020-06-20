@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "..//include/LinkedList.h"
+
 extern "C"
 {
 	typedef void(*pFunc)(void);
@@ -65,28 +67,6 @@ void TestStatic()
 	static int s_2 = 0;
 }
 
-
-typedef struct stNode
-{
-	int data;
-	stNode *pNext;
-}StNode;
-
-typedef struct stList
-{
-	StNode *head;
-	StNode *tail;
-	StNode *cur;
-	int		num;
-}StList;
-
-void	ListInit(StList *apList);
-int		ListFirst(StList *apList, int *apData);
-void	ListInsert(StList *apList, int aData);
-int		ListNext(StList *apList, int *apData);
-int		ListRemove(StList *apList, int *apData);
-int		ListCount(StList *apList);
-
 int main()
 {
 /*	{
@@ -133,84 +113,7 @@ int main()
 	while (!ListRemove(&list, &data))
 		printf("data(removed)=%d, count=%d\n", data, ListCount(&list));
 
-	return 0;
-}
-
-void
-ListInit(StList *apList)
-{
-	apList->head = NULL;
-	apList->cur = NULL;
-	apList->num = 0;
-}
-
-int
-ListFirst(StList *apList, int *apData)
-{
-	if (!apList->num)
-		return -1;
-
-	*apData = apList->head->data;
-	apList->cur = apList->head->pNext;
-	return 0;
-}
-
-void
-ListInsert(StList *apList, int aData)
-{
-	StNode* node = (StNode*)malloc(sizeof(StNode));
-
-	node->data = aData;
-
-	if (apList->head == NULL)
-	{
-		node->pNext = NULL;
-		apList->head = node;
-	}
-	else
-	{
-		node->pNext = apList->head;
-		apList->head = node;
-	}
-
-	apList->num++;
-}
-
-int
-ListNext(StList *apList, int *apData)
-{
-	if (!apList->num)
-		return -1;
-
-	if (!apList->cur)
-		return -2;
-
-	*apData = apList->cur->data;
-	apList->cur = apList->cur->pNext;
+	ListTerminate(&list);
 
 	return 0;
-}
-
-int
-ListRemove(StList *apList, int *apData)
-{
-	if (!apList->num)
-		return -1;
-
-	*apData = apList->head->data;
-
-	StNode* node = apList->head;
-	apList->head = apList->head->pNext;
-
-	free(node);
-
-	apList->num--;
-
-	return 0;
-}
-
-int
-ListCount(StList *apList)
-{
-	return apList->num;
 }
