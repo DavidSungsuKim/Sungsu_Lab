@@ -100,8 +100,8 @@ CDoublyList::PopBack(Data& aData)
 
 	StNode *prevNew = m_pTail->pPrev->pPrev;
 
-	m_pTail->pPrev = m_pTail->pPrev->pPrev;
-	prevNew->pNext = m_pTail;
+	m_pTail->pPrev->pPrev->pNext = m_pTail;
+	m_pTail->pPrev = prevNew;
 
 	free (node);
 	m_num--;
@@ -120,8 +120,8 @@ CDoublyList::PopFront(Data& aData)
 
 	StNode* nextNew = m_pHead->pNext->pNext;
 
-	m_pHead->pNext = m_pHead->pNext->pNext;
-	nextNew->pPrev = m_pHead;
+	m_pHead->pNext->pNext->pPrev = m_pHead;
+	m_pHead->pNext = nextNew;
 
 	free (node);
 	m_num--;
