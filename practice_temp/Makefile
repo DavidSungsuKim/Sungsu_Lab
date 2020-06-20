@@ -20,6 +20,9 @@ run: clean all
 $(BIN)/$(EXECUTABLE): $(SRC)/*.cpp
 	$(CXX) $(CXX_FLAGS) -I$(INCLUDE) -L$(LIB) $^ -o $@ $(LIBRARIES) $(CXX_FLAGS2)
 
+
+exe: #Execute the program
+	./$(BIN)/$(EXECUTABLE)
 clean:
 #Sungsu-uncomment below when needed..
 #	-rm $(BIN)/*
