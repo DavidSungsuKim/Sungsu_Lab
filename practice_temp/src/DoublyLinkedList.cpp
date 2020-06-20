@@ -16,6 +16,9 @@ CDoublyList::~CDoublyList()
 void
 CDoublyList::Init()
 {
+	if ( m_bInit )
+		Terminate();
+
 	// dummy node
 	m_pHead = GetNewNode();
 	m_pTail = GetNewNode();
@@ -119,9 +122,9 @@ CDoublyList::PopFront(Data& aData)
 
 	m_pHead->pNext = m_pHead->pNext->pNext;
 	nextNew->pPrev = m_pHead;
-	m_num--;
 
 	free (node);
+	m_num--;
 
 	return 0;
 }
@@ -167,10 +170,8 @@ CDoublyList::Find(Data& aData)
 	while ( m_pCur->pNext != m_pTail )
 	{
 		m_pCur = pNode;
-
 		if ( pNode->data == aData )
 			return 0;
-
 		pNode = pNode->pNext;
 	}
 
