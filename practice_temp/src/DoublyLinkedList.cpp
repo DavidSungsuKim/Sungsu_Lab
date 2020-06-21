@@ -3,6 +3,8 @@
 
 #include "..//include/DoublyLinkedList.h"
 
+#define _DEBUG_LIST_	
+
 CDoublyList::CDoublyList()
 {
 	Init();
@@ -70,6 +72,10 @@ CDoublyList::PushBack(Data& aData)
 	m_pTail->pPrev = node;
 
 	m_num++;
+
+#ifdef _DEBUG_LIST_
+	printf("PushBack, n=%d\n", m_num );
+#endif
 	return 0;
 }
 
@@ -86,6 +92,10 @@ CDoublyList::PushFront(Data& aData)
 	m_pHead->pNext = node;
 
 	m_num++;
+
+#ifdef _DEBUG_LIST_
+	printf("PushFront, n=%d\n", m_num);
+#endif
 	return 0;
 }
 
@@ -106,6 +116,9 @@ CDoublyList::PopBack(Data& aData)
 	free (node);
 	m_num--;
 
+#ifdef _DEBUG_LIST_
+	printf("PopBack, n=%d\n", m_num);
+#endif
 	return 0;
 }
 
@@ -126,6 +139,9 @@ CDoublyList::PopFront(Data& aData)
 	free (node);
 	m_num--;
 
+#ifdef _DEBUG_LIST_
+	printf("PopFront, n=%d\n", m_num);
+#endif
 	return 0;
 }
 
