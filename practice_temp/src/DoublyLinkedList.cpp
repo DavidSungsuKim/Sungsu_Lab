@@ -37,6 +37,8 @@ CDoublyList::Init()
 
 	m_pCur	= NULL;
 
+	m_num	= 0;
+
 	m_bInit = true;
 }
 
