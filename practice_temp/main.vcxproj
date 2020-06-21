@@ -145,8 +145,14 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ClassTest.cpp" />
     <ClCompile Include="src\DoublyLinkedList.cpp" />
+    <ClCompile Include="src\LinkedList.cpp" />
     <ClCompile Include="src\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\ClassTest.h" />
+    <ClInclude Include="include\LinkedList.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
