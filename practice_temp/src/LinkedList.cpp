@@ -121,3 +121,102 @@ ListCount(StList *apList)
 {
 	return apList->num;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+CLinkedList::CLinkedList()
+{
+	Init();
+}
+
+CLinkedList::~CLinkedList()
+{
+	RemoveAll();
+	if ( !m_head )
+		free (m_head);
+}
+
+void	
+CLinkedList::Init()
+{
+	// Assign dummy node
+	m_head = (StNode*)malloc(sizeof(StNode));
+	m_head->pNext = NULL;
+	m_head->data = 9999;
+
+	m_cur = m_head->pNext;
+
+#ifdef _USE_TAIL_
+	m_tail = m_head;
+#endif
+}
+
+int
+CLinkedList::First(Data& arData)
+{
+	m_cur = m_head->pNext;
+	return 0;
+}
+
+int		
+CLinkedList::Insert(Data& arData)
+{
+	// Insert from the head.
+	
+	StNode* node = (StNode*)malloc(sizeof(StNode));
+	node->data = arData;
+	
+	node->pNext = m_head->pNext;
+	m_head->pNext = node;
+
+	m_num++;
+
+	return 0;
+}
+
+int		
+CLinkedList::Next(Data& arData)
+{
+	if (!m_num)
+		return -1;
+
+	if (!m_cur)
+		return -2;
+
+	arData = m_cur->data;
+	m_cur = m_cur->pNext;
+
+	return 0;
+}
+
+int
+CLinkedList::Remove(Data& arData)
+{
+/*	if (!m_num)
+		return -1;
+
+	StNode* node = m_cur;
+
+	m_cur->pNext
+
+	free(node);
+	m_num--;
+	*/
+
+	return -1;
+
+
+	return 0;
+}
+
+int
+CLinkedList::RemoveAll()
+{
+	return -1;
+}
+
+int		
+CLinkedList::Count()
+{
+	return m_num;
+}

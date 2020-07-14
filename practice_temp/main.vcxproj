@@ -88,6 +88,9 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <OmitFramePointers>false</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,13 +149,25 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ClassTest.cpp" />
+    <ClCompile Include="src\DesignPattern.cpp" />
     <ClCompile Include="src\DoublyLinkedList.cpp" />
     <ClCompile Include="src\LinkedList.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Queue.cpp" />
+    <ClCompile Include="src\Stack.cpp" />
+    <ClCompile Include="src\StructTest.cpp" />
+    <ClCompile Include="src\ThreadTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ClassTest.h" />
+    <ClInclude Include="include\Common.h" />
+    <ClInclude Include="include\DesignPattern.h" />
+    <ClInclude Include="include\DoublyLinkedList.h" />
     <ClInclude Include="include\LinkedList.h" />
+    <ClInclude Include="include\Queue.h" />
+    <ClInclude Include="include\Stack.h" />
+    <ClInclude Include="include\StructTest.h" />
+    <ClInclude Include="include\ThreadTest.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
