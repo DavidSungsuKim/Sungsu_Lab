@@ -4,3 +4,6 @@
 #endif
 
 #include <stdlib.h>
+#include <stdio.h>
+
+#define printf_error(x) printf("error:%s, file=%s, line=%d\n", x, __FILE__, __LINE__ );

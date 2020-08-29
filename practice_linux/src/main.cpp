@@ -14,6 +14,7 @@
 #include "DirectoryTest.h"
 #include "MemoryTest.h"
 #include "DriverTest.h"
+#include "GPIOTest.h"
 
 int main(int argc, char* argv[]) 
 {
@@ -49,6 +50,7 @@ int main(int argc, char* argv[])
 	CDirectoryTest	testDir;
 	CMemoryTest		testMemory;
 	CDriverTest		testDriver;
+	CGpioInterface	*pGpioIF = NULL;
 
 	const char* fileRead			= "/home/pi/git_repository/Sungsu_Lab/practice_linux/bin/test.txt";
 	const char* fileWrite 			= "/home/pi/git_repository/Sungsu_Lab/practice_linux/bin/testWrite.txt";
@@ -160,6 +162,28 @@ int main(int argc, char* argv[])
 			printf("CDriverTest..\n");
 			if ( funcFlag & 0x0001 )	testDriver.FirstDriver			();
 			break;
+			
+		case 10:
+			pGpioIF = new CGpioPGpio;
+			
+			if ( funcFlag & 0x0001 )	pGpioIF->TestGpio1();
+			if ( funcFlag & 0x0002 )	pGpioIF->TestGpio2();
+		
+			delete pGpioIF;
+			pGpioIF = NULL;
+			break;
+			
+		case 11:
+			pGpioIF = new CGpioLGpiod;
+			
+			if ( funcFlag & 0x0001 )	pGpioIF->TestGpio1();
+			if ( funcFlag & 0x0002 )	pGpioIF->TestGpio2();
+		
+			delete pGpioIF;
+			pGpioIF = NULL;
+					
+			break;
+			
 		default:
 			break;
 	}
