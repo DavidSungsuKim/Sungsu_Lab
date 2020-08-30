@@ -19,20 +19,28 @@ CGpioPGpio::~CGpioPGpio()
 {
 	if ( m_bInit )
 		gpioTerminate();
-		
-	m_bInit = false;
 }
 
 void
 CGpioPGpio::TestGpio1()
 {
 	TestPGpio( 2, eMODE_OUTPUT, 1 );
+//	TestPWM(2, 10000, 0);
 }
 
 void
 CGpioPGpio::TestGpio2()
 {
 	TestPGpio( 2, eMODE_OUTPUT, 0 );
+
+/*	int duty = 100;
+	while(duty)
+	{
+		TestPWM(2, 10000, duty);
+		duty -= 20;
+		sleep(1);
+	}
+	*/
 }
 
 void
@@ -40,7 +48,7 @@ CGpioPGpio::TestPGpio(int aLine, int aMode, int aValue)
 {
 	if ( !m_bInit )
 	{
-		printf_error("not init");
+		_printf_error("not init");
 		return;
 	}
 
@@ -59,8 +67,41 @@ CGpioPGpio::TestPGpio(int aLine, int aMode, int aValue)
 	}
 	else
 	{
-		printf_error("undefined mode");
+		_printf_error("undefined mode");
 	}
+}
+
+void
+CGpioPGpio::TestPWM(int aLine, int aFreq, int aDuty)
+{
+	int ret = 0;
+
+	printf("CGpioPGpio::TestPWM, line=%d, freq=%d, duty=%d\n", aLine, aFreq, aDuty);
+	if ( !m_bInit )
+	{
+		_printf_error("not init");
+		return;
+	}
+
+	gpioSetMode(aLine, PI_OUTPUT);
+	
+/*	ret = gpioServo(aLine, 1000);
+	if ( ret )
+		_printf_ret_error(ret, "gpioServo");
+*/
+/*	ret = gpioSetPWMfrequency(aLine, aFreq);
+	if ( ret )
+		_printf_ret_error(ret,"gpioSetPWMfrequency");
+*/
+	int dutyVal = (aDuty * 255) / 100;
+	if ( dutyVal < 0 )
+		dutyVal = 0;
+
+	printf("dutyVal=%d\n", dutyVal);
+
+	ret = gpioPWM(aLine, dutyVal);
+	if ( ret )
+		_printf_error("PWM");
 }
 
 ///////////////////////////////////
@@ -94,7 +135,7 @@ CGpioLGpiod::TestLGpio(int aLine, int aMode, int aValue)
 {
 	if ( !m_pChip )
 	{
-		printf_error("no chip");
+		_printf_error("no chip");
 		return;
 	}
 	
@@ -111,14 +152,14 @@ CGpioLGpiod::TestLGpio(int aLine, int aMode, int aValue)
 		ret = gpiod_line_request_output( pLine, "null", GPIOD_LINE_ACTIVE_STATE_HIGH );
 		if ( ret )
 		{
-			printf_error("request output failed");
+			_printf_error("request output failed");
 			goto _EXIT;
 		}
 	
 		ret = gpiod_line_set_value( pLine, value );		
 		if ( ret )
 		{
-			printf_error("set value failed");
+			_printf_error("set value failed");
 			goto _EXIT;
 		}		
 
@@ -136,7 +177,7 @@ CGpioLGpiod::TestLGpio(int aLine, int aMode, int aValue)
 	}
 	else
 	{
-		printf_error("unknown mode");
+		_printf_error("unknown mode");
 		goto _EXIT;
 	}
 

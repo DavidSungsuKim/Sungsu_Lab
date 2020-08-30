@@ -55,6 +55,7 @@ public:
 	void TestGpio2();
 
 	void TestPGpio(int aLine, int aMode, int aValue);
+	void TestPWM(int aLine, int aFreq, int aDuty);
 };
 
 #endif
