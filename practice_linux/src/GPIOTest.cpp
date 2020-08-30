@@ -2,6 +2,9 @@
 #include "Common.h"
 #include "GPIOTest.h"
 
+#include <unistd.h>
+#include <sys/time.h>
+#include <sys/times.h>
 #include <pigpio.h>
 
 CGpioPGpio::CGpioPGpio()
@@ -103,13 +106,41 @@ CGpioLGpiod::TestLGpio(int aLine, int aMode, int aValue)
 	
 	struct gpiod_line *pLine = gpiod_chip_get_line( m_pChip, line );
 	
-	gpiod_line_release(pLine);
-	
 	if ( mode == eMODE_OUTPUT )
 	{
-		ret = gpiod_line_request_output( pLine, "null", 0 );
-		
+		ret = gpiod_line_request_output( pLine, "null", GPIOD_LINE_ACTIVE_STATE_HIGH );
+		if ( ret )
+		{
+			printf_error("request output failed");
+			goto _EXIT;
+		}
+	
 		ret = gpiod_line_set_value( pLine, value );		
-		
+		if ( ret )
+		{
+			printf_error("set value failed");
+			goto _EXIT;
+		}		
+
+	/* Comment
+	 * I don't know why, but there seems to be current leakage even when I don't turn it on in libgpiod mode.
+	 * It's different from when I used pigpio.
+	 * I can test with these code.
+		printf("wait..\n");
+		sleep(1);
+		*/
 	}
+	else if ( mode == eMODE_INPUT )
+	{
+		; // TBD
+	}
+	else
+	{
+		printf_error("unknown mode");
+		goto _EXIT;
+	}
+
+_EXIT:
+	gpiod_line_release(pLine);
+	return;
 }
