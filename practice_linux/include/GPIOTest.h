@@ -58,4 +58,32 @@ public:
 	void TestPWM(int aLine, int aFreq, int aDuty);
 };
 
+class CGpioDirectReg : public CGpioInterface
+{
+public:
+	CGpioDirectReg();
+	~CGpioDirectReg();
+
+protected:
+	int	m_memFd;
+	void	*m_pGpioMap;
+	volatile unsigned *m_pGpio;
+
+public:
+	void TestGpio1();
+	void TestGpio2();
+
+	void TestRegGpio(int aLine, int aMode, int aValue);
+
+protected:
+	void SetupIo();
+
+	inline void INP_GPIO	(int aLine) { *(m_pGpio+(aLine/10)) &= ~(7<<((aLine%10)*3)); }
+	inline void OUT_GPIO	(int aLine) { *(m_pGpio+(aLine/10)) |=  (1<<((aLine%10)*3)); }
+
+	inline void GPIO_SET	(int aLine) { *(m_pGpio+7)  = 1 << aLine; }
+	inline void GPIO_CLR	(int aLine) { *(m_pGpio+10) = 1 << aLine; }
+
+};
+
 #endif

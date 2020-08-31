@@ -7,6 +7,15 @@
 #include <sys/times.h>
 #include <pigpio.h>
 
+// Direct register access
+#include <fcntl.h>
+#include <sys/mman.h>
+
+#define BCM2711_PERI_BASE 	0xFE000000
+#define BLOCK_SIZE 		(4 * 1024)
+#define PAGE_SIZE		(4 * 1024)
+#define GPIO_BASE 	(	BCM2711_PERI_BASE + 0x200000)
+
 CGpioPGpio::CGpioPGpio()
 {
 	m_bInit = true;
@@ -184,4 +193,96 @@ CGpioLGpiod::TestLGpio(int aLine, int aMode, int aValue)
 _EXIT:
 	gpiod_line_release(pLine);
 	return;
+}
+
+//////////////////////////////////////////////////////////
+
+CGpioDirectReg::CGpioDirectReg()
+{
+	m_memFd = -1;
+	m_pGpioMap = NULL;
+	m_pGpio	= NULL;
+
+	SetupIo();
+}
+
+CGpioDirectReg::~CGpioDirectReg()
+{
+	if ( m_pGpioMap != NULL )
+		munmap( m_pGpioMap, BLOCK_SIZE );
+}
+
+void
+CGpioDirectReg::TestGpio1()
+{
+	TestRegGpio( 2, eMODE_OUTPUT, 1 );
+}
+
+void
+CGpioDirectReg::TestGpio2()
+{
+	TestRegGpio( 2, eMODE_OUTPUT, 0 );
+}
+
+void 
+CGpioDirectReg::TestRegGpio(int aLine, int aMode, int aValue)
+{
+	if ( !m_pGpio )
+	{
+		_printf_error("m_pGpio=NULL");
+		return;
+	}
+
+	int line = aLine;
+	int mode = aMode;
+
+	if ( mode == eMODE_OUTPUT )
+	{
+
+		INP_GPIO( line );
+		OUT_GPIO( line );
+
+		if ( aValue )
+			GPIO_SET( line );
+		else
+			GPIO_CLR( line );
+	}
+	else if ( mode == eMODE_INPUT )
+	{
+		;// TBD
+	}
+	else
+		_printf_error("unknown mode");
+
+	return;
+}
+
+void
+CGpioDirectReg::SetupIo()
+{
+	m_memFd = open("/dev/mem", O_RDWR | O_SYNC);
+	if ( m_memFd < 0 )
+	{
+		_printf_error("memFd fail");
+		return;
+	}
+
+	m_pGpioMap = mmap( NULL,
+			BLOCK_SIZE,
+			PROT_READ | PROT_WRITE,
+			MAP_SHARED,
+			m_memFd,
+			GPIO_BASE);
+
+	close( m_memFd );
+
+	printf("SetupIO, memFd=%d, pGpioMap=0x%lx\n", m_memFd, (long int)m_pGpioMap);
+
+	if ( m_pGpioMap == MAP_FAILED )
+	{
+		_printf_error("map failed");
+		return;
+	}
+
+	m_pGpio = (volatile unsigned*)m_pGpioMap;
 }

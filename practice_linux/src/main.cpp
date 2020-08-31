@@ -164,6 +164,7 @@ int main(int argc, char* argv[])
 			break;
 			
 		case 10:
+			printf("CGpioPGpio..\n");
 			pGpioIF = new CGpioPGpio;
 			
 			if ( funcFlag & 0x0001 )	pGpioIF->TestGpio1();
@@ -174,6 +175,7 @@ int main(int argc, char* argv[])
 			break;
 			
 		case 11:
+			printf("CGpioLGpiod..\n");
 			pGpioIF = new CGpioLGpiod;
 			
 			if ( funcFlag & 0x0001 )	pGpioIF->TestGpio1();
@@ -183,6 +185,16 @@ int main(int argc, char* argv[])
 			pGpioIF = NULL;
 			break;
 			
+		case 12:
+			printf("CGpioDirectReg..\n");
+			pGpioIF = new CGpioDirectReg;
+			
+			if ( funcFlag & 0x0001 )	pGpioIF->TestGpio1();
+			if ( funcFlag & 0x0002 )	pGpioIF->TestGpio2();
+		
+			delete pGpioIF;
+			pGpioIF = NULL;
+			break;
 		default:
 			break;
 	}
