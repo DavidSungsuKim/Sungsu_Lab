@@ -122,6 +122,7 @@ CGpioLGpiod::CGpioLGpiod()
 {
 	m_pChip = NULL;
 	m_pChip = gpiod_chip_open("/dev/gpiochip0");
+
 	m_pLine = NULL;
 	m_line  = -1;
 
@@ -136,6 +137,9 @@ CGpioLGpiod::CGpioLGpiod()
 
 CGpioLGpiod::~CGpioLGpiod()
 {
+	if ( m_pLine )
+		gpiod_line_release( m_pLine );
+
 	if ( m_pChip )
 		gpiod_chip_close( m_pChip );
 }
@@ -144,7 +148,7 @@ void
 CGpioLGpiod::TestGpio1()
 {
 //	TestLGpio( 2, eMODE_OUTPUT, 1 );
-	StartMonitorInput();	
+	StartMonitorInput(2);	
 }
 
 void
@@ -159,29 +163,24 @@ CGpioLGpiod::TestGpio3()
 {
 	printf("Input numbers:\n 1: Start monitoring\n 2: End monitoring\n 3: Terminate\n");
 
+	int line = 2;
+
 	int num;
+
+	// Parser
 	while(1)
 	{
 		scanf("%d",&num);
 
-		if ( num == 1 )
-		{
-			StartMonitorInput();
-		}
-		else if ( num == 2 )
-		{
-			StopMonitorInput();
-		}
-		else if ( num == 3 )
+		if 	( num == 1 )	StartMonitorInput( line );
+		else if ( num == 2 )	StopMonitorInput();
+		else if ( num == 3 )	
 		{
 			TerminateMonitorInput();
 			break;
 		}
 		else
-		{
-			printf("You entered wrong character...\n");
-		}
-
+			printf("You entered a wrong character...\n");
 	}
 
 /*	int ret;
@@ -194,14 +193,14 @@ CGpioLGpiod::TestGpio3()
 }
 
 void
-CGpioLGpiod::StartMonitorInput()
+CGpioLGpiod::StartMonitorInput(int aLine)
 {
 	printf("StartMonitorInput\n");
 
 	if ( m_pLine == NULL )
 	{
-		m_line = 2;
-		TestLGpio( m_line, eMODE_INPUT, 0 );
+		TestLGpio( aLine, eMODE_INPUT, 0 );
+		m_line = aLine;
 	}
 	
 	m_monInput = 1;
@@ -246,7 +245,7 @@ CGpioLGpiod::Task()
 		else if ( m_monInput == -1 )
 			break;
 
-		usleep(10);
+		usleep(1000);
 	//	sleep(1);
 	}
 }
@@ -272,11 +271,13 @@ CGpioLGpiod::TestLGpio(int aLine, int aMode, int aValue)
 	
 	int ret = 0;
 	
-	int line = aLine;
-	int mode = aMode;
+	int line  = aLine;
+	int mode  = aMode;
 	int value = aValue;
 	
 	struct gpiod_line *pLine = gpiod_chip_get_line( m_pChip, line );
+	
+	// Update line
 	m_pLine = pLine;
 	
 	if ( mode == eMODE_OUTPUT )
@@ -308,8 +309,11 @@ CGpioLGpiod::TestLGpio(int aLine, int aMode, int aValue)
 		ret = gpiod_line_request_input( pLine, "null" );
 		if ( ret )
 		{
+			printf("pLine=0x%x\n", (unsigned int)pLine);
 			_printf_error("request input");
 		}
+		
+		// In this case the line is not released at this point.
 		return;
 	}
 	else

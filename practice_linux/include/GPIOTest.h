@@ -49,7 +49,7 @@ public:
 	void TestGpio3();
 
 	void TestLGpio(int aLine, int aMode, int aValue);
-	void StartMonitorInput();
+	void StartMonitorInput(int aLine);
 	void StopMonitorInput();
 	void TerminateMonitorInput();
 protected:
