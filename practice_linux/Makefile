@@ -1,6 +1,6 @@
 CXX		  := g++
 CXX_FLAGS := -Wall -Wextra -std=c++17 -ggdb -pthread
-CXX_FLAGS2 := -lrt
+CXX_FLAGS2 := -lrt -lgpiod -lpigpio
 
 BIN		:= bin
 SRC		:= src
@@ -23,3 +23,4 @@ $(BIN)/$(EXECUTABLE): $(SRC)/*.cpp
 clean:
 #Sungsu-uncomment below when needed..
 #	-rm $(BIN)/*
+	rm -rf $(BIN)/bin

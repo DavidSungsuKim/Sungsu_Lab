@@ -1,1 +1,1 @@
-cmd_/home/pi/git_repository/Sungsu_Lab/practice_linux_driver/myscull/myscull.mod := { echo  /home/pi/git_repository/Sungsu_Lab/practice_linux_driver/myscull/myscull.o; echo; } > /home/pi/git_repository/Sungsu_Lab/practice_linux_driver/myscull/myscull.mod
+cmd_/home/sungsu/git_repository/Sungsu_Lab/practice_linux_driver/myscull/myscull.mod := { echo  /home/sungsu/git_repository/Sungsu_Lab/practice_linux_driver/myscull/myscull.o; echo; } > /home/sungsu/git_repository/Sungsu_Lab/practice_linux_driver/myscull/myscull.mod
