@@ -1,3 +1,9 @@
+Sep. 7 Mon, 2020
+	1. added test codes for GPIO input with libgpiod.
+		practice_linux/src/GPIOTest.cpp
+		practice_linux/src/main.cpp
+		practice_linux/include/GPIOTest.cpp
+
 April 16 Mon, 2020
 	1. modified CDriverTest::FirstDriver() to test myscull device.
 		practice_linux/src/DriverTest.cpp

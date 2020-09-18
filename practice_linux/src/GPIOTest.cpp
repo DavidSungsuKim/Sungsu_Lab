@@ -5,6 +5,9 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/times.h>
+
+#include <pthread.h>
+
 #include <pigpio.h>
 
 // Direct register access
@@ -119,10 +122,24 @@ CGpioLGpiod::CGpioLGpiod()
 {
 	m_pChip = NULL;
 	m_pChip = gpiod_chip_open("/dev/gpiochip0");
+
+	m_pLine = NULL;
+	m_line  = -1;
+
+	m_monInput = 0;
+	m_bTaskRun = false;
+
+	int ret;
+	ret = pthread_create( &m_Task, NULL, TaskProc, (void*)this );
+	if ( ret )
+		_printf_error("pthread create fail");
 }
 
 CGpioLGpiod::~CGpioLGpiod()
 {
+	if ( m_pLine )
+		gpiod_line_release( m_pLine );
+
 	if ( m_pChip )
 		gpiod_chip_close( m_pChip );
 }
@@ -130,13 +147,117 @@ CGpioLGpiod::~CGpioLGpiod()
 void
 CGpioLGpiod::TestGpio1()
 {
-	TestLGpio( 2, eMODE_OUTPUT, 1 );
+//	TestLGpio( 2, eMODE_OUTPUT, 1 );
+	StartMonitorInput(2);	
 }
 
 void
 CGpioLGpiod::TestGpio2()
 {
-	TestLGpio( 2, eMODE_OUTPUT, 0 );
+//	TestLGpio( 2, eMODE_OUTPUT, 0 );
+	StopMonitorInput();
+}
+
+void 
+CGpioLGpiod::TestGpio3()
+{
+	printf("Input numbers:\n 1: Start monitoring\n 2: End monitoring\n 3: Terminate\n");
+
+	int line = 2;
+
+	int num;
+
+	// Parser
+	while(1)
+	{
+		scanf("%d",&num);
+
+		if 	( num == 1 )	StartMonitorInput( line );
+		else if ( num == 2 )	StopMonitorInput();
+		else if ( num == 3 )	
+		{
+			TerminateMonitorInput();
+			break;
+		}
+		else
+			printf("You entered a wrong character...\n");
+	}
+
+/*	int ret;
+	int *pVal;
+	ret = pthread_join( m_Task, (void**)&pVal );
+	if ( ret )
+		_printf_error("pthread_join");
+	*/
+	return;
+}
+
+void
+CGpioLGpiod::StartMonitorInput(int aLine)
+{
+	printf("StartMonitorInput\n");
+
+	if ( m_pLine == NULL )
+	{
+		TestLGpio( aLine, eMODE_INPUT, 0 );
+		m_line = aLine;
+	}
+	
+	m_monInput = 1;
+}
+
+void
+CGpioLGpiod::StopMonitorInput()
+{
+	printf("StopMonitorInput\n");
+	m_monInput = 0;
+}
+
+void
+CGpioLGpiod::TerminateMonitorInput()
+{
+	printf("TerminateMonitorInput\n");
+	m_monInput = -1;
+}
+
+void
+CGpioLGpiod::Task()
+{
+	int count = 0;
+
+	printf("Wait...\n");
+	sleep(3);
+	printf("Task..Started\n");
+
+	for(;;)
+	{
+		if ( m_monInput == 1 )
+		{
+			if ( m_pLine == NULL )
+			{
+				_printf_error("m_pLine NULL");
+				continue;
+			}
+
+			int value = gpiod_line_get_value( m_pLine );
+			printf("Line%d status=%d count=%d\r", m_line, value, count++);
+		}
+		else if ( m_monInput == -1 )
+			break;
+
+		usleep(1000);
+	//	sleep(1);
+	}
+}
+
+void*
+CGpioLGpiod::TaskProc(void* apVoid)
+{
+	CGpioLGpiod* p = (CGpioLGpiod*)apVoid;
+
+	p->Task();
+
+	return NULL;
 }
 
 void
@@ -150,11 +271,14 @@ CGpioLGpiod::TestLGpio(int aLine, int aMode, int aValue)
 	
 	int ret = 0;
 	
-	int line = aLine;
-	int mode = aMode;
+	int line  = aLine;
+	int mode  = aMode;
 	int value = aValue;
 	
 	struct gpiod_line *pLine = gpiod_chip_get_line( m_pChip, line );
+	
+	// Update line
+	m_pLine = pLine;
 	
 	if ( mode == eMODE_OUTPUT )
 	{
@@ -182,7 +306,15 @@ CGpioLGpiod::TestLGpio(int aLine, int aMode, int aValue)
 	}
 	else if ( mode == eMODE_INPUT )
 	{
-		; // TBD
+		ret = gpiod_line_request_input( pLine, "null" );
+		if ( ret )
+		{
+			printf("pLine=0x%x\n", (unsigned int)pLine);
+			_printf_error("request input");
+		}
+		
+		// In this case the line is not released at this point.
+		return;
 	}
 	else
 	{

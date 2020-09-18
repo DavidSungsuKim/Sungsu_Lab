@@ -181,6 +181,8 @@ int main(int argc, char* argv[])
 			if ( funcFlag & 0x0001 )	pGpioIF->TestGpio1();
 			if ( funcFlag & 0x0002 )	pGpioIF->TestGpio2();
 		
+			pGpioIF->TestGpio3();
+
 			delete pGpioIF;
 			pGpioIF = NULL;
 			break;

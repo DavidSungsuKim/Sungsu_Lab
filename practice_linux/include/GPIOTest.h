@@ -1,6 +1,7 @@
 #ifndef _GPIOTEST_H_
 #define _GPIOTEST_H
 
+#include <pthread.h>
 #include <gpiod.h>
 
 class CGpioInterface
@@ -23,6 +24,7 @@ public:
 
 	virtual void TestGpio1()=0;
 	virtual void TestGpio2()=0;
+	virtual void TestGpio3()=0;
 };
 
 class CGpioLGpiod : public CGpioInterface
@@ -33,12 +35,27 @@ public:
 
 protected:
 	struct gpiod_chip *m_pChip;
+	struct gpiod_line *m_pLine;
+	int m_line;
+	
+	pthread_t m_Task;
+	int  m_monInput;
+	bool m_bTaskRun;
 
 public:
+	// CGpioInterface Overrides
 	void TestGpio1();
 	void TestGpio2();
-	
+	void TestGpio3();
+
 	void TestLGpio(int aLine, int aMode, int aValue);
+	void StartMonitorInput(int aLine);
+	void StopMonitorInput();
+	void TerminateMonitorInput();
+protected:
+
+	void Task();
+	static void* TaskProc(void* apVoid);
 };
 
 class CGpioPGpio : public CGpioInterface
@@ -51,8 +68,10 @@ protected:
 	bool m_bInit;
 
 public:
+	// CGpioInterface Overrides
 	void TestGpio1();
 	void TestGpio2();
+	void TestGpio3() {};
 
 	void TestPGpio(int aLine, int aMode, int aValue);
 	void TestPWM(int aLine, int aFreq, int aDuty);
@@ -70,8 +89,10 @@ protected:
 	volatile unsigned *m_pGpio;
 
 public:
+	// CGpioInterface Overrides
 	void TestGpio1();
 	void TestGpio2();
+	void TestGpio3() {};
 
 	void TestRegGpio(int aLine, int aMode, int aValue);
 
