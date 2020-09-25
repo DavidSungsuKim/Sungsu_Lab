@@ -309,7 +309,7 @@ CGpioLGpiod::TestLGpio(int aLine, int aMode, int aValue)
 		ret = gpiod_line_request_input( pLine, "null" );
 		if ( ret )
 		{
-			printf("pLine=0x%x\n", (unsigned int)pLine);
+			printf("pLine=0x%lx\n", (unsigned long)pLine);
 			_printf_error("request input");
 		}
 		
