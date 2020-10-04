@@ -17,7 +17,7 @@
 #define BCM2711_PERI_BASE 	0xFE000000
 #define BLOCK_SIZE 		(4 * 1024)
 #define PAGE_SIZE		(4 * 1024)
-#define GPIO_BASE 	(	BCM2711_PERI_BASE + 0x200000)
+#define GPIO_BASE 		(BCM2711_PERI_BASE + 0x200000)
 
 CGpioPGpio::CGpioPGpio()
 {
@@ -309,7 +309,7 @@ CGpioLGpiod::TestLGpio(int aLine, int aMode, int aValue)
 		ret = gpiod_line_request_input( pLine, "null" );
 		if ( ret )
 		{
-			printf("pLine=0x%x\n", (unsigned int)pLine);
+			printf("pLine=0x%lx\n", (unsigned long)pLine);
 			_printf_error("request input");
 		}
 		
