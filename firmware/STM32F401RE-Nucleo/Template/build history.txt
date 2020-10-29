@@ -1,0 +1,2 @@
+Oct.29, 2020
+	1. registered template projects with suppports for IAR EW and TrueStudio.
