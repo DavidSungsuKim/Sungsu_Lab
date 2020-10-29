@@ -1,0 +1,2 @@
+Oct.29, 2020
+	1. registered Template_FreeRTOS with a support for TrueStudio.
