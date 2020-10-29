@@ -13,7 +13,7 @@
 	};
 
 	fragment@1 {
-		target = <&spi0>;
+		target = <&spi0>;						// Sungsu : fragment@1 is for spi0. 
 		frag1: __overlay__ {
 			cs-gpios = <&gpio 8 1>, <&gpio 7 1>;
 			status = "okay";

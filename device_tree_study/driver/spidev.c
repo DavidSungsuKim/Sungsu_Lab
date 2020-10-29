@@ -665,7 +665,7 @@ static const struct file_operations spidev_fops = {
 static struct class *spidev_class;
 
 #ifdef CONFIG_OF
-static const struct of_device_id spidev_dt_ids[] = {	// Sungsu : compatible
+static const struct of_device_id spidev_dt_ids[] = {	// Sungsu : compatible. "of_device_id" is used to find this driver by the device.
 	{ .compatible = "rohm,dh2228fv" },
 	{ .compatible = "lineartechnology,ltc2488" },
 	{ .compatible = "ge,achc" },
@@ -717,7 +717,7 @@ static inline void spidev_probe_acpi(struct spi_device *spi) {}
 
 /*-------------------------------------------------------------------------*/
 
-static int spidev_probe(struct spi_device *spi)
+static int spidev_probe(struct spi_device *spi)		// Sungsu : probe function.
 {
 	struct spidev_data	*spidev;
 	int			status;

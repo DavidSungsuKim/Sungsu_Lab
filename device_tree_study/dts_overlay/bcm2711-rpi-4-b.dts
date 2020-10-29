@@ -4,7 +4,7 @@
 #include "bcm2835-rpi.dtsi"
 
 / {
-	compatible = "raspberrypi,4-model-b", "brcm,bcm2711";
+	compatible = "raspberrypi,4-model-b", "brcm,bcm2711";	// Sungsu : root node
 	model = "Raspberry Pi 4 Model B";
 
 	chosen {
@@ -270,7 +270,7 @@
 	pinctrl-0 = <&uart1_pins>;
 };
 
-&spi0 {
+&spi0 {										// Sungsu : spi0
 	pinctrl-names = "default";
 	pinctrl-0 = <&spi0_pins &spi0_cs_pins>;
 	cs-gpios = <&gpio 8 1>, <&gpio 7 1>;

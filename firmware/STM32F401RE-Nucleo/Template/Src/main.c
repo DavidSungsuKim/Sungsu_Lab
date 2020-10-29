@@ -101,7 +101,7 @@ int main(void)
     HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
     
     /* Insert delay 100 ms */
-    HAL_Delay(100);
+    HAL_Delay(1000);
   }
 }
 
