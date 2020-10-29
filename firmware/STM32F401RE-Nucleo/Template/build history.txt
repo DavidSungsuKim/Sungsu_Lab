@@ -1,2 +1,5 @@
 Oct.29, 2020
 	1. registered template projects with suppports for IAR EW and TrueStudio.
+	
+	1. added test codes for SPI comm.
+	   When I call this function, LED2 doesn't work. I need to check.
