@@ -65,47 +65,27 @@ static void Error_Handler(void);
   */
 int main(void)
 {
-
-  /* STM32F4xx HAL library initialization:
-       - Configure the Flash prefetch, Flash preread and Buffer caches
-       - Systick timer is configured by default as source of time base, but user 
-             can eventually implement his proper time base source (a general purpose 
-             timer for example or other time source), keeping in mind that Time base 
-             duration should be kept 1ms since PPP_TIMEOUT_VALUEs are defined and 
-             handled in milliseconds basis.
-       - Low Level Initialization
-     */
   HAL_Init();
   
   /* Configure the System clock to 84 MHz */
   SystemClock_Config();
-  
-  /* -1- Enable GPIOA Clock (to be able to program the configuration registers) */
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  
-  /* -2- Configure PA05 IO in output push-pull mode to
-         drive external LED */
-  GPIO_InitStruct.Pin 	= GPIO_PIN_5;
-  GPIO_InitStruct.Mode 	= GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull 	= GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); 
 
-  /* Add your application code here
-     */
+  /* Add your application code here  */
+//BSP_LED_Init(LED2); // In case of calling InitSPI(), LED2 related functions can't be used; the pin is shared..
+
   uint8_t spiTxData = 0x00;
   InitSPI();
 
   /* Infinite loop */
   while (1)
   {
-    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+	//BSP_LED_Toggle(LED2);
     
-    DoSPITest( spiTxData );
-    spiTxData++;
+	  DoSPITest( spiTxData );
+	  spiTxData++;
 
-    /* Insert delay 100 ms */
-    HAL_Delay(1000);
+	  /* Insert delay 100 ms */
+	  HAL_Delay(1000);
   }
 }
 

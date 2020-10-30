@@ -55,7 +55,7 @@ void LEDTurnOnTask( void *pvParameters )
       BSP_LED_On(LED2); // HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
       
       vTaskDelay(100);
-            
+
       xSemaphoreGive( g_sem );
       vTaskDelay(1);
     }

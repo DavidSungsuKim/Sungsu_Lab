@@ -2,18 +2,11 @@
 #include "main.h"
 #include "HardwareManager.h"
 
-static  GPIO_InitTypeDef  GPIO_InitStruct;
-
 static void SystemClock_Config  (void);
 static void Error_Handler       (void);
 
 void InitializeHW(void)
 {
-  /* This sample code shows how to use STM32F4xx GPIO HAL API to toggle PA05 IOs 
-    connected to LED2 on STM32F4xx-Nucleo board  
-    in an infinite loop.
-    To proceed, 3 steps are required: */
-
   /* STM32F4xx HAL library initialization:
        - Configure the Flash prefetch, instruction and Data caches
        - Configure the Systick to generate an interrupt each 1 msec
@@ -25,16 +18,9 @@ void InitializeHW(void)
   /* Configure the system clock to 84 MHz */
   SystemClock_Config();
     
-  /* -1- Enable GPIOA Clock (to be able to program the configuration registers) */
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  
-  /* -2- Configure PA05 IO in output push-pull mode to
-         drive external LED */
-  GPIO_InitStruct.Pin = GPIO_PIN_5;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);  
+  // Initialize modules on the Nucleo BSP.
+  BSP_LED_Init(LED2);
+//BSP_JOY_Init();
 }
 
 /**
