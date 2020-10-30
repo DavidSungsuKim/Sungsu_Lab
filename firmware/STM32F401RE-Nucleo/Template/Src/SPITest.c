@@ -17,3 +17,13 @@ void DoSPITest ( uint8_t TxData )
 	if ( TxData == RxData )
 		bSame = 0;
 }
+
+void DoSPISlaveReceive	( void )
+{
+	uint8_t dummy = 0;
+
+	mySPI_ReadByte();
+
+	dummy = 1;
+
+	return;}

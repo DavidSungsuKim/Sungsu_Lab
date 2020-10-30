@@ -79,13 +79,15 @@ int main(void)
   /* Infinite loop */
   while (1)
   {
-	//BSP_LED_Toggle(LED2);
+/*	//BSP_LED_Toggle(LED2);
     
 	  DoSPITest( spiTxData );
 	  spiTxData++;
 
-	  /* Insert delay 100 ms */
 	  HAL_Delay(1000);
+	  */
+
+	  DoSPISlaveReceive();
   }
 }
 

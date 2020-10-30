@@ -4,7 +4,8 @@
 
 #include <stdint.h>
 
-void InitSPI	( void );
-void DoSPITest	( uint8_t TxData );
+void InitSPI			( void );
+void DoSPITest			( uint8_t TxData );
+void DoSPISlaveReceive	( void );
 
 #endif

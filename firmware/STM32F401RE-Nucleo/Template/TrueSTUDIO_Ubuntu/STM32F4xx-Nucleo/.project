@@ -92,11 +92,6 @@
 			<locationURI>PARENT-2-PROJECT_LOC/readme.txt</locationURI>
 		</link>
 		<link>
-			<name>Drivers/BSP</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
 			<name>Drivers/CMSIS</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -113,11 +108,6 @@
 		</link>
 		<link>
 			<name>Example/User</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/STM32F4xx-Nucleo</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -472,17 +462,12 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Src/main.c</locationURI>
 		</link>
 		<link>
-			<name>Example/User/main.h</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Inc/main.h</locationURI>
-		</link>
-		<link>
 			<name>Example/User/stm32f4xx_it.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/stm32f4xx_it.c</locationURI>
 		</link>
 		<link>
-			<name>Drivers/BSP/STM32F4xx-Nucleo/stm32f4xx_nucleo.c</name>
+			<name>Example/User/stm32f4xx_nucleo.c</name>
 			<type>1</type>
 			<locationURI>PARENT-7-PROJECT_LOC/STM/STM32Cube_FW_F4_V1.9.0/Drivers/BSP/STM32F4xx-Nucleo/stm32f4xx_nucleo.c</locationURI>
 		</link>
