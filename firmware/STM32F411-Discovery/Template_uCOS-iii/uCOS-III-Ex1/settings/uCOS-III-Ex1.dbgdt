@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<Project>
+  <Desktop>
+    <Static>
+      <Debug-Log>
+        
+        
+      <ColumnWidth0>20</ColumnWidth0><ColumnWidth1>1221</ColumnWidth1></Debug-Log>
+      <Build>
+        <ColumnWidth0>20</ColumnWidth0>
+        <ColumnWidth1>915</ColumnWidth1>
+        <ColumnWidth2>244</ColumnWidth2>
+        <ColumnWidth3>61</ColumnWidth3>
+      </Build>
+      <Workspace>
+        <ColumnWidths>
+          
+          
+          
+          
+        <Column0>174</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
+      </Workspace>
+      <Disassembly>
+        <col-names>
+          
+          
+        <item>Disassembly</item><item>_I0</item></col-names>
+        <col-widths>
+          
+          
+        <item>500</item><item>20</item></col-widths>
+        <DisasmHistory/>
+        
+        
+      <ShowCodeCoverage>1</ShowCodeCoverage><ShowInstrProfiling>1</ShowInstrProfiling></Disassembly>
+      <UCOSIII_WNDFACT_TASK>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      <Version>1</Version><Options>5</Options><nItems>16</nItems><item0>0</item0><item1>30</item1><item2>185</item2><item3>75</item3><item4>170</item4><item5>156</item5><item6>138</item6><item7>83</item7><item8>105</item8><item9>138</item9><item10>114</item10><item11>90</item11><item12>90</item12><item13>90</item13><item14>90</item14><item15>105</item15></UCOSIII_WNDFACT_TASK>
+    <UCOSIII_WNDFACT_STATUS><PreferedWindows><Position>4</Position><ScreenPosX>9</ScreenPosX><ScreenPosY>29</ScreenPosY><Windows/></PreferedWindows></UCOSIII_WNDFACT_STATUS></Static>
+    <Windows>
+      
+      
+      
+    <Wnd3>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-5601-28951</Identity>
+            <TabName>Debug Log</TabName>
+            <Factory>Debug-Log</Factory>
+            <Session/>
+          </Tab>
+          <Tab>
+            <Identity>TabID-5078-28961</Identity>
+            <TabName>Build</TabName>
+            <Factory>Build</Factory>
+            <Session/>
+          </Tab>
+          <Tab>
+            <Identity>TabID-16998-29761</Identity>
+            <TabName>&#xD097;/OS-III Task List</TabName>
+            <Factory>UCOSIII_WNDFACT_TASK</Factory>
+            <Session/>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd3><Wnd4>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-16349-28955</Identity>
+            <TabName>Workspace</TabName>
+            <Factory>Workspace</Factory>
+            <Session>
+              
+            <NodeDict><ExpandedNode>uCOS-III-Ex1</ExpandedNode><ExpandedNode>uCOS-III-Ex1/APP</ExpandedNode></NodeDict></Session>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd4><Wnd5>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-27098-28958</Identity>
+            <TabName>Disassembly</TabName>
+            <Factory>Disassembly</Factory>
+            <Session/>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd5></Windows>
+    <Editor>
+      
+      
+      
+      
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\uCOS-III-Ex3\app.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>93</YPos2><SelStart2>5211</SelStart2><SelEnd2>5211</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\uCOS-III-Ex1\app.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>119</YPos2><SelStart2>6313</SelStart2><SelEnd2>6313</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\..\..\..\Micrium\Software\uC-CPU\cpu_core.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>997</YPos2><SelStart2>45277</SelStart2><SelEnd2>45277</SelEnd2></Tab><ActiveTab>2</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\..\..\..\Micrium\Software\uCOS-III\Source\os_core.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>645</YPos2><SelStart2>27962</SelStart2><SelEnd2>27962</SelEnd2></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Positions>
+      
+      
+      
+      
+      
+    <Top><Row0><Sizes><Toolbar-02392038><key>iaridepm.enu1</key></Toolbar-02392038></Sizes></Row0><Row1><Sizes><Toolbar-13135240><key>debuggergui.enu1</key></Toolbar-13135240></Sizes></Row1><Row2><Sizes><Toolbar-13132E50><key>armstlink.enu1</key></Toolbar-13132E50></Sizes></Row2></Top><Left><Row0><Sizes><Wnd4><Rect><Top>-2</Top><Left>-2</Left><Bottom>482</Bottom><Right>248</Right><x>-2</x><y>-2</y><xscreen>250</xscreen><yscreen>211</yscreen><sizeHorzCX>156250</sizeHorzCX><sizeHorzCY>264411</sizeHorzCY><sizeVertCX>156250</sizeVertCX><sizeVertCY>606516</sizeVertCY></Rect></Wnd4></Sizes></Row0></Left><Right><Row0><Sizes><Wnd5><Rect><Top>-2</Top><Left>-2</Left><Bottom>482</Bottom><Right>248</Right><x>-2</x><y>-2</y><xscreen>250</xscreen><yscreen>211</yscreen><sizeHorzCX>156250</sizeHorzCX><sizeHorzCY>264411</sizeHorzCY><sizeVertCX>156250</sizeVertCX><sizeVertCY>606516</sizeVertCY></Rect></Wnd5></Sizes></Row0></Right><Bottom><Row0><Sizes><Wnd3><Rect><Top>-2</Top><Left>-2</Left><Bottom>223</Bottom><Right>1602</Right><x>-2</x><y>-2</y><xscreen>1604</xscreen><yscreen>225</yscreen><sizeHorzCX>1002500</sizeHorzCX><sizeHorzCY>281955</sizeHorzCY><sizeVertCX>156250</sizeVertCX><sizeVertCY>264411</sizeVertCY></Rect></Wnd3></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+  </Desktop>
+</Project>
+
+

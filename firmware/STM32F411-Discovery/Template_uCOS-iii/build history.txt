@@ -1,0 +1,11 @@
+Project	: STM32F411-Discovery
+
+V--.--.--
+	
+	SVN Commit Date : 2015.11.27
+	Author		: Sungsu Kim
+	What's New	: 
+
+	1. First commit.
+
+	2. This project is for "STM32F411-Discovery", and is ready-to-write onto the board!.

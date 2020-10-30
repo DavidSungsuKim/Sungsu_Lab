@@ -1,0 +1,15 @@
+[3/15]
+ -. UART Receive 구현 중
+  → Tick 증가함수를 호출하는 부분이 없어서, timeout 을 1 이상으로 설정하면 먹통됨.
+
+[3/21]
+ -. SysTick_Handler()를 호출하는 곳이 확인되지 않음. 왜 그런지 확인 필요.
+
+[3/24]
+ -. OS 미사용하는 HAL 프로젝트에서는 call back 형식으로 ISR에서 함수를 호출하여 timer tick으로 쓰고있음. 계속 확인진행할 것.
+
+[3/25]
+ -. SysTick_Handler가 link는 되는데.. break point가 안걸림. 왜?
+
+12/13
+ -. file link에 문제가 있어서 다시 project에 include 해주고 하니 builid 됨. 
