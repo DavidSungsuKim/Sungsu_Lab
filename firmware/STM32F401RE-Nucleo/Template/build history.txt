@@ -1,5 +1,13 @@
 Oct.31, 2020
 	1. tested SPI communication with Raspberry PI4's spidev0.0 device.
+	
+	1. improved function interfaces for the ease of SPI test.
+	2. changed SPI1 clk pin to be PB3 which makes LED2 available at the same time.	
+		modified:   STM32F401RE-Nucleo/Template/Inc/SPITest.h
+		modified:   STM32F401RE-Nucleo/Template/Inc/stm32f4xx_nucleo.h
+		modified:   STM32F401RE-Nucleo/Template/Src/SPITest.c
+		modified:   STM32F401RE-Nucleo/Template/Src/main.c
+		modified:   STM32F401RE-Nucleo/Template/Src/stm32f4xx_nucleo.c
 
 Oct.30, 2020
 	1. applied changes in the location of libraries - STM32Cube_FW_F4_V1.9.0 to TrueStudio_Ubuntu.

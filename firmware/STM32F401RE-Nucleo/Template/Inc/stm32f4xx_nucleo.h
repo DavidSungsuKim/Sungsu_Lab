@@ -113,6 +113,7 @@ typedef enum
   */
 #define LEDn                                    1
 
+#define USE_LED2
 #define LED2_PIN                                GPIO_PIN_5
 #define LED2_GPIO_PORT                          GPIOA
 #define LED2_GPIO_CLK_ENABLE()                  __GPIOA_CLK_ENABLE()
@@ -163,11 +164,19 @@ typedef enum
 #define NUCLEO_SPIx                                     SPI1
 #define NUCLEO_SPIx_CLK_ENABLE()                        __SPI1_CLK_ENABLE()
 
-#define NUCLEO_SPIx_SCK_AF                              GPIO_AF5_SPI1
-#define NUCLEO_SPIx_SCK_GPIO_PORT                       GPIOA
-#define NUCLEO_SPIx_SCK_PIN                             GPIO_PIN_5
-#define NUCLEO_SPIx_SCK_GPIO_CLK_ENABLE()               __GPIOA_CLK_ENABLE()
-#define NUCLEO_SPIx_SCK_GPIO_CLK_DISABLE()              __GPIOA_CLK_DISABLE()
+#ifdef USE_LED2
+	#define NUCLEO_SPIx_SCK_AF                              GPIO_AF5_SPI1
+	#define NUCLEO_SPIx_SCK_GPIO_PORT                       GPIOB
+	#define NUCLEO_SPIx_SCK_PIN                             GPIO_PIN_3
+	#define NUCLEO_SPIx_SCK_GPIO_CLK_ENABLE()               __GPIOB_CLK_ENABLE()
+	#define NUCLEO_SPIx_SCK_GPIO_CLK_DISABLE()              __GPIOB_CLK_DISABLE()
+#else
+	#define NUCLEO_SPIx_SCK_AF                              GPIO_AF5_SPI1
+	#define NUCLEO_SPIx_SCK_GPIO_PORT                       GPIOA
+	#define NUCLEO_SPIx_SCK_PIN                             GPIO_PIN_5
+	#define NUCLEO_SPIx_SCK_GPIO_CLK_ENABLE()               __GPIOA_CLK_ENABLE()
+	#define NUCLEO_SPIx_SCK_GPIO_CLK_DISABLE()              __GPIOA_CLK_DISABLE()
+#endif
 
 #define NUCLEO_SPIx_MISO_MOSI_AF                        GPIO_AF5_SPI1
 #define NUCLEO_SPIx_MISO_MOSI_GPIO_PORT                 GPIOA
@@ -263,27 +272,10 @@ uint8_t          BSP_JOY_Init(void);
 JOYState_TypeDef BSP_JOY_GetState(void);
   
 /* Custom SPI application functions */
-void			mySPI_Init              (void);
-void			mySPI_WriteByte         (uint8_t Data);
-void			mySPI_WriteReadByte     (uint8_t TxData, uint8_t *RxData);
-uint8_t			mySPI_ReadByte          (void);
-
-
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
+void			BSP_SPIx_Init              	(SPI_InitTypeDef *param);
+uint8_t			BSP_SPIx_Read          		(uint16_t size, uint8_t *rxBuffe, uint32_t timeOut);
+void			BSP_SPIx_WriteByte        	(uint8_t Data);
+void			BSP_SPIx_WriteReadByte     	(uint8_t txByte, uint8_t *rxByte);
 
 #ifdef __cplusplus
 }

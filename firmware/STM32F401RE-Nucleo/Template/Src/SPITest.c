@@ -2,28 +2,71 @@
 #include "SPITest.h"
 #include "stm32f4xx_nucleo.h"
 
-void InitSPI (void)
+void InitSPIMaster (void)
 {
-	// When I call this function, LED2 doesn't work. I need to check.
-	mySPI_Init();
+	SPI_InitTypeDef param;
+
+	param.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
+	param.Direction 		= SPI_DIRECTION_2LINES;
+	param.CLKPhase 			= SPI_PHASE_2EDGE;
+	param.CLKPolarity 		= SPI_POLARITY_HIGH;
+	param.CRCCalculation 	= SPI_CRCCALCULATION_DISABLED;
+	param.CRCPolynomial 	= 7;
+	param.DataSize 			= SPI_DATASIZE_8BIT;
+	param.FirstBit 			= SPI_FIRSTBIT_MSB;
+	param.NSS 				= SPI_NSS_SOFT;
+	param.TIMode 			= SPI_TIMODE_DISABLED;
+	param.Mode 				= SPI_MODE_MASTER;
+
+	BSP_SPIx_Init(&param);
 }
 
-void DoSPITest ( uint8_t TxData )
+void TestMasterLoopback (void)
 {
-	uint8_t RxData = 0xFF;
-	mySPI_WriteReadByte( TxData, &RxData );
+	uint8_t txByte = 0xaa;
+	uint8_t rxByte = 0x00;
 
-	uint8_t bSame = 1;
-	if ( TxData == RxData )
-		bSame = 0;
+	BSP_SPIx_WriteReadByte( txByte, &rxByte );
+
+	uint8_t bSame = 0;
+	if ( txByte == rxByte )
+		bSame = 1;
 }
 
-void DoSPISlaveReceive	( void )
+void InitSPISlave (void)
 {
-	uint8_t dummy = 0;
+	SPI_InitTypeDef param;
 
-	mySPI_ReadByte();
+	param.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8; 	// effective on master mode only
+	param.Direction 		= SPI_DIRECTION_2LINES;		// SPI_DIRECTION_2LINES;
+	param.CLKPhase 			= SPI_PHASE_1EDGE;			// SPI_PHASE_2EDGE;
+	param.CLKPolarity 		= SPI_POLARITY_LOW;			// SPI_POLARITY_LOW; //SPI_POLARITY_LOW;//SPI_POLARITY_HIGH;
+	param.CRCCalculation 	= SPI_CRCCALCULATION_DISABLED;
+	param.CRCPolynomial 	= 7;
+	param.DataSize 			= SPI_DATASIZE_8BIT;
+	param.FirstBit 			= SPI_FIRSTBIT_MSB;			// effective on master mode only
+	param.NSS 				= SPI_NSS_SOFT;				// SPI_NSS_HARD_INPUT;//SPI_NSS_SOFT; // this SPI module in slave mode is internally selected
+	param.TIMode 			= SPI_TIMODE_DISABLED;
+	param.Mode 				= SPI_MODE_SLAVE;			// SPI_MODE_MASTER;
 
-	dummy = 1;
+	BSP_SPIx_Init(&param);
+}
 
-	return;}
+void ReceiveWaitSPISlave (void)
+{
+	enum
+	{
+		eLength = 32
+	};
+
+	uint8_t rxBuffer[ eLength ] = {0,};
+	uint16_t timeOut = 1000;
+
+	BSP_SPIx_Read( (uint32_t)eLength, rxBuffer, timeOut );
+
+	if ( rxBuffer[0] != 0x00 )
+		BSP_LED_Toggle(LED2);
+
+	return;
+}
+

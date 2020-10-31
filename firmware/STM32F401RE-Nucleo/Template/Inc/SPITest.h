@@ -4,8 +4,10 @@
 
 #include <stdint.h>
 
-void InitSPI			( void );
-void DoSPITest			( uint8_t TxData );
-void DoSPISlaveReceive	( void );
+void InitSPIMaster			(void);
+void TestMasterLoopback		(void);
+
+void InitSPISlave			(void);
+void ReceiveWaitSPISlave	(void);
 
 #endif

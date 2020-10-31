@@ -40,6 +40,7 @@
   */ 
   
 /* Includes ------------------------------------------------------------------*/
+#include <memory.h>
 #include "stm32f4xx_nucleo.h"
 
 /** @addtogroup BSP
@@ -128,9 +129,7 @@ static ADC_ChannelConfTypeDef sConfig;
   */
 static void       SPIx_Init(void);
 static void       SPIx_Write(uint8_t Value);
-static void       SPIx_WriteRead(uint8_t *apTxBuf, uint8_t *apRxBuf, uint16_t aSize); /* Sungsu */
 static uint32_t   SPIx_Read(void);
-static uint32_t	  SPIx_ReadSlave(uint16_t size, uint8_t *pData);
 static void       SPIx_Error(void);
 static void       SPIx_MspInit(SPI_HandleTypeDef *hspi);
 
@@ -191,7 +190,7 @@ void BSP_LED_Init(Led_TypeDef Led)
   
   HAL_GPIO_Init(GPIO_PORT[Led], &GPIO_InitStruct);
   
-  HAL_GPIO_WritePin(GPIO_PORT[Led], GPIO_PIN[Led], GPIO_PIN_RESET); 
+  HAL_GPIO_WritePin(GPIO_PORT[Led], GPIO_PIN[Led], GPIO_PIN_RESET);
 }
 
 /**
@@ -379,47 +378,6 @@ static uint32_t SPIx_Read(void)
   }
 
   return readvalue;
-}
-
-static uint32_t	SPIx_ReadSlave(uint16_t size, uint8_t *pData)
-{
-	  HAL_StatusTypeDef status = HAL_OK;
-	  uint32_t readvalue = 0;
-	  uint32_t writevalue = 0xFFFFFFFF;
-
-	  status = HAL_SPI_Receive(&hnucleo_Spi, pData, size, SpixTimeout);
-
-	  /* Check the communication status */
-	  if(status != HAL_OK)
-	  {
-		  /* De-initialize the SPI communication BUS */
-		  HAL_SPI_DeInit(&hnucleo_Spi);
-
-		  /* Re-Initiaize the SPI communication BUS */
-		//  SPIx_Init();
-		  mySPI_Init();
-	  }
-
-	  return readvalue;
-}
-
-static void SPIx_WriteRead(uint8_t *apTxBuf, uint8_t *apRxBuf, uint16_t aSize)
-{
-  HAL_StatusTypeDef status = HAL_OK;
-  
-  if ( aSize == 0 )
-    return; // error..
-  
-  status = HAL_SPI_TransmitReceive(&hnucleo_Spi, apTxBuf, apRxBuf, aSize, SpixTimeout);
-  
-  /* Check the communication status */
-  if(status != HAL_OK)
-  {
-    /* Execute user timeout callback */
-    SPIx_Error();
-  }
-
-  return;
 }
 
 /**
@@ -875,56 +833,65 @@ JOYState_TypeDef BSP_JOY_GetState(void)
   return state;
 }
 
-void mySPI_Init(void)
+void BSP_SPIx_Init(SPI_InitTypeDef *param)
 {
-	if(HAL_SPI_GetState(&hnucleo_Spi) == HAL_SPI_STATE_RESET)
-	{
-		/* SPI Config */
-		hnucleo_Spi.Instance 				= NUCLEO_SPIx;
-		hnucleo_Spi.Init.BaudRatePrescaler 	= SPI_BAUDRATEPRESCALER_8; 	// effective on master mode only
-		hnucleo_Spi.Init.Direction 			= SPI_DIRECTION_2LINES;//SPI_DIRECTION_2LINES;
-		hnucleo_Spi.Init.CLKPhase 			= SPI_PHASE_1EDGE;//SPI_PHASE_1EDGE;//SPI_PHASE_2EDGE;
-		hnucleo_Spi.Init.CLKPolarity 		= SPI_POLARITY_LOW;//SPI_POLARITY_LOW; //SPI_POLARITY_LOW;//SPI_POLARITY_HIGH;
-		hnucleo_Spi.Init.CRCCalculation 	= SPI_CRCCALCULATION_DISABLED;
-		hnucleo_Spi.Init.CRCPolynomial 		= 7;
-		hnucleo_Spi.Init.DataSize 			= SPI_DATASIZE_8BIT;
-		hnucleo_Spi.Init.FirstBit 			= SPI_FIRSTBIT_MSB;			// effective on master mode only
-		hnucleo_Spi.Init.NSS 				= SPI_NSS_SOFT;//SPI_NSS_HARD_INPUT;//SPI_NSS_SOFT;				// this SPI module in slave mode is internally selected
-		hnucleo_Spi.Init.TIMode 			= SPI_TIMODE_DISABLED;
-		hnucleo_Spi.Init.Mode 				= SPI_MODE_SLAVE;//SPI_MODE_MASTER;
+	if(HAL_SPI_GetState(&hnucleo_Spi) != HAL_SPI_STATE_RESET)
+		return;
 
-		SPIx_MspInit(&hnucleo_Spi);
-		HAL_SPI_Init(&hnucleo_Spi);
-	}
-  return;
+	/* SPI Config */
+	hnucleo_Spi.Instance = NUCLEO_SPIx;
+
+	memcpy( &hnucleo_Spi.Init, param, sizeof(SPI_InitTypeDef));
+
+	SPIx_MspInit(&hnucleo_Spi);
+	HAL_SPI_Init(&hnucleo_Spi);
 }
 
-uint8_t mySPI_ReadByte(void)
+uint8_t BSP_SPIx_Read(uint16_t size, uint8_t *rxBuffer, uint32_t timeOut)
 {
-  uint8_t data = 0;
-  
   /* Get the received data */
-  enum { SIZE_RX = 32 };
+  HAL_StatusTypeDef status = HAL_OK;
 
-  uint8_t rxBuf[SIZE_RX] = {0,};
-  data = SPIx_ReadSlave((uint16_t)SIZE_RX, rxBuf);
+  if ( timeOut == -1 )
+	  timeOut = NUCLEO_SPIx_TIMEOUT_MAX;
 
-  uint8_t bReceived = 0;
-  if ( rxBuf[0] != 0 )
-	  bReceived = 1;
+  status = HAL_SPI_Receive(&hnucleo_Spi, rxBuffer, size, timeOut);
 
-  return data;
+  /* Check the communication status */
+  if(status != HAL_OK)
+  {
+	  /* De-initialize the SPI communication BUS */
+	  HAL_SPI_DeInit(&hnucleo_Spi);
+
+	  BSP_SPIx_Init(&(hnucleo_Spi.Init));
+	  return -1;
+  }
+
+  return 0;
 }
 
-void mySPI_WriteByte(uint8_t Data)
+void BSP_SPIx_WriteByte(uint8_t Data)
 {
-  /* Send the byte */
-  SPIx_Write(Data);
+//  SPIx_Write(Data);
 }
 
-void mySPI_WriteReadByte(uint8_t TxData, uint8_t *RxData)
+void BSP_SPIx_WriteReadByte(uint8_t txByte, uint8_t *rxByte)
 {
-  SPIx_WriteRead( &TxData, RxData, 1 );
+	HAL_StatusTypeDef status = HAL_OK;
+
+	status = HAL_SPI_TransmitReceive(&hnucleo_Spi, &txByte, rxByte, 1, SpixTimeout);
+
+	/* Check the communication status */
+	if(status != HAL_OK)
+	{
+		/* Execute user timeout callback */
+		HAL_SPI_DeInit(&hnucleo_Spi);
+
+		/* Re-Initiaize the SPI communication BUS */
+		BSP_SPIx_Init(&(hnucleo_Spi.Init));
+	}
+
+	return;
 }
 /**
   * @}
