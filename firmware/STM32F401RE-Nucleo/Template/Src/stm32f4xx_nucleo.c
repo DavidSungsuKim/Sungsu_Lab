@@ -351,7 +351,7 @@ static void SPIx_Init(void)
     hnucleo_Spi.Init.FirstBit = SPI_FIRSTBIT_MSB;
     hnucleo_Spi.Init.NSS = SPI_NSS_SOFT;
     hnucleo_Spi.Init.TIMode = SPI_TIMODE_DISABLED;
-    hnucleo_Spi.Init.Mode = SPI_MODE_SLAVE;//SPI_MODE_MASTER;
+    hnucleo_Spi.Init.Mode = SPI_MODE_MASTER;
 
     SPIx_MspInit(&hnucleo_Spi);
     HAL_SPI_Init(&hnucleo_Spi);
@@ -392,8 +392,12 @@ static uint32_t	SPIx_ReadSlave(uint16_t size, uint8_t *pData)
 	  /* Check the communication status */
 	  if(status != HAL_OK)
 	  {
-	    /* Execute user timeout callback */
-	    SPIx_Error();
+		  /* De-initialize the SPI communication BUS */
+		  HAL_SPI_DeInit(&hnucleo_Spi);
+
+		  /* Re-Initiaize the SPI communication BUS */
+		//  SPIx_Init();
+		  mySPI_Init();
 	  }
 
 	  return readvalue;
@@ -873,8 +877,43 @@ JOYState_TypeDef BSP_JOY_GetState(void)
 
 void mySPI_Init(void)
 {
-  SPIx_Init();
+	if(HAL_SPI_GetState(&hnucleo_Spi) == HAL_SPI_STATE_RESET)
+	{
+		/* SPI Config */
+		hnucleo_Spi.Instance 				= NUCLEO_SPIx;
+		hnucleo_Spi.Init.BaudRatePrescaler 	= SPI_BAUDRATEPRESCALER_8; 	// effective on master mode only
+		hnucleo_Spi.Init.Direction 			= SPI_DIRECTION_2LINES;//SPI_DIRECTION_2LINES;
+		hnucleo_Spi.Init.CLKPhase 			= SPI_PHASE_1EDGE;//SPI_PHASE_1EDGE;//SPI_PHASE_2EDGE;
+		hnucleo_Spi.Init.CLKPolarity 		= SPI_POLARITY_LOW;//SPI_POLARITY_LOW; //SPI_POLARITY_LOW;//SPI_POLARITY_HIGH;
+		hnucleo_Spi.Init.CRCCalculation 	= SPI_CRCCALCULATION_DISABLED;
+		hnucleo_Spi.Init.CRCPolynomial 		= 7;
+		hnucleo_Spi.Init.DataSize 			= SPI_DATASIZE_8BIT;
+		hnucleo_Spi.Init.FirstBit 			= SPI_FIRSTBIT_MSB;			// effective on master mode only
+		hnucleo_Spi.Init.NSS 				= SPI_NSS_SOFT;//SPI_NSS_HARD_INPUT;//SPI_NSS_SOFT;				// this SPI module in slave mode is internally selected
+		hnucleo_Spi.Init.TIMode 			= SPI_TIMODE_DISABLED;
+		hnucleo_Spi.Init.Mode 				= SPI_MODE_SLAVE;//SPI_MODE_MASTER;
+
+		SPIx_MspInit(&hnucleo_Spi);
+		HAL_SPI_Init(&hnucleo_Spi);
+	}
   return;
+}
+
+uint8_t mySPI_ReadByte(void)
+{
+  uint8_t data = 0;
+  
+  /* Get the received data */
+  enum { SIZE_RX = 32 };
+
+  uint8_t rxBuf[SIZE_RX] = {0,};
+  data = SPIx_ReadSlave((uint16_t)SIZE_RX, rxBuf);
+
+  uint8_t bReceived = 0;
+  if ( rxBuf[0] != 0 )
+	  bReceived = 1;
+
+  return data;
 }
 
 void mySPI_WriteByte(uint8_t Data)
@@ -887,25 +926,6 @@ void mySPI_WriteReadByte(uint8_t TxData, uint8_t *RxData)
 {
   SPIx_WriteRead( &TxData, RxData, 1 );
 }
-
-uint8_t mySPI_ReadByte(void)
-{
-  uint8_t data = 0;
-  
-  /* Get the received data */
-  enum
-  {
-	  SIZE_RX = 32
-  };
-
-  uint8_t rxBuf[SIZE_RX] = {0,};
-  data = SPIx_ReadSlave((uint16_t)SIZE_RX, rxBuf);
-
-  /* Return the shifted data */
-  return data;
-}
-
-
 /**
   * @}
   */ 
