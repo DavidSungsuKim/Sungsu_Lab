@@ -153,7 +153,7 @@
 			status = "disabled";
 		};
 
-		spi3: spi@7e204600 {
+		spi3: spi@7e204600 {								// Sungsu : spi0,1,and 2 are common components both in BCM2711 and BCM283x; they're not listed here.
 			compatible = "brcm,bcm2835-spi";
 			reg = <0x7e204600 0x0200>;
 			interrupts = <GIC_SPI 118 IRQ_TYPE_LEVEL_HIGH>;

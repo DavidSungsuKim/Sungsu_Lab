@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<Workspace>
+  <ConfigDictionary>
+    
+  <CurrentConfigs><Project>uCOS-III-Ex2/Debug</Project><Project>uCOS-III-Ex1/Debug</Project><Project>uCOS-III-Ex3/Debug</Project></CurrentConfigs><CurrentProj>uCOS-III-Ex2</CurrentProj><OverviewSelected>1</OverviewSelected></ConfigDictionary>
+  <Desktop>
+    <Static>
+      <Workspace>
+        <ColumnWidths>
+          
+          
+          
+          
+        <Column0>314</Column0><Column1>27</Column1><Column2>27</Column2><Column3>27</Column3></ColumnWidths>
+      </Workspace>
+    <Build><ColumnWidth0>20</ColumnWidth0><ColumnWidth1>1395</ColumnWidth1><ColumnWidth2>372</ColumnWidth2><ColumnWidth3>93</ColumnWidth3></Build><TerminalIO/><Find-in-Files><ColumnWidth0>569</ColumnWidth0><ColumnWidth1>94</ColumnWidth1><ColumnWidth2>854</ColumnWidth2><ColumnWidth3>379</ColumnWidth3></Find-in-Files></Static>
+    <Windows>
+      
+    <Wnd0>
+        <Tabs>
+          <Tab>
+            <Identity>TabID-9068-23347</Identity>
+            <TabName>Workspace</TabName>
+            <Factory>Workspace</Factory>
+            <Session>
+              
+            <NodeDict><ExpandedNode>&lt;ws&gt;</ExpandedNode><ExpandedNode>&lt;ws&gt;/uCOS-III-Ex2</ExpandedNode><ExpandedNode>&lt;ws&gt;/uCOS-III-Ex2/APP</ExpandedNode><ExpandedNode>&lt;ws&gt;/uCOS-III-Ex2/BSP</ExpandedNode><ExpandedNode>uCOS-III-Ex1</ExpandedNode><ExpandedNode>uCOS-III-Ex2</ExpandedNode><ExpandedNode>uCOS-III-Ex2/APP</ExpandedNode><ExpandedNode>uCOS-III-Ex3</ExpandedNode><ExpandedNode>uCOS-III-Ex3/APP</ExpandedNode></NodeDict></Session>
+          </Tab>
+        </Tabs>
+        
+      <SelectedTab>0</SelectedTab></Wnd0><Wnd1><Tabs><Tab><Identity>TabID-11975-23497</Identity><TabName>Build</TabName><Factory>Build</Factory><Session/></Tab><Tab><Identity>TabID-30755-2044</Identity><TabName>Find in Files</TabName><Factory>Find-in-Files</Factory><Session/></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd1></Windows>
+    <Editor>
+      
+      
+      
+      
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\BSP\stm32f401_discovery.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>129</YPos2><SelStart2>4378</SelStart2><SelEnd2>4378</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\BSP\ST\STM32F4xx\src\stm32f4xx_gpio.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>183</YPos2><SelStart2>8270</SelStart2><SelEnd2>8270</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\uCOS-III-Ex2\cpu_cfg.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>116</YPos2><SelStart2>7103</SelStart2><SelEnd2>7103</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\BSP\stm32f401_discovery_l3gd20.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>365</YPos2><SelStart2>11366</SelStart2><SelEnd2>11366</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\BSP\IAR\cstartup.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>346</YPos2><SelStart2>19364</SelStart2><SelEnd2>19364</SelEnd2></Tab><ActiveTab>4</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\uCOS-III-Ex2\app.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>70</YPos2><SelStart2>3732</SelStart2><SelEnd2>3732</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\BSP\bsp.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>176</YPos2><SelStart2>8718</SelStart2><SelEnd2>8718</SelEnd2></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Positions>
+      
+      
+      
+      
+      
+    <Top><Row0><Sizes><Toolbar-00E55718><key>iaridepm.enu1</key></Toolbar-00E55718></Sizes></Row0><Row1><Sizes/></Row1></Top><Left><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>755</Bottom><Right>388</Right><x>-2</x><y>-2</y><xscreen>200</xscreen><yscreen>200</yscreen><sizeHorzCX>104167</sizeHorzCX><sizeHorzCY>200401</sizeHorzCY><sizeVertCX>203125</sizeVertCX><sizeVertCY>758517</sizeVertCY></Rect></Wnd0></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>198</Bottom><Right>1922</Right><x>-2</x><y>-2</y><xscreen>1924</xscreen><yscreen>200</yscreen><sizeHorzCX>1002083</sizeHorzCX><sizeHorzCY>200401</sizeHorzCY><sizeVertCX>104167</sizeVertCX><sizeVertCY>200401</sizeVertCY></Rect></Wnd1></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+  </Desktop>
+</Workspace>
+
+

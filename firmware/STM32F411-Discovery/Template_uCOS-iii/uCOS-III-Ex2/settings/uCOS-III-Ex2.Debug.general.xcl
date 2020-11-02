@@ -1,0 +1,15 @@
+"E:\IAR Systems\Embedded Workbench 7.2\arm\bin\armproc.dll" 
+
+"E:\IAR Systems\Embedded Workbench 7.2\arm\bin\armstlink.dll" 
+
+"D:\Micrium\Software\EvalBoards\ST\STM32F411-Discovery\uCOS-III-Ex2\Debug\Exe\uCOS-III-Ex2.out" 
+
+--plugin "E:\IAR Systems\Embedded Workbench 7.2\arm\bin\armbat.dll" 
+
+--device_macro "E:\IAR Systems\Embedded Workbench 7.2\arm\config\debugger\ST\STM32F4xx.dmac" 
+
+--flash_loader "E:\IAR Systems\Embedded Workbench 7.2\arm\config\flashloader\ST\FlashSTM32F401x.board" 
+
+
+
+

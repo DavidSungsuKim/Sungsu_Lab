@@ -1,0 +1,16 @@
+********************************************************************
+* This file is to write down information for using Nucleo-F401RE
+*	, and this is NOT used in the project and used just for references.
+* Therefore, the contents in this file can be changed. 
+********************************************************************
+
+
+1. UART config.
+	. BaudRate	= 9600 bps
+	. Data bits	= 8
+	. Parity		= NONE
+	. Stop bit		= 1
+	. Handshaking	= none
+	
+	. RX		= D8
+	. TX		= D2

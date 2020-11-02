@@ -1,0 +1,337 @@
+
+********************************************************************************
+Project		: STM32F401-Nucleo
+Designer	: Sungsu Kim
+
+Note!!		: Edit always using Notepad++.
+********************************************************************************
+
+	Oct 31, 2020
+		1. changed include paths and file locations.
+
+
+	Feb 10, 2020
+		1. added 'UartSendMsg2' which support variable lenghth string.
+			uCOS-III-Ex1/UartController.c
+			uCOS-III-Ex1/UartController.h
+
+V00.00.16
+	Feb 8, 2020
+		1. deleted a file unnecessarily included on SVN.
+
+	Feb 8, 2020
+		1. deleted files unnecessarily included on SVN.
+
+	Feb 8, 2020
+		1. changed to support C++.	
+			This needs to be confirmed one more time on the real board.
+			BSP/IAR/cstartup.c
+			BSP/bsp.c
+			BSP/bsp.h
+			BSP/stm32f4xx_hal_uart.c
+			BSP/stm32f4xx_hal_uart.h
+			uCOS-III-Ex1/UartController.c
+			uCOS-III-Ex1/UartController.h
+			uCOS-III-Ex1/uCOS-III-Ex1.ewp
+
+V00.00.15
+	"00:25, 18, August, 2018"
+		1. improved to make use of all channel of Timer4.
+			BSP/bsp.c
+			BSP/bsp.h
+			BSP/stm32f4xx_hal_msp.c
+			BSP/stm32f4xx_nucleo.h
+			uCOS-III-Ex1/RpcController.c
+
+		2. added UartSendData()
+			uCOS-III-Ex1/UartController.c
+			uCOS-III-Ex1/UartController.h
+
+V00.00.14
+	"20:45, 6, July, 2018"
+		1. finished how to use basic PWM function on TIM4.
+			In order to properly control Hitec HS-311 servo, I need to adjust PWM pulse and etc.
+			BSP/bsp.c
+			BSP/bsp.h
+			BSP/stm32f4xx_hal_msp.c
+			BSP/stm32f4xx_hal_tim.c
+			BSP/stm32f4xx_hal_tim.h
+			BSP/stm32f4xx_nucleo.c
+			BSP/stm32f4xx_nucleo.h
+			uCOS-III-Ex1/Common.h
+			uCOS-III-Ex1/RpcController.c
+			uCOS-III-Ex1/RpcController.h
+
+		2. added LED3 interface
+			BSP/stm32f4xx_nucleo.c
+			BSP/stm32f4xx_nucleo.h
+	
+
+V00.00.13
+	"18:05, 3, July, 2018"
+        1. preparing PWM functions using TIM1
+			BSP/bsp.c
+			BSP/stm32f4xx_nucleo.h
+
+
+        2. deleted UART_Receive_IT() to clear the compiler warning message.
+			BSP/stm32f4xx_hal_uart.c
+         	 
+        3. improving parsing function including LED control command.
+        			uCOS-III-Ex1/RpcController.c
+			uCOS-III-Ex1/RpcController.h
+
+        4. added printf a library function. Using this function I can display strings on IAR's Terminal I/O.
+            Very useful!
+			uCOS-III-Ex1/RpcController.c
+			uCOS-III-Ex1/includes.h
+
+  
+V00.00.12
+	"19:11, 2, July, 2018"
+        1. RPC message parsing command finished.
+			uCOS-III-Ex1/RpcController.c
+			uCOS-III-Ex1/RpcController.h
+			
+		2. added IP references
+			uCOS-III-Ex1/RpcController.c
+			uCOS-III-Ex1/RpcController.h
+			uCOS-III-Ex1/UartController.c
+			uCOS-III-Ex1/UartController.h
+			uCOS-III-Ex1/UserController.c
+			uCOS-III-Ex1/UserController.h
+
+V00.00.11
+	"18:30, 2, July, 2018"
+        1. basic infrastructure for receiving RPC message has finished. 
+			uCOS-III-Ex1/RpcController.c
+			uCOS-III-Ex1/RpcController.h
+			uCOS-III-Ex1/UartController.c
+			uCOS-III-Ex1/UartController.h
+
+		2. made UART_Receive_IT_USER() to replace UART_Receive_IT(). 
+			This function continues to receive packets with a cicular buffer, and interrut remains alaways ready as well.
+			BSP/stm32f4xx_hal_uart.c
+			
+		3. code clean up
+			uCOS-III-Ex1/app.c
+			BSP/bsp.c
+			BSP/bsp.h
+			
+V00.00.09
+	11:00, 2, July, 2018
+        1. Now RS232 with interrupt routine is working, but I need to optimize.
+        2. Currently, RS232 buffer exceeds its allocated size, I cannot receive packets anymore, so I need to make changes for it.
+			BSP/bsp.c
+			BSP/IAR/cstartup.c
+			uCOS-III-Ex1/RpcController.c
+			uCOS-III-Ex1/UartController.c
+			uCOS-III-Ex1/UserController.c
+			uCOS-III-Ex1/Common.h
+			uCOS-III-Ex1/RpcController.h
+			uCOS-III-Ex1/UartController.h
+
+V00.00.08
+	22, May, 2018 00:38
+		1. added RpcController
+			uCOS-III-Ex1/RpcController.c
+			uCOS-III-Ex1/RpcController.h
+		2. implemented msg passing interface
+			uCOS-III-Ex1/app.c
+			uCOS-III-Ex1/app_cfg.h
+			uCOS-III-Ex1/Common.h
+			uCOS-III-Ex1/RpcController.c
+			uCOS-III-Ex1/RpcController.h
+			uCOS-III-Ex1/UartController.c
+			uCOS-III-Ex1/UserController.c
+		
+
+V00.00.07
+	21, May, 2018 23:00
+		1. created several .h, .c files in order to manage each of tasks in the associated files.
+			uCOS-III-Ex1/app.c
+			uCOS-III-Ex1/UartController.c
+			uCOS-III-Ex1/UserController.c
+			uCOS-III-Ex1/Common.h
+			uCOS-III-Ex1/ErrorCodes.h
+			uCOS-III-Ex1/UartController.h
+			uCOS-III-Ex1/UserController.h
+			build history.txt
+
+
+V00.00.06 (temp)
+
+	2016.12.13	Sungsu Kim
+
+		1. corrected project configuration.
+
+			I don't know exactly, but someting happened at source file configuration.
+
+	2017.3.25	Sungsu Kim
+
+		1. I confirmed that the program is working at home with some changes in configuration.
+
+			////////  WARNING	/////////
+			When directory is chagned, files in the projecs explorer are changed, so I need to include them again.
+
+	2017.3.25	Sungsu Kim
+
+		1. Changed the path for the linker configuration file (Option-Linker)
+
+			D:\Sungsu_LAB\App\Firmware\STM\Micrium\Software\EvalBoards\ST\STM32F401-Nucleo\BSP\IAR\stm32f401xe_flash.icf
+
+V00.00.05
+
+	SVN Commit Date : 2016.2.2
+	Author		: Sungsu Kim
+	What's New	: 
+
+	1. Inserted Serial Comm. function..!
+
+
+V00.00.04
+
+	SVN Commit Date : 2015.12.16
+	Author		: Sungsu Kim
+	What's New	: 
+
+	1. Small changes...
+
+
+V00.00.03
+
+	SVN Commit Date : 2015.12.16
+	Author		: Sungsu Kim
+	What's New	: 
+
+	1. Added a test task
+		-. AppLEDOff()
+
+
+V00.00.02
+
+	SVN Commit Date : 2015.12.08
+	Author		: Sungsu Kim
+	What's New	: 
+
+	1. Some of the include directories were modified as below.
+		
+		$PROJ_DIR$\
+		$PROJ_DIR$\..\BSP
+		$PROJ_DIR$\..\BSP\IAR
+		$PROJ_DIR$\..\BSP\ST\STM32F4xx\inc
+		$PROJ_DIR$\..\BSP\ST\STM32F4xx\src
+		$PROJ_DIR$\..\..\..\..\uC-CPU
+		$PROJ_DIR$\..\..\..\..\uC-LIB
+		$PROJ_DIR$\..\..\..\..\uC-CPU\ARM-Cortex-M4\IAR
+		$PROJ_DIR$\..\..\..\..\uCOS-III\Ports\ARM-Cortex-M4
+		$PROJ_DIR$\..\..\..\..\uCOS-III\Ports\ARM-Cortex-M4\Generic\IAR
+		$PROJ_DIR$\..\..\..\..\uCOS-III\Source
+		$PROJ_DIR$\..\BSP\ST
+		D:\01_Documents\02_Development Ref\09_ARM\01_STMicroelectronics\01_SW\STM32Cube_FW_F4_V1.9.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
+		D:\01_Documents\02_Development Ref\09_ARM\01_STMicroelectronics\01_SW\STM32Cube_FW_F4_V1.9.0\Drivers\STM32F4xx_HAL_Driver\Inc
+		D:\01_Documents\02_Development Ref\09_ARM\01_STMicroelectronics\01_SW\STM32Cube_FW_F4_V1.9.0\Drivers\BSP\STM32F4xx-Nucleo
+		D:\01_Documents\02_Development Ref\09_ARM\01_STMicroelectronics\01_SW\STM32Cube_FW_F4_V1.9.0\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy
+		D:\01_Documents\02_Development Ref\09_ARM\01_STMicroelectronics\01_SW\STM32Cube_FW_F4_V1.9.0\Drivers\STM32F4xx_HAL_Driver\Src
+
+
+	2. "stm32f4xx_it.h" file was newly copied from 401's example project.
+
+	3. Etc..
+			
+				
+V00.00.01
+
+	SVN Commit Date : 2015.12.08
+	Author		: Sungsu Kim
+	What's New	: 
+
+	1. Successfully ported to STM32F401-Nucleo Board!
+		You can see LED is toggled.
+
+	¡Ø Important things that must be changed when porting based on the project of 411-Discovery
+
+		1) Definitions
+
+			a) 411's
+
+				USE_STDPERIPH_DRIVER
+				STM32F40_41xxx
+
+			b) 401's
+
+				USE_HAL_DRIVER
+				STM32F401xE
+				USE_STM32F4XX_NUCLEO
+
+	
+		2) linker command file
+				
+
+			a) 411's
+
+				stm32f411-discovery_flash.icf
+
+			b) 401's
+		
+				$PROJ_DIR$\stm32f401xe_flash.icf
+
+
+
+		3) BSP, Driver files
+
+			: 401 Nucleo is supported by HAL ST's newest drivers for ST's Cortex devices,
+				files should be reflected accordingly. Here is a glance for referred file directories (except for uc/OS-iii's).
+
+
+			a) 411's
+
+				$PROJ_DIR$\
+				$PROJ_DIR$\..\BSP
+				$PROJ_DIR$\..\BSP\IAR
+				$PROJ_DIR$\..\BSP\ST\STM32F4xx\inc
+				$PROJ_DIR$\..\BSP\ST\STM32F4xx\src
+
+			b) 401's
+
+		
+				$PROJ_DIR$\..\Inc
+				$PROJ_DIR$\..\..\..\..\..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include
+				$PROJ_DIR$\..\..\..\..\..\..\Drivers\STM32F4xx_HAL_Driver\Inc
+				$PROJ_DIR$\..\..\..\..\..\..\Drivers\BSP\STM32F4xx-Nucleo
+
+
+			These files for 411 should be replaced with the new ones or copied from 401-related folders
+			(You can refer to 401's example projects).
+
+				stm32f4xx.h
+				stm32f4xx_hal_msp.c			
+				stm32f4xx_it.c
+				stm32f4xx_nucleo.c
+				stm32f4xx_nucleo.h
+				system_stm32f4xx.c
+
+			Especially, stm32f4xx.h must be replaced with the new one. Even though the file name is the same, its contens are quite different.
+
+
+		4) BSP-related contents
+
+			: Since the two boards, Discovery and Nucleo, are different, its external functions are different. 
+				You should consider this when you porting.
+
+
+		5) Etc..
+
+			: There might be something I didn't write down, so you may have to encounter a little problems... You can handle them!.
+				
+
+V--.--.--
+	
+	SVN Commit Date : 2015.11.27
+	Author		: Sungsu Kim
+	What's New	: 
+
+	1. First commit.
+
+	2. This project is based on the project - "STM32F411-Discovery", 
+		and is going to be modified to be compatible for 401 Nucleo board.
