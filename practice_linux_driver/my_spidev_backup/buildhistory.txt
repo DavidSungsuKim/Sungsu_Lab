@@ -1,3 +1,0 @@
-Nov.2, 2020
-	1. registered spidev.c to study and make my own spidev device.
-
