@@ -727,10 +727,6 @@ static int spidev_probe(struct spi_device *spi)
 	int			status;
 	unsigned long		minor;
 
-#ifdef _DBG
-	printk(KERN_INFO "spidev: probe, name=%s\n", spi->dev->init_name);
-#endif
-
 	/*
 	 * spidev should never be referenced in DT without a specific
 	 * compatible string, it is a Linux implementation thing
@@ -845,7 +841,7 @@ static int __init spidev_init(void)
 		return PTR_ERR(spidev_class);
 	}
 
-	status = spi_register_driver(&spidev_spi_driver); // sungsu : this functions is defined in spi.c
+	status = spi_register_driver(&spidev_spi_driver);
 	if (status < 0) {
 		class_destroy(spidev_class);
 		unregister_chrdev(SPIDEV_MAJOR, spidev_spi_driver.driver.name);

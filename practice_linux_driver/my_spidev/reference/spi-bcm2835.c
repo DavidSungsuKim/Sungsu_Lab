@@ -1067,7 +1067,7 @@ static int bcm2835_spi_transfer_one_poll(struct spi_controller *ctlr,
 	return 0;
 }
 
-static int bcm2835_spi_transfer_one(struct spi_controller *ctlr,	// sungsu
+static int bcm2835_spi_transfer_one(struct spi_controller *ctlr,
 				    struct spi_device *spi,
 				    struct spi_transfer *tfr)
 {
@@ -1379,7 +1379,7 @@ static const struct of_device_id bcm2835_spi_match[] = {
 };
 MODULE_DEVICE_TABLE(of, bcm2835_spi_match);
 
-static struct platform_driver bcm2835_spi_driver = {	// sungsu - this is a platform driver, but what is it?
+static struct platform_driver bcm2835_spi_driver = {
 	.driver		= {
 		.name		= DRV_NAME,
 		.of_match_table	= bcm2835_spi_match,
