@@ -438,7 +438,7 @@ static void spi_drv_shutdown(struct device *dev)
  *
  * Return: zero on success, else a negative error code.
  */
-int __spi_register_driver(struct module *owner, struct spi_driver *sdrv)
+int __spi_register_driver(struct module *owner, struct spi_driver *sdrv) // sungsu : this function is called in spidev.c when associated device is registered.
 {
 	sdrv->driver.owner = owner;
 	sdrv->driver.bus = &spi_bus_type;
@@ -3599,7 +3599,7 @@ static u8	*buf;
  *
  * Return: zero on success, else a negative error code.
  */
-int spi_write_then_read(struct spi_device *spi,
+int spi_write_then_read(struct spi_device *spi,	// sungsu : 
 		const void *txbuf, unsigned n_tx,
 		void *rxbuf, unsigned n_rx)
 {
