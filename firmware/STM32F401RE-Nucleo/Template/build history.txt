@@ -1,3 +1,13 @@
+Nov.2, 2020
+	1. added functions to support sending data back for rx packet comming through SPI.
+	   Note that 'HAL_SPI_TransmitReceive( )' doesn't seem to be suitable for fast SPI communication 
+	   as it fails to send data back to a master at a highspeed like 10MHz.
+		modified:   STM32F401RE-Nucleo/Template/Inc/SPITest.h
+		modified:   STM32F401RE-Nucleo/Template/Inc/stm32f4xx_nucleo.h
+		modified:   STM32F401RE-Nucleo/Template/Src/SPITest.c
+		modified:   STM32F401RE-Nucleo/Template/Src/main.c
+		modified:   STM32F401RE-Nucleo/Template/Src/stm32f4xx_nucleo.c
+
 Oct.31, 2020
 	1. tested SPI communication with Raspberry PI4's spidev0.0 device.
 	

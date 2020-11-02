@@ -9,5 +9,6 @@ void TestMasterLoopback		(void);
 
 void InitSPISlave			(void);
 void ReceiveWaitSPISlave	(void);
+void ReceiveWaitSendSPISlave(void);
 
 #endif

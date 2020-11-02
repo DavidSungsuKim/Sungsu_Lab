@@ -273,7 +273,8 @@ JOYState_TypeDef BSP_JOY_GetState(void);
   
 /* Custom SPI application functions */
 void			BSP_SPIx_Init              	(SPI_InitTypeDef *param);
-uint8_t			BSP_SPIx_Read          		(uint16_t size, uint8_t *rxBuffe, uint32_t timeOut);
+uint8_t			BSP_SPIx_Read          		(uint16_t size, uint8_t *rxBuffer, uint32_t timeOut);
+uint8_t			BSP_SPIx_ReadWrite     		(uint16_t size, uint8_t *txBuffer, uint8_t *rxBuffer, uint32_t timeOut);
 void			BSP_SPIx_WriteByte        	(uint8_t Data);
 void			BSP_SPIx_WriteReadByte     	(uint8_t txByte, uint8_t *rxByte);
 

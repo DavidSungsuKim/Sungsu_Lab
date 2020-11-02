@@ -40,7 +40,7 @@ void InitSPISlave (void)
 	param.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8; 	// effective on master mode only
 	param.Direction 		= SPI_DIRECTION_2LINES;		// SPI_DIRECTION_2LINES;
 	param.CLKPhase 			= SPI_PHASE_1EDGE;			// SPI_PHASE_2EDGE;
-	param.CLKPolarity 		= SPI_POLARITY_LOW;			// SPI_POLARITY_LOW; //SPI_POLARITY_LOW;//SPI_POLARITY_HIGH;
+	param.CLKPolarity 		= SPI_POLARITY_LOW;			// SPI_POLARITY_HIGH;
 	param.CRCCalculation 	= SPI_CRCCALCULATION_DISABLED;
 	param.CRCPolynomial 	= 7;
 	param.DataSize 			= SPI_DATASIZE_8BIT;
@@ -70,3 +70,29 @@ void ReceiveWaitSPISlave (void)
 	return;
 }
 
+void ReceiveWaitSendSPISlave(void)
+{
+	enum
+	{
+		eLength = 32
+	};
+
+	uint16_t i;
+	uint8_t txBuffer[ eLength ];
+	uint8_t rxBuffer[ eLength ] = {0,};
+	uint8_t *pTx = txBuffer;
+	uint16_t timeOut = 1000;
+
+	for (i = 1; i <= eLength; i++)
+	{
+		*pTx = i;
+		pTx++;
+	}
+
+	BSP_SPIx_ReadWrite( (uint32_t)eLength, txBuffer, rxBuffer, timeOut );
+
+	if ( rxBuffer[0] != 0x00 )
+		BSP_LED_Toggle(LED2);
+
+	return;
+}

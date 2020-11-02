@@ -849,7 +849,6 @@ void BSP_SPIx_Init(SPI_InitTypeDef *param)
 
 uint8_t BSP_SPIx_Read(uint16_t size, uint8_t *rxBuffer, uint32_t timeOut)
 {
-  /* Get the received data */
   HAL_StatusTypeDef status = HAL_OK;
 
   if ( timeOut == -1 )
@@ -857,17 +856,33 @@ uint8_t BSP_SPIx_Read(uint16_t size, uint8_t *rxBuffer, uint32_t timeOut)
 
   status = HAL_SPI_Receive(&hnucleo_Spi, rxBuffer, size, timeOut);
 
-  /* Check the communication status */
   if(status != HAL_OK)
   {
-	  /* De-initialize the SPI communication BUS */
 	  HAL_SPI_DeInit(&hnucleo_Spi);
-
 	  BSP_SPIx_Init(&(hnucleo_Spi.Init));
 	  return -1;
   }
 
   return 0;
+}
+
+uint8_t	BSP_SPIx_ReadWrite(uint16_t size, uint8_t *txBuffer, uint8_t *rxBuffer, uint32_t timeOut)
+{
+	HAL_StatusTypeDef status = HAL_OK;
+
+	if ( timeOut == -1 )
+	  timeOut = NUCLEO_SPIx_TIMEOUT_MAX;
+
+	status = HAL_SPI_TransmitReceive(&hnucleo_Spi, txBuffer, rxBuffer, size, timeOut);
+
+	if(status != HAL_OK)
+	{
+	  HAL_SPI_DeInit(&hnucleo_Spi);
+	  BSP_SPIx_Init(&(hnucleo_Spi.Init));
+	  return -1;
+	}
+
+	return 0;
 }
 
 void BSP_SPIx_WriteByte(uint8_t Data)
@@ -893,20 +908,5 @@ void BSP_SPIx_WriteReadByte(uint8_t txByte, uint8_t *rxByte)
 
 	return;
 }
-/**
-  * @}
-  */ 
 
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */    
-
-/**
-  * @}
-  */ 
-    
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
