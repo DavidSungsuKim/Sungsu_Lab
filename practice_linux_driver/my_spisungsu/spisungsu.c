@@ -677,6 +677,7 @@ static const struct of_device_id spidev_dt_ids[] = {
 	{ .compatible = "lwn,bk4" },
 	{ .compatible = "dh,dhcom-board" },
 	{ .compatible = "menlo,m53cpld" },
+	{ .compatible = "spisungsu" },		// sungsu : added..
 	{},
 };
 MODULE_DEVICE_TABLE(of, spidev_dt_ids);
@@ -768,7 +769,7 @@ static int spidev_probe(struct spi_device *spi)
 
 		spidev->devt = MKDEV(SPIDEV_MAJOR, minor);
 		dev = device_create(spidev_class, &spi->dev, spidev->devt,
-				    spidev, "spidev%d.%d",
+				    spidev, "spisungsu%d.%d",				// sungsu : it was spidev%d.%d
 				    spi->master->bus_num, spi->chip_select);
 		status = PTR_ERR_OR_ZERO(dev);
 	} else {
@@ -814,7 +815,7 @@ static int spidev_remove(struct spi_device *spi)
 
 static struct spi_driver spidev_spi_driver = {
 	.driver = {
-		.name =		"spidev",
+		.name =		"spidev",	// sungsu : it was 'spidev' originally.
 		.of_match_table = of_match_ptr(spidev_dt_ids),
 		.acpi_match_table = ACPI_PTR(spidev_acpi_ids),
 	},
