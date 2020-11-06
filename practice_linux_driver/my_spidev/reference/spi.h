@@ -137,7 +137,7 @@ void spi_statistics_add_transfer_stats(struct spi_statistics *stats,
  * variant with slightly different functionality; another might be
  * information about how this particular board wires the chip's pins.
  */
-struct spi_device {
+struct spi_device {	// sungsu : important!
 	struct device		dev;
 	struct spi_controller	*controller;
 	struct spi_controller	*master;	/* compatibility layer */
@@ -256,8 +256,8 @@ struct spi_transfer;
  * Examples of such upper levels include frameworks like MTD, networking,
  * MMC, RTC, filesystem character device nodes, and hardware monitoring.
  */
-struct spi_driver {
-	const struct spi_device_id *id_table;
+struct spi_driver {	// sungsu : important. Any SPI driver must have one in its driver and provide own functions to be connected.
+	const struct spi_device_id *id_table;	// sungsu : This structure is inherited from struct device_driver
 	int			(*probe)(struct spi_device *spi);
 	int			(*remove)(struct spi_device *spi);
 	void			(*shutdown)(struct spi_device *spi);

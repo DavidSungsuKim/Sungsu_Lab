@@ -489,7 +489,7 @@ static int bcm2835aux_spi_setup(struct spi_device *spi)
 
 static int bcm2835aux_spi_probe(struct platform_device *pdev)
 {
-	struct spi_master *master;
+	struct spi_master *master;	// sungsu : spi-bcm2835.c doesn't have this. 
 	struct bcm2835aux_spi *bs;
 	unsigned long clk_hz;
 	int err;
@@ -569,7 +569,7 @@ static int bcm2835aux_spi_probe(struct platform_device *pdev)
 		goto out_clk_disable;
 	}
 
-	err = spi_register_master(master);
+	err = spi_register_master(master);	// sungsu : master is registered.
 	if (err) {
 		dev_err(&pdev->dev, "could not register SPI master: %d\n", err);
 		goto out_clk_disable;

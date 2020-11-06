@@ -337,7 +337,7 @@
 			clocks = <&clocks BCM2835_CLOCK_VPU>;
 			#address-cells = <1>;
 			#size-cells = <0>;
-			status = "disabled";
+			status = "disabled";	// sungsu : dtparam=spi=on
 		};
 
 		i2c0if: i2c@7e205000 {

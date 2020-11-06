@@ -3485,7 +3485,7 @@ static int __spi_sync(struct spi_device *spi, struct spi_message *message)
  *
  * Return: zero on success, else a negative error code.
  */
-int spi_sync(struct spi_device *spi, struct spi_message *message)
+int spi_sync(struct spi_device *spi, struct spi_message *message)	// sungsu : used in spidev.c
 {
 	int ret;
 

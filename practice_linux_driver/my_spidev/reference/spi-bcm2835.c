@@ -1335,7 +1335,8 @@ static int bcm2835_spi_probe(struct platform_device *pdev)
 		goto out_clk_disable;
 	}
 
-	err = spi_register_controller(ctlr);
+	err = spi_register_controller(ctlr);	// sungsu : controller is registered here. 
+											// spi_controller == spi_master (spi.h)
 	if (err) {
 		dev_err(&pdev->dev, "could not register SPI controller: %d\n",
 			err);

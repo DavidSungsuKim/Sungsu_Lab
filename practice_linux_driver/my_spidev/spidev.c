@@ -101,7 +101,7 @@ spidev_sync(struct spidev_data *spidev, struct spi_message *message)
 	if (spi == NULL)
 		status = -ESHUTDOWN;
 	else
-		status = spi_sync(spi, message);
+		status = spi_sync(spi, message);	// sungsu : defined in spi.c
 
 	if (status == 0)
 		status = message->actual_length;
@@ -120,7 +120,7 @@ spidev_sync_write(struct spidev_data *spidev, size_t len)
 	struct spi_message	m;
 
 	spi_message_init(&m);
-	spi_message_add_tail(&t, &m);
+	spi_message_add_tail(&t, &m);	// sungsu : defined in spi.h (inline function).
 	return spidev_sync(spidev, &m);
 }
 
@@ -669,7 +669,7 @@ static const struct file_operations spidev_fops = {
 static struct class *spidev_class;
 
 #ifdef CONFIG_OF
-static const struct of_device_id spidev_dt_ids[] = {
+static const struct of_device_id spidev_dt_ids[] = {	// sungsu : compatible. 
 	{ .compatible = "rohm,dh2228fv" },
 	{ .compatible = "lineartechnology,ltc2488" },
 	{ .compatible = "ge,achc" },
@@ -732,7 +732,7 @@ static int spidev_probe(struct spi_device *spi)
 #ifdef CONFIG_OF
 	use_config_of = 1;
 #endif
-	printk(KERN_INFO "spidev: probe, config_of=%d\n", use_config_of);
+	printk(KERN_INFO "spidev: probe, use_config=%d\n", use_config_of);
 #endif
 
 	/*
@@ -812,9 +812,9 @@ static int spidev_remove(struct spi_device *spi)
 	return 0;
 }
 
-static struct spi_driver spidev_spi_driver = {
+static struct spi_driver spidev_spi_driver = {	// sungsu : spi_driver is defined in spi.h
 	.driver = {
-		.name =		"spidev",
+		.name =		"spidev",					// sungsu : this name seems to be associated with .compatible in DT.
 		.of_match_table = of_match_ptr(spidev_dt_ids),
 		.acpi_match_table = ACPI_PTR(spidev_acpi_ids),
 	},
@@ -856,7 +856,7 @@ static int __init spidev_init(void)
 	}
 	return status;
 }
-module_init(spidev_init);
+module_init(spidev_init);	// sungsu : include/linux/module.h. mandatory for any module to have it.
 
 static void __exit spidev_exit(void)
 {
