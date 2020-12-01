@@ -4,7 +4,7 @@
 #include "bcm2835-rpi.dtsi"
 
 / {
-	compatible = "raspberrypi,4-model-b", "brcm,bcm2711";	// Sungsu : root node
+	compatible = "raspberrypi,4-model-b", "brcm,bcm2711";
 	model = "Raspberry Pi 4 Model B";
 
 	chosen {
@@ -270,14 +270,14 @@
 	pinctrl-0 = <&uart1_pins>;
 };
 
-&spi0 {										// sungsu : spi0
+&spi0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&spi0_pins &spi0_cs_pins>;
 	cs-gpios = <&gpio 8 1>, <&gpio 7 1>;
 
-	spidev0: spidev@0{
-		compatible = "spidev";				// sungsu : if I change this to something different, driver name in spidev.c should also be changed.
-		reg = <0>;	/* CE0 */
+/*	spidev0: spidev@0{
+		compatible = "spidev";
+		reg = <0>;	// CE0 
 		#address-cells = <1>;
 		#size-cells = <0>;
 		spi-max-frequency = <125000000>;
@@ -285,11 +285,25 @@
 
 	spidev1: spidev@1{
 		compatible = "spidev";
-		reg = <1>;	/* CE1 */
+		reg = <1>;	// CE1
 		#address-cells = <1>;
 		#size-cells = <0>;
 		spi-max-frequency = <125000000>;
-	};
+	};*/
+
+
+/* sheld - studying	*/
+	Accel: ADXL345@0 {
+		compatible = "arrow,adxl345";
+		spi-max-frequency =  <5000000>;
+	//	spi-cpol;	// I won't use this for now.
+	//	spi-cha;	// I won't use this for now.
+		reg = <0>;
+		pinctrl-0 = <&accel_int_pin>;
+		int-gpios = <&gpio 23 0>;
+		interrupts = <23 1>;
+		interrupt-parent = <&gpio>;
+	};	
 };
 
 &gpio {
@@ -431,6 +445,12 @@
 		brcm,pins = <12 13>;
 		brcm,function = <BCM2835_FSEL_ALT4>;
 		brcm,pull = <0 2>;
+	};
+
+	accel_int_pin: accel_int_pin {
+		brcm,pins = <23>;
+		brcm,function = <0>; 	// input mode
+		brcm,pull = <0>; 	// no pull-up
 	};
 };
 

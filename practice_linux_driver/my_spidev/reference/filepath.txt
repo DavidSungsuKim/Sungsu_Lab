@@ -1,0 +1,11 @@
+linux.5.4.59/include/linux/spi.h
+linux.5.4.59/include/linux/device.h
+linux.5.4.59/include/uapi/linux/spi/spidev.h
+linux.5.4.59/drivers/iio/accel/adxl345.h
+
+linux.5.4.59/drivers/spi/spi.c
+linux.5.4.59/drivers/spi/spidev.c
+linux.5.4.59/drivers/spi/spi-bcm2835.c
+linux.5.4.59/drivers/spi/spi-bcm2835aux.c
+linux.5.4.59/drivers/iio/accel/adxl345_core.c
+linux.5.4.59/drivers/iio/accel/adxl345_spi.c

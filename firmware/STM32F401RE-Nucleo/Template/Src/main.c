@@ -65,30 +65,27 @@ static void Error_Handler(void);
   */
 int main(void)
 {
-  HAL_Init();
-  
-  /* Configure the System clock to 84 MHz */
-  SystemClock_Config();
+	HAL_Init();
 
-  /* Add your application code here  */
-//BSP_LED_Init(LED2); // In case of calling InitSPI(), LED2 related functions can't be used; the pin is shared..
+	/* Configure the System clock to 84 MHz */
+	SystemClock_Config();
 
-  uint8_t spiTxData = 0x00;
-  InitSPI();
+	/* Add your application code here  */
+	BSP_LED_Init(LED2); // In case of calling InitSPI(), LED2 related functions can't be used; the pin is shared..
 
-  /* Infinite loop */
-  while (1)
-  {
-/*	//BSP_LED_Toggle(LED2);
-    
-	  DoSPITest( spiTxData );
-	  spiTxData++;
+	//InitSPIMaster();
+	InitSPISlave();
 
-	  HAL_Delay(1000);
-	  */
+	/* Infinite loop */
+	while (1)
+	{
+//		BSP_LED_Toggle(LED2);
+//		HAL_Delay(1000);
 
-	  DoSPISlaveReceive();
-  }
+		ReceiveWaitSendSPISlave();
+	//	ReceiveWaitSPISlave();
+	//  TestMasterLoopback();
+	}
 }
 
 /**

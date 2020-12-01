@@ -4,7 +4,7 @@
 #include "bcm2835-rpi.dtsi"
 
 / {
-	compatible = "raspberrypi,4-model-b", "brcm,bcm2711";	// Sungsu : root node
+	compatible = "raspberrypi,4-model-b", "brcm,bcm2711";
 	model = "Raspberry Pi 4 Model B";
 
 	chosen {
@@ -270,13 +270,13 @@
 	pinctrl-0 = <&uart1_pins>;
 };
 
-&spi0 {										// sungsu : spi0
+&spi0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&spi0_pins &spi0_cs_pins>;
 	cs-gpios = <&gpio 8 1>, <&gpio 7 1>;
 
 	spidev0: spidev@0{
-		compatible = "spidev";				// sungsu : if I change this to something different, driver name in spidev.c should also be changed.
+		compatible = "spidev";
 		reg = <0>;	/* CE0 */
 		#address-cells = <1>;
 		#size-cells = <0>;
