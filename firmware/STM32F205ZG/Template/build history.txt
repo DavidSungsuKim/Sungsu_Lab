@@ -1,0 +1,24 @@
+**************************************************************************************
+Project Name	: STM32F207ZG-Nucleo/Template
+Author		: Sungsu Kim
+Starting Date	: Dec.2, 2020
+Description	: -
+**************************************************************************************
+
+Dec.2, 2020	Sungsu Kim
+	1. copied from STM32F207ZG-Nucleo/Template to make a template project for STM32F205ZG.
+
+
+
+
+
+///////////////////////////////////////////////////
+Dec.2, 2020	Sungsu Kim
+	1. File paths are refreshed as the project folder location has changed.
+
+
+Nov.30, 2020	Sungsu Kim
+	1. Original project : D:\STM\STM32Cube_FW_F2_V1.9.0\Projects\NUCLEO-F207ZG\Templates\SW4STM32
+	
+	2. loaded the project above using TrueStudio and compiled the projects.
+	
