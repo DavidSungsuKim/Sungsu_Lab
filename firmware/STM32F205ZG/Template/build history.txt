@@ -6,9 +6,10 @@ Description	: -
 **************************************************************************************
 
 Dec.2, 2020	Sungsu Kim
+	1. changed to output .srec file.
+
+Dec.2, 2020	Sungsu Kim
 	1. copied from STM32F207ZG-Nucleo/Template to make a template project for STM32F205ZG.
-
-
 
 
 
