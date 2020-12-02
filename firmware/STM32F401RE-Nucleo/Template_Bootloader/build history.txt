@@ -1,4 +1,9 @@
-Template_Bootloader
+**************************************************************************************
+Project Name	: STM32F207ZG-Nucleo/Template_Bootloader
+Author		: Sungsu Kim
+Starting Date	: Dec.1, 2020
+Description	: -
+**************************************************************************************
 
 Dec.1, 2020
 	1. Copied from 'D:\git_repository\Sungsu_Lab\firmware\STM32F401RE-Nucleo\Template' (Nov.2, 2020).

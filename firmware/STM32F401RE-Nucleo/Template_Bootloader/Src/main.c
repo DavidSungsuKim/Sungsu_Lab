@@ -63,29 +63,51 @@ static void Error_Handler(void);
   * @param  None
   * @retval None
   */
-int main(void)
+
+/*
+ * void FcEnterAppProgram(void)
 {
+  int *pAddrAppProgram = (int *)(ADDR_FLASH_APP_START + 4);
+  __set_MSP(*(int*)ADDR_FLASH_APP_START);
+  ((void (*)())(*pAddrAppProgram))();
+}
+*/
+
+#define ADDR_APPLICATION			0x0800C000
+#define ADDR_APPLICATION_PROG_START	( ADDR_APPLICATION + 4 )
+
+typedef void (*pFunction)(void);
+
+int boot_main(void)
+{
+	pFunction 	appEntry;
+	uint32_t	appStack;
+
 	HAL_Init();
 
-	/* Configure the System clock to 84 MHz */
 	SystemClock_Config();
 
-	/* Add your application code here  */
-	BSP_LED_Init(LED2); // In case of calling InitSPI(), LED2 related functions can't be used; the pin is shared..
+	BSP_LED_Init(LED2);
 
-	//InitSPIMaster();
-	InitSPISlave();
-
-	/* Infinite loop */
-	while (1)
+	// Wait sometime
+	int i = 3;
+	while (i--)
 	{
-//		BSP_LED_Toggle(LED2);
-//		HAL_Delay(1000);
-
-		ReceiveWaitSendSPISlave();
-	//	ReceiveWaitSPISlave();
-	//  TestMasterLoopback();
+		BSP_LED_Toggle(LED2);
+		HAL_Delay(500);
 	}
+
+	appStack = (uint32_t) *((__IO uint32_t*)ADDR_APPLICATION);
+	appEntry = (pFunction) *(__IO uint32_t*)(ADDR_APPLICATION_PROG_START);
+
+	SCB->VTOR = ADDR_APPLICATION;
+
+	__set_MSP(appStack);
+
+	// To the application's main(); Bye bye.
+	appEntry();
+
+	while(1);
 }
 
 /**

@@ -7,12 +7,12 @@
   * @brief     STM32F401xExx Devices vector table for Atollic TrueSTUDIO toolchain. 
   *            This module performs:
   *                - Set the initial SP
-  *                - Set the initial PC == Reset_Handler,
+  *                - Set the initial PC == Reset_Handler_Boot,
   *                - Set the vector table entries with the exceptions ISR address
-  *                - Branches to main in the C library (which eventually
-  *                  calls main()).
+  *                - Branches to boot_main in the C library (which eventually
+  *                  calls boot_main()).
   *            After Reset the Cortex-M4 processor is in Thread mode,
-  *            priority is Privileged, and the Stack is set to Main.
+  *            priority is Privileged, and the Stack is set to boot_main.
   ******************************************************************************
   * @attention
   *
@@ -68,15 +68,15 @@ defined in linker script */
  * @brief  This is the code that gets called when the processor first
  *          starts execution following a reset event. Only the absolutely
  *          necessary set is performed, after which the application
- *          supplied main() routine is called. 
+ *          supplied boot_main() routine is called.
  * @param  None
  * @retval : None
 */
 
-    .section  .text.Reset_Handler
-  .weak  Reset_Handler
-  .type  Reset_Handler, %function
-Reset_Handler:  
+    .section  .text.Reset_Handler_Boot
+  .weak  Reset_Handler_Boot
+  .type  Reset_Handler_Boot, %function
+Reset_Handler_Boot:
   ldr   sp, =_estack    		 /* set stack pointer */
 
 /* Copy the data segment initializers from flash to SRAM */  
@@ -112,9 +112,9 @@ LoopFillZerobss:
 /* Call static constructors */
     bl __libc_init_array
 /* Call the application's entry point.*/
-  bl  main
+  bl  boot_main
   bx  lr    
-.size  Reset_Handler, .-Reset_Handler
+.size  Reset_Handler_Boot, .-Reset_Handler_Boot
 
 /**
  * @brief  This is the code that gets called when the processor receives an 
@@ -141,7 +141,7 @@ Infinite_Loop:
     
 g_pfnVectors:
   .word  _estack
-  .word  Reset_Handler
+  .word  Reset_Handler_Boot
   .word  NMI_Handler
   .word  HardFault_Handler
   .word  MemManage_Handler

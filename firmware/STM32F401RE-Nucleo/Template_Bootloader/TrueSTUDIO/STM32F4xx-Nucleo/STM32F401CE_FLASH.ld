@@ -15,7 +15,7 @@
 **
 **  Environment : Atollic TrueSTUDIO(R)
 **
-**  Distribution: The file is distributed “as is,” without any warranty
+**  Distribution: The file is distributed ë°¶s is,ï¿½ without any warranty
 **                of any kind.
 **
 **  (c)Copyright Atollic AB.
@@ -28,7 +28,7 @@
 */
 
 /* Entry Point */
-ENTRY(Reset_Handler)
+ENTRY(Reset_Handler_Boot)
 
 /* Highest address of the user mode stack */
 _estack = 0x20017FFF;    /* end of RAM */
