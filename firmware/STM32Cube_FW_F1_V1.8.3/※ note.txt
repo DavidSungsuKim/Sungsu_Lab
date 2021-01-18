@@ -1,0 +1,10 @@
+****************************************
+* A few notes on 'STM32Cube_FW_F1_V1.8.3'.
+****************************************
+
+1. The original name for this folder was 'STM32Cube_FW_F1_V1.8.0'
+	and it was patched by 'en.patch_cubef1.zip' which includes updates with a version V1.8.3 according to Release_Notes.html in its root folder.
+
+2021.1.17
+Sungsu Kim
+
