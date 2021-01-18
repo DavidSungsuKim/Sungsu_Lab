@@ -1,0 +1,10 @@
+**************************************************************************************
+Project Name	: STM32F103RB-Nucleo/Template
+Author		: Sungsu Kim
+Starting Date	: Jan.18, 2021
+Description	: -
+**************************************************************************************
+
+Jan.18, 2021	Sungsu Kim
+	1. copied from '\STM32Cube_FW_F1_V1.8.3\Projects\STM32F103RB-Nucleo\Examples\GPIO\GPIO_IOToggle'.
+	
