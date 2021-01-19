@@ -6,5 +6,11 @@ Description	: -
 **************************************************************************************
 
 Jan.18, 2021	Sungsu Kim
+	1. changed project name to 'STM32F103RB_Nucleo_Template'.
+	2. changed optimization level to 'None'.
+	3. implented USART send and receive function, especially interrupt-based for recv.
+
+
+Jan.18, 2021	Sungsu Kim
 	1. copied from '\STM32Cube_FW_F1_V1.8.3\Projects\STM32F103RB-Nucleo\Examples\GPIO\GPIO_IOToggle'.
 	

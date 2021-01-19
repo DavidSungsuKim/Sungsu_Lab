@@ -23,6 +23,8 @@
 #include "main.h"
 #include "stm32f1xx_it.h"
 
+#include "interfaceHAL.h"
+
 /** @addtogroup STM32F1xx_HAL_Examples
   * @{
   */
@@ -157,6 +159,11 @@ void SysTick_Handler(void)
 {
 }*/
 
+void USART1_IRQHandler(void)
+{
+	void*	pVoid = NULL;
+	HALIF_UARTRecvCallback(pVoid);
+}
 
 /**
   * @}
