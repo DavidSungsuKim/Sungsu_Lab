@@ -6,6 +6,11 @@ Description	: -
 **************************************************************************************
 
 Jan.18, 2021	Sungsu Kim
+	1. changed the UART baudrate to 1.25Mbps (1250000) to comply with AE-Link protocol;
+		it works well with a serial termial on Windows.
+		!!! Note that the rest of the parameters rather than baudrate should be reconsidered.
+
+Jan.18, 2021	Sungsu Kim
 	1. added stm32f1xx_hal.h file.
 	2. improved HALIF_UARTRecvCallback() by adopting logic of the standard UART HAL interface function : HAL_UART_IRQHandler().
 		Note that RxState must be cleared to 'HAL_UART_STATE_READY' after calling HAL_UART_Receive_IT().

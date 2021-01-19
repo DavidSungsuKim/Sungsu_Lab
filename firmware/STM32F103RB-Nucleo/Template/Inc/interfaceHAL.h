@@ -10,7 +10,7 @@
 #define 	INT_PRIORITY_LOWEST		15
 
 // UART
-#define		BAUD_RATE_UART			115200
+#define		BAUD_RATE_UART			1250000//115200
 
 
 void		HALIF_InitializeHW		();
