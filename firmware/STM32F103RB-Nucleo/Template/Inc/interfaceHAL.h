@@ -18,6 +18,6 @@ void		HALIF_InitializeHW		();
 int			HALIF_UARTSendSync		(const char* aStr);
 int			HALIF_UARTSendAsync		(const char* aStr);
 int			HALIF_UARTRecv			(unsigned char* apPacket);
-void		HALIF_UARTRecvCallback	(void* apVoid);
+void		HALIF_UARTRecvCallback	(void);
 
 #endif /* _INTERFACE_HAL_H_ */

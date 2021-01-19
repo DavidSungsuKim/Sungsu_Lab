@@ -161,8 +161,9 @@ void SysTick_Handler(void)
 
 void USART1_IRQHandler(void)
 {
-	void*	pVoid = NULL;
-	HALIF_UARTRecvCallback(pVoid);
+/* HAL_UART_IRQHandler()	// Standard handler by STM32 HAL interface
+ */
+	HALIF_UARTRecvCallback();
 }
 
 /**

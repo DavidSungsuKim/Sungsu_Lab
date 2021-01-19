@@ -186,15 +186,27 @@ void UARTMspInit(void)
 	HAL_NVIC_EnableIRQ(USART1_IRQn);
 }
 
-void HALIF_UARTRecvCallback(void* apVoid)
+void HALIF_UARTRecvCallback(void)
 {
-	uint8_t packet = 0;
-	if (HAL_UART_Receive(&g_UartHandle, &packet, 1, 10) != HAL_OK)
-		return;	// do something..
+	UART_HandleTypeDef *pHandle = &g_UartHandle;
 
+	uint32_t isrflags   = READ_REG(pHandle->Instance->SR);
+	uint32_t cr1its     = READ_REG(pHandle->Instance->CR1);
+	uint32_t errorflags = 0x00U;
+
+	/* If no error occurs */
+	errorflags = (isrflags & (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE));
+	if (errorflags == RESET)
+	{
+		/* UART in mode Receiver -------------------------------------------------*/
+		if (((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET))
+		{
+			uint8_t packet = 0;
+			if (HAL_UART_Receive(pHandle, &packet, 1, 10) != HAL_OK)
+				return;
 #if 1 /* test */
-	HAL_UART_Transmit(&g_UartHandle, &packet, 1, 10);
+			HAL_UART_Transmit(&g_UartHandle, &packet, 1, 10);
 #endif
-
-	return;
+		}
+	}
 }
