@@ -3,13 +3,13 @@
 #include "main.h"
 #include "interfaceHAL.h"
 
-static void TaskPeriod(uint32_t periodMs, uint32_t *pTickLast);
+static void TaskPeriod(unsigned int periodMs, unsigned int *pTickLast);
 
 int main(void)
 {
 	HALIF_InitializeHW();
 
-	uint32_t tickLast = HAL_GetTick();
+	unsigned int tickLast = HALIF_GetTick();
 
 	while (1)
 	{
@@ -17,13 +17,16 @@ int main(void)
 	}
 }
 
-void TaskPeriod(uint32_t periodMs, uint32_t *pTickLast)
+void TaskPeriod(unsigned int periodMs, unsigned int *pTickLast)
 {
-	uint32_t tick = HAL_GetTick();
+	unsigned int tickCurrent = HALIF_GetTick();
+	unsigned int tickForMs	= periodMs;
 
-	if ((tick - *pTickLast) > periodMs)
+	if ((tickCurrent - *pTickLast) > tickForMs)
 	{
+		/* Do something here */
+
 		HAL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
-		*pTickLast = tick;
+		*pTickLast = tickCurrent;
 	}
 }

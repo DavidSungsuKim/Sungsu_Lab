@@ -11,7 +11,8 @@
 #define  BSP_UART_RX_BUFF_SIZE		1
 
 static UART_HandleTypeDef 	g_UartHandle;
-static  uint8_t             g_bUartRxBuf[BSP_UART_RX_BUFF_SIZE];
+static uint8_t             	g_bUartRxBuf[BSP_UART_RX_BUFF_SIZE];
+const  uint32_t				cFLAG_UART_ERROR = (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE);
 
 GPIO_TypeDef*		GPIO_PORT_UART_TX	= GPIOA;
 GPIO_TypeDef*		GPIO_PORT_UART_RX	= GPIOA;
@@ -22,6 +23,7 @@ const uint16_t		PIN_UART_RX			= GPIO_PIN_10;
 static GPIO_InitTypeDef  	GPIO_InitStruct;
 
 void 	SystemClock_Config	(void);
+int 	InitializeSysTimer	(int aPeriodMs, int aIntPriority);
 void 	InitializeLED		(void);
 int		InitializeUART		(void);
 void	UARTMspInit			(void);
@@ -33,8 +35,8 @@ void HALIF_InitializeHW()
 	/* Configure the system clock to 64 MHz */
 	SystemClock_Config();
 
+	InitializeSysTimer(SYS_TIMER_PERIOD_MS, INT_PRIORITY_HIGHEST);
 	InitializeLED();
-
 	InitializeUART();
 }
 
@@ -88,6 +90,49 @@ void SystemClock_Config(void)
 		/* Initialization Error */
 		while(1);
 	}
+}
+
+int InitializeSysTimer(int aPeriodMs, int aIntPriority)
+{
+	int ret = 0;
+	if ( aIntPriority != INT_PRIORITY_HIGHEST )
+	{
+		ret = -1;
+		return ret;
+	}
+
+	if ( aPeriodMs <= 0 )
+	{
+		ret = -2;
+		return ret;
+	}
+
+	/* Sungsu :
+	 * The period of SysTick timer is decided this way:
+	 *
+	 * Example) if SystemCoreClock = 120000000 Hz (120 MHz),
+	 * 						1 		 tick = 0.0008333..us
+	 * 				120000000 		 tick = 1 sec
+	 * 				120000000 / 1000 tick = 1 ms
+	 * 				120000000 /  500 tick = 2 ms
+	 * 				   		 ... and so on
+	 */
+
+	uint32_t tickDiv = (1000 / aPeriodMs);
+	HAL_SYSTICK_Config(SystemCoreClock / tickDiv);
+
+	/* Note :
+	 * This function must be called after HAL_SYSTICK_Config() for all interrupts to be nested by SysTick interrupt.
+	 * Otherwise, the priority setting won't be effective, leading to abnormal behavior.
+	 */
+	HAL_NVIC_SetPriority(SysTick_IRQn, INT_PRIORITY_HIGHEST , INT_PRIORITY_HIGHEST );
+
+	return ret;
+}
+
+unsigned int HALIF_GetTick()
+{
+	return (HAL_GetTick() * SYS_TIMER_PERIOD_MS);
 }
 
 void InitializeLED(void)
@@ -182,7 +227,7 @@ void UARTMspInit(void)
 	GPIO_InitStruct.Speed     	= GPIO_SPEED_FREQ_HIGH;
 	HAL_GPIO_Init(GPIO_PORT_UART_RX, &GPIO_InitStruct);
 
-	HAL_NVIC_SetPriority(USART1_IRQn, INT_PRIORITY_HIGHEST, INT_PRIORITY_HIGHEST);
+	HAL_NVIC_SetPriority(USART1_IRQn, INT_PRIORITY_HIGH, INT_PRIORITY_HIGHEST);
 	HAL_NVIC_EnableIRQ(USART1_IRQn);
 }
 
@@ -195,7 +240,7 @@ void HALIF_UARTRecvCallback(void)
 	uint32_t errorflags = 0x00U;
 
 	/* If no error occurs */
-	errorflags = (isrflags & (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE));
+	errorflags = (isrflags & cFLAG_UART_ERROR);
 	if (errorflags == RESET)
 	{
 		/* UART in mode Receiver -------------------------------------------------*/

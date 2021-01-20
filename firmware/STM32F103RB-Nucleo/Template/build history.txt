@@ -5,6 +5,14 @@ Starting Date	: Jan.18, 2021
 Description	: -
 **************************************************************************************
 
+Jan.20, 2021	Sungsu Kim
+	1. implemented SysTimer interface with HALIF_GetTick().
+		This function returns tick counts in 1ms unit regardless of what SysTick timer's period is.
+			firmware/STM32F103RB-Nucleo/Template/Inc/interfaceHAL.h
+			firmware/STM32F103RB-Nucleo/Template/Src/interfaceHAL.c
+			firmware/STM32F103RB-Nucleo/Template/Src/main.c
+
+
 Jan.18, 2021	Sungsu Kim
 	1. changed the UART baudrate to 1.25Mbps (1250000) to comply with AE-Link protocol;
 		it works well with a serial termial on Windows.
@@ -15,11 +23,11 @@ Jan.18, 2021	Sungsu Kim
 	2. improved HALIF_UARTRecvCallback() by adopting logic of the standard UART HAL interface function : HAL_UART_IRQHandler().
 		Note that RxState must be cleared to 'HAL_UART_STATE_READY' after calling HAL_UART_Receive_IT().
 		Without this, the IRQ handler can't handle UART rx packet because of the state.
-		firmware/STM32F103RB-Nucleo/Template/Inc/interfaceHAL.h
-		firmware/STM32F103RB-Nucleo/Template/Src/interfaceHAL.c
-		firmware/STM32F103RB-Nucleo/Template/Src/stm32f1xx_it.c
+			firmware/STM32F103RB-Nucleo/Template/Inc/interfaceHAL.h
+			firmware/STM32F103RB-Nucleo/Template/Src/interfaceHAL.c
+			firmware/STM32F103RB-Nucleo/Template/Src/stm32f1xx_it.c
 	3. added FIRMWARE_NAME and FIRMWARE_VERSION
-		firmware/STM32F103RB-Nucleo/Template/Inc/common.h
+			firmware/STM32F103RB-Nucleo/Template/Inc/common.h
 
 Jan.18, 2021	Sungsu Kim
 	1. changed project name to 'STM32F103RB_Nucleo_Template'.
