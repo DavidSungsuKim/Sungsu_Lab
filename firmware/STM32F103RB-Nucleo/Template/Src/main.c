@@ -3,7 +3,7 @@
 #include "main.h"
 #include "interfaceHAL.h"
 
-static void TaskPeriod(unsigned int periodMs, unsigned int *pTickLast);
+static void TaskPeriodic(unsigned int periodMs, unsigned int *pTickLast);
 
 int main(void)
 {
