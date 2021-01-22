@@ -132,7 +132,13 @@ int InitializeSysTimer(int aPeriodMs, int aIntPriority)
 
 unsigned int HALIF_GetTick()
 {
-	return (HAL_GetTick() * SYS_TIMER_PERIOD_MS);
+	return HAL_GetTick();
+}
+
+// Override (stm32f1xx_hal.c)
+uint32_t HAL_GetTick(void)
+{
+  return (uwTick * SYS_TIMER_PERIOD_MS);
 }
 
 void InitializeLED(void)
@@ -180,7 +186,7 @@ int	HALIF_UARTSendSync(const char* aStr)
 #ifdef CONFIG_USE_UART
 
 	uint32_t size 	 = strlen(aStr);
-	uint32_t timeOut = 5; 	// This delay should be as small as possible.
+	uint32_t timeOut = 1; 	// This delay should be as small as possible.
 	HAL_UART_Transmit(&g_UartHandle, (uint8_t *)aStr, size, timeOut);
 
 #endif /* CONFIG_USE_UART */

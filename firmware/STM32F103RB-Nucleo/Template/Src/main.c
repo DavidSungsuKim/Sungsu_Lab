@@ -13,11 +13,11 @@ int main(void)
 
 	while (1)
 	{
-		TaskPeriod(1000, &tickLast);
+		TaskPeriodic(1000, &tickLast);
 	}
 }
 
-void TaskPeriod(unsigned int periodMs, unsigned int *pTickLast)
+void TaskPeriodic(unsigned int periodMs, unsigned int *pTickLast)
 {
 	unsigned int tickCurrent = HALIF_GetTick();
 	unsigned int tickForMs	= periodMs;
@@ -27,6 +27,13 @@ void TaskPeriod(unsigned int periodMs, unsigned int *pTickLast)
 		/* Do something here */
 
 		HAL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
+
+		int ret;
+		ret = HALIF_UARTSendSync("TaskPeriod...\r\n");
+		if ( ret )
+			ret = 0;
+
+		/* Update tick */
 		*pTickLast = tickCurrent;
 	}
 }

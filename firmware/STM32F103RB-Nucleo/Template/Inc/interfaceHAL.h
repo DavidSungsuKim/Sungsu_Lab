@@ -13,7 +13,7 @@
 #define		BAUD_RATE_UART			1250000//115200
 
 // SYS TIMER
-#define		SYS_TIMER_PERIOD_MS		10
+#define		SYS_TIMER_PERIOD_MS		1//10
 
 void			HALIF_InitializeHW		();
 unsigned int	HALIF_GetTick			();	// Returns the current tick in 1ms unit.

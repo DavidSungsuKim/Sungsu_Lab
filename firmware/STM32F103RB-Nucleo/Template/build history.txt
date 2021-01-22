@@ -6,6 +6,13 @@ Description	: -
 **************************************************************************************
 
 Jan.20, 2021	Sungsu Kim
+	1. changed for testing.
+			firmware/STM32F103RB-Nucleo/Template/Inc/interfaceHAL.h
+			firmware/STM32F103RB-Nucleo/Template/Src/interfaceHAL.c
+			firmware/STM32F103RB-Nucleo/Template/Src/main.c
+
+
+Jan.20, 2021	Sungsu Kim
 	1. implemented SysTimer interface with HALIF_GetTick().
 		This function returns tick counts in 1ms unit regardless of what SysTick timer's period is.
 			firmware/STM32F103RB-Nucleo/Template/Inc/interfaceHAL.h
