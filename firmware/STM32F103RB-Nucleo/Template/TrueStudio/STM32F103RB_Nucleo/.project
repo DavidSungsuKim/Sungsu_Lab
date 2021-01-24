@@ -56,6 +56,16 @@
 			<locationURI>PARENT-4-PROJECT_LOC/STM32Cube_FW_F1_V1.8.3/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc_ex.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F1xx_HAL_Driver/stm32f1xx_hal_tim.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/STM32Cube_FW_F1_V1.8.3/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F1xx_HAL_Driver/stm32f1xx_hal_tim_ex.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/STM32Cube_FW_F1_V1.8.3/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F1xx_HAL_Driver/stm32f1xx_hal_uart.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/STM32Cube_FW_F1_V1.8.3/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c</locationURI>
@@ -69,6 +79,11 @@
 			<name>Example/SW4STM32/startup_stm32f103xb.s</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/startup_stm32f103xb.s</locationURI>
+		</link>
+		<link>
+			<name>Example/User/common.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/common.c</locationURI>
 		</link>
 		<link>
 			<name>Example/User/common.h</name>

@@ -14,16 +14,23 @@ static UART_HandleTypeDef 	g_UartHandle;
 static uint8_t             	g_bUartRxBuf[BSP_UART_RX_BUFF_SIZE];
 const  uint32_t				cFLAG_UART_ERROR = (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE);
 
-GPIO_TypeDef*		GPIO_PORT_UART_TX	= GPIOA;
-GPIO_TypeDef*		GPIO_PORT_UART_RX	= GPIOA;
-const uint16_t		PIN_UART_TX			= GPIO_PIN_9;
-const uint16_t		PIN_UART_RX			= GPIO_PIN_10;
+GPIO_TypeDef*				GPIO_PORT_UART_TX	= GPIOA;
+GPIO_TypeDef*				GPIO_PORT_UART_RX	= GPIOA;
+const uint16_t				PIN_UART_TX			= GPIO_PIN_9;
+const uint16_t				PIN_UART_RX			= GPIO_PIN_10;
 
 // GPIO
 static GPIO_InitTypeDef  	GPIO_InitStruct;
 
+// Tick Timer
+TIM_HandleTypeDef 	g_TimHandle;
+
 void 	SystemClock_Config	(void);
 int 	InitializeSysTimer	(int aPeriodMs, int aIntPriority);
+
+int		InitializeTickTimer	(int aPeriod, int aUnit, int aIntPriority);
+void	TickTimerMspInit	(int aIntPriority);
+
 void 	InitializeLED		(void);
 int		InitializeUART		(void);
 void	UARTMspInit			(void);
@@ -35,9 +42,15 @@ void HALIF_InitializeHW()
 	/* Configure the system clock to 64 MHz */
 	SystemClock_Config();
 
+#ifdef CONFIG_USE_SYSTICK_TIMER
 	InitializeSysTimer(SYS_TIMER_PERIOD_MS, INT_PRIORITY_HIGHEST);
+#endif
 	InitializeLED();
 	InitializeUART();
+
+#ifdef CONFIG_USE_TICK_TIMER
+	InitializeTickTimer(100, TICK_TIMER_UNIT_US, INT_PRIORITY_HIGH);
+#endif
 }
 
 /**
@@ -92,31 +105,15 @@ void SystemClock_Config(void)
 	}
 }
 
+#ifdef CONFIG_USE_SYSTICK_TIMER
 int InitializeSysTimer(int aPeriodMs, int aIntPriority)
 {
 	int ret = 0;
 	if ( aIntPriority != INT_PRIORITY_HIGHEST )
-	{
-		ret = -1;
-		return ret;
-	}
+		return -1;
 
 	if ( aPeriodMs <= 0 )
-	{
-		ret = -2;
-		return ret;
-	}
-
-	/* Sungsu :
-	 * The period of SysTick timer is decided this way:
-	 *
-	 * Example) if SystemCoreClock = 120000000 Hz (120 MHz),
-	 * 						1 		 tick = 0.0008333..us
-	 * 				120000000 		 tick = 1 sec
-	 * 				120000000 / 1000 tick = 1 ms
-	 * 				120000000 /  500 tick = 2 ms
-	 * 				   		 ... and so on
-	 */
+		return -1;
 
 	uint32_t tickDiv = (1000 / aPeriodMs);
 	HAL_SYSTICK_Config(SystemCoreClock / tickDiv);
@@ -130,7 +127,7 @@ int InitializeSysTimer(int aPeriodMs, int aIntPriority)
 	return ret;
 }
 
-unsigned int HALIF_GetTick()
+unsigned int HALIF_GetSysTick()
 {
 	return HAL_GetTick();
 }
@@ -139,6 +136,94 @@ unsigned int HALIF_GetTick()
 uint32_t HAL_GetTick(void)
 {
   return (uwTick * SYS_TIMER_PERIOD_MS);
+}
+#endif
+
+int	InitializeTickTimer(int aPeriod, int aUnit, int aIntPriority)
+{
+	TickTimerMspInit(aIntPriority);
+
+	uint32_t freqDesiredHz;
+	uint32_t period;
+
+	/* NOTE :
+	 * the maximum value that can be set to Init.Period is 0xFFFF.
+	 * So, as I set T=1us for the this timer clock, the maximum timer period is 65535us(=65.53ms).
+	 */
+	if (aPeriod < 0xFFFF)
+		period = aPeriod;
+	else
+		return -1;
+
+	if (aUnit == TICK_TIMER_UNIT_US)
+		freqDesiredHz 	= 1000000;
+	else if (aUnit == TICK_TIMER_UNIT_MS)
+		freqDesiredHz	= 1000;
+	else
+		return -1;
+
+	uint32_t uwPrescalerValue 		= (uint32_t)(SystemCoreClock / freqDesiredHz) - 1;
+	if (uwPrescalerValue > 0xFFFF)
+		return -1;
+
+	TIM_HandleTypeDef	*pHandle = &g_TimHandle;
+
+	/* Set TIMx instance */
+	pHandle->Instance 				= TIM2;
+	pHandle->Init.Period            = period - 1;
+	pHandle->Init.Prescaler         = uwPrescalerValue;
+	pHandle->Init.ClockDivision     = 0;
+	pHandle->Init.CounterMode       = TIM_COUNTERMODE_UP;
+	pHandle->Init.RepetitionCounter = 0;
+	pHandle->Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+
+	if (HAL_TIM_Base_Init(pHandle) != HAL_OK)
+		return -1;
+
+	/*##-2- Start the TIM Base generation in interrupt mode ####################*/
+	/* Start Channel1 */
+	if (HAL_TIM_Base_Start_IT(pHandle) != HAL_OK)
+		return -1;
+
+	return 0;
+}
+
+void TickTimerMspInit(int aIntPriority)
+{
+	/*##-1- Enable peripheral clock #################################*/
+	/* TIMx Peripheral clock enable */
+	__HAL_RCC_TIM2_CLK_ENABLE();
+
+#ifdef CONFIG_TICK_TIMER_IRQ
+	/*##-2- Configure the NVIC for TIMx ########################################*/
+	/* Set the TIMx priority */
+	HAL_NVIC_SetPriority(TIM2_IRQn, aIntPriority, INT_PRIORITY_HIGHEST);
+
+	/* Enable the TIMx global Interrupt */
+	HAL_NVIC_EnableIRQ(TIM2_IRQn);
+#endif
+}
+
+#ifdef CONFIG_TICK_TIMER_IRQ
+void HALIF_TickTimerCallback()
+{
+	HAL_TIM_IRQHandler(&g_TimHandle);
+}
+
+// Override
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	BSP_LED_Toggle(LED2);
+}
+#endif
+
+void HALIF_TestTickTimer()
+{
+	if (HALIF_IsTimerExpired())
+	{
+		_printf("tick=%d\r\n", HALIF_GetTimerTick());
+		HALIF_ResetTickTimer();
+	}
 }
 
 void InitializeLED(void)

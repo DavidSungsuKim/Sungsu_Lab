@@ -5,6 +5,22 @@ Starting Date	: Jan.18, 2021
 Description	: -
 **************************************************************************************
 
+Jan.24, 2021	Sungsu Kim
+	1. implemented TIM2 interface.
+		made some of the functions inline for time efficiency.
+			firmware/STM32F103RB-Nucleo/Template/Inc/config.h
+			firmware/STM32F103RB-Nucleo/Template/Inc/interfaceHAL.h
+			firmware/STM32F103RB-Nucleo/Template/Inc/stm32f1xx_hal_conf.h
+			firmware/STM32F103RB-Nucleo/Template/Src/interfaceHAL.c
+			firmware/STM32F103RB-Nucleo/Template/Src/main.c
+			firmware/STM32F103RB-Nucleo/Template/Src/stm32f1xx_it.c
+			firmware/STM32F103RB-Nucleo/Template/TrueStudio/STM32F103RB_Nucleo/.project
+			firmware/STM32F103RB-Nucleo/Template/TrueStudio/STM32F103RB_Nucleo/.settings/language.settings.xml
+	2. added _printf interface.
+			firmware/STM32F103RB-Nucleo/Template/Src/common.c
+			firmware/STM32F103RB-Nucleo/Template/Inc/common.h
+
+
 Jan.20, 2021	Sungsu Kim
 	1. changed for testing.
 			firmware/STM32F103RB-Nucleo/Template/Inc/interfaceHAL.h

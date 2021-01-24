@@ -21,8 +21,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stm32f1xx_it.h"
+#include "config.h"
 
+#include "stm32f1xx_it.h"
 #include "interfaceHAL.h"
 
 /** @addtogroup STM32F1xx_HAL_Examples
@@ -165,6 +166,13 @@ void USART1_IRQHandler(void)
  */
 	HALIF_UARTRecvCallback();
 }
+
+#ifdef CONFIG_TICK_TIMER_IRQ
+void TIM2_IRQHandler(void)
+{
+	HALIF_TickTimerCallback();
+}
+#endif
 
 /**
   * @}
