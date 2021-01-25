@@ -19,6 +19,15 @@ GPIO_TypeDef*				GPIO_PORT_UART_RX	= GPIOA;
 const uint16_t				PIN_UART_TX			= GPIO_PIN_9;
 const uint16_t				PIN_UART_RX			= GPIO_PIN_10;
 
+// UART2
+static UART_HandleTypeDef 	g_Uart2Handle;
+static uint8_t             	g_bUart2RxBuf[BSP_UART_RX_BUFF_SIZE];
+
+GPIO_TypeDef*				GPIO_PORT_UART2_TX	= GPIOA;
+GPIO_TypeDef*				GPIO_PORT_UART2_RX	= GPIOA;
+const uint16_t				PIN_UART2_TX		= GPIO_PIN_2;
+const uint16_t				PIN_UART2_RX		= GPIO_PIN_3;
+
 // GPIO
 static GPIO_InitTypeDef  	GPIO_InitStruct;
 
@@ -35,6 +44,9 @@ void 	InitializeLED		(void);
 int		InitializeUART		(void);
 void	UARTMspInit			(void);
 
+int		InitializeUART2		(void);
+void	UART2MspInit		(void);
+
 void HALIF_InitializeHW()
 {
 	HAL_Init();
@@ -47,6 +59,10 @@ void HALIF_InitializeHW()
 #endif
 	InitializeLED();
 	InitializeUART();
+
+#ifdef CONFIG_USE_UART_DEBUG
+	InitializeUART2();
+#endif
 
 #ifdef CONFIG_USE_TICK_TIMER
 	InitializeTickTimer(100, TICK_TIMER_UNIT_US, INT_PRIORITY_HIGH);
@@ -345,4 +361,61 @@ void HALIF_UARTRecvCallback(void)
 #endif
 		}
 	}
+}
+
+int	InitializeUART2(void)
+{
+	UART2MspInit();
+
+	UART_HandleTypeDef* pHandle = &g_Uart2Handle;
+
+	/*##-1- Configure the UART peripheral ######################################*/
+	pHandle->Instance        = USART2;
+	pHandle->Init.BaudRate   = BAUD_RATE_UART2;
+	pHandle->Init.WordLength = UART_WORDLENGTH_9B;
+	pHandle->Init.StopBits   = UART_STOPBITS_1;
+	pHandle->Init.Parity     = UART_PARITY_ODD;
+	pHandle->Init.HwFlowCtl  = UART_HWCONTROL_NONE;
+	pHandle->Init.Mode       = UART_MODE_TX_RX;
+
+	if (HAL_UART_Init(pHandle) != HAL_OK)
+		return -1;//	_printfEx("UART init failed.\r\n");
+
+	if (HAL_UART_Receive_IT(pHandle, g_bUart2RxBuf, BSP_UART_RX_BUFF_SIZE) != HAL_OK)
+		return -1;//
+
+	pHandle->RxState = HAL_UART_STATE_READY;	// Change the state to READY.
+
+	return 0;
+}
+
+void UART2MspInit(void)
+{
+	GPIO_InitTypeDef  GPIO_InitStruct;
+
+	/*##-1- Enable peripherals and GPIO Clocks #################################*/
+	/* Enable GPIO TX/RX clock */
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+
+	/* Enable USARTx clock */
+	__HAL_RCC_USART2_CLK_ENABLE();
+
+	/*##-2- Configure peripheral GPIO ##########################################*/
+	/* UART TX GPIO pin configuration  */
+	GPIO_InitStruct.Pin       	= PIN_UART2_TX;
+	GPIO_InitStruct.Mode      	= GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Pull      	= GPIO_PULLUP;
+	GPIO_InitStruct.Speed     	= GPIO_SPEED_FREQ_HIGH;
+	HAL_GPIO_Init(GPIO_PORT_UART2_TX, &GPIO_InitStruct);
+
+	/* UART RX GPIO pin configuration  */
+	GPIO_InitStruct.Pin 		= PIN_UART2_RX;
+	GPIO_InitStruct.Mode      	= GPIO_MODE_INPUT;
+	GPIO_InitStruct.Pull      	= GPIO_PULLUP;
+	GPIO_InitStruct.Speed     	= GPIO_SPEED_FREQ_HIGH;
+	HAL_GPIO_Init(GPIO_PORT_UART2_RX, &GPIO_InitStruct);
+
+	HAL_NVIC_SetPriority(USART2_IRQn, INT_PRIORITY_HIGH, INT_PRIORITY_HIGH);
+	HAL_NVIC_EnableIRQ(USART2_IRQn);
 }

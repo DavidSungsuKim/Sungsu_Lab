@@ -174,6 +174,14 @@ void TIM2_IRQHandler(void)
 }
 #endif
 
+#ifdef CONFIG_USE_UART_DEBUG
+void USART2_IRQHandler(void)
+{
+/* HAL_UART_IRQHandler()	// Standard handler by STM32 HAL interface
+ */
+}
+#endif
+
 /**
   * @}
   */
