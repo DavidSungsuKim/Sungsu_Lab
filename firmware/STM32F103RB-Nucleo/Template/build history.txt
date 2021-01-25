@@ -6,6 +6,14 @@ Description	: -
 **************************************************************************************
 
 Jan.25, 2021	Sungsu Kim
+	1. changed UART2 to UART3 for the second UART interface.
+	2. changed for _printf functions to make use of 'HALIF_UART2SendSync()'.
+			firmware/STM32F103RB-Nucleo/Template/Inc/config.h
+			firmware/STM32F103RB-Nucleo/Template/Inc/interfaceHAL.h
+			firmware/STM32F103RB-Nucleo/Template/Src/common.c
+			firmware/STM32F103RB-Nucleo/Template/Src/interfaceHAL.c
+
+Jan.25, 2021	Sungsu Kim
 	1. added UART2 interface, but it's currently not working; I don't know why yet.
 			firmware/STM32F103RB-Nucleo/Template/Inc/config.h
 			firmware/STM32F103RB-Nucleo/Template/Inc/interfaceHAL.h

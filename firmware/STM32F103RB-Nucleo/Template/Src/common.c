@@ -27,7 +27,7 @@ void PrintfUART(const char* str, ...)
 	int length = strlen(str);
 	if ( length >= SIZE_BUFF_PRINTF )
 	{
-		HALIF_UARTSendSync("PrintfUART: 'str' exceeded the buffer.\r\n");
+		HALIF_UART2SendSync("PrintfUART: 'str' exceeded the buffer.\r\n");
 		return;
 	}
 
@@ -42,7 +42,7 @@ void PrintfUART(const char* str, ...)
 
     puts(buf);
 
-    HALIF_UARTSendSync(buf);
+    HALIF_UART2SendSync(buf);
 }
 
 void PrintfUARTEx(const char *file, int line, const char* str, ...)
@@ -52,7 +52,7 @@ void PrintfUARTEx(const char *file, int line, const char* str, ...)
 	length = strlen(str);
 	if ( length >= SIZE_BUFF_PRINTF )
 	{
-		HALIF_UARTSendSync("PrintfUARTEx: 'str' exceeded the buffer.\r\n");
+		HALIF_UART2SendSync("PrintfUARTEx: 'str' exceeded the buffer.\r\n");
 		return;
 	}
 
@@ -84,12 +84,12 @@ void PrintfUARTEx(const char *file, int line, const char* str, ...)
 	length = strlen(file) - index;
 	if ( length >= SIZE_BUFF_PRINTF )
 	{
-		HALIF_UARTSendSync("PrintfUARTEx: 'file' exceeded the buffer.\r\n");
+		HALIF_UART2SendSync("PrintfUARTEx: 'file' exceeded the buffer.\r\n");
 		return;
 	}
 
 	char bufEx[SIZE_BUFF_PRINTF_EX] = {0,};
 	sprintf(bufEx, "Ex %s L=%d: %s", &file[index], line, buf);
 
-	HALIF_UARTSendSync(bufEx);
+	HALIF_UART2SendSync(bufEx);
 }

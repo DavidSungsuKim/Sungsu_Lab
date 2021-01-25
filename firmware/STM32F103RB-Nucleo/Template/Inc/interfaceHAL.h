@@ -38,6 +38,8 @@ int				HALIF_UARTSendAsync		(const char* aStr);
 int				HALIF_UARTRecv			(unsigned char* apPacket);
 void			HALIF_UARTRecvCallback	(void);
 
+int				HALIF_UART2SendSync		(const char* aStr);
+
 #include "common.h"
 #include "stm32f1xx_hal.h"
 

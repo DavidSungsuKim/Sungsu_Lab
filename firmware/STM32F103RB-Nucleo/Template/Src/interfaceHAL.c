@@ -23,10 +23,10 @@ const uint16_t				PIN_UART_RX			= GPIO_PIN_10;
 static UART_HandleTypeDef 	g_Uart2Handle;
 static uint8_t             	g_bUart2RxBuf[BSP_UART_RX_BUFF_SIZE];
 
-GPIO_TypeDef*				GPIO_PORT_UART2_TX	= GPIOA;
-GPIO_TypeDef*				GPIO_PORT_UART2_RX	= GPIOA;
-const uint16_t				PIN_UART2_TX		= GPIO_PIN_2;
-const uint16_t				PIN_UART2_RX		= GPIO_PIN_3;
+GPIO_TypeDef*				GPIO_PORT_UART2_TX	= GPIOB;
+GPIO_TypeDef*				GPIO_PORT_UART2_RX	= GPIOB;
+const uint16_t				PIN_UART2_TX		= GPIO_PIN_10;
+const uint16_t				PIN_UART2_RX		= GPIO_PIN_11;
 
 // GPIO
 static GPIO_InitTypeDef  	GPIO_InitStruct;
@@ -294,6 +294,18 @@ int	HALIF_UARTSendSync(const char* aStr)
 	return 0;
 }
 
+int	HALIF_UART2SendSync(const char* aStr)
+{
+#ifdef CONFIG_USE_UART_DEBUG
+
+	uint32_t size 	 = strlen(aStr);
+	uint32_t timeOut = 1; 	// This delay should be as small as possible.
+	HAL_UART_Transmit(&g_Uart2Handle, (uint8_t *)aStr, size, timeOut);
+
+#endif /* CONFIG_USE_UART_DEBUG */
+	return 0;
+}
+
 int	HALIF_UARTSendAsync(const char* aStr)
 {
 	return 0;
@@ -370,7 +382,7 @@ int	InitializeUART2(void)
 	UART_HandleTypeDef* pHandle = &g_Uart2Handle;
 
 	/*##-1- Configure the UART peripheral ######################################*/
-	pHandle->Instance        = USART2;
+	pHandle->Instance        = USART3;
 	pHandle->Init.BaudRate   = BAUD_RATE_UART2;
 	pHandle->Init.WordLength = UART_WORDLENGTH_9B;
 	pHandle->Init.StopBits   = UART_STOPBITS_1;
@@ -395,11 +407,11 @@ void UART2MspInit(void)
 
 	/*##-1- Enable peripherals and GPIO Clocks #################################*/
 	/* Enable GPIO TX/RX clock */
-	__HAL_RCC_GPIOA_CLK_ENABLE();
-	__HAL_RCC_GPIOA_CLK_ENABLE();
+	__HAL_RCC_GPIOB_CLK_ENABLE();
+	__HAL_RCC_GPIOB_CLK_ENABLE();
 
 	/* Enable USARTx clock */
-	__HAL_RCC_USART2_CLK_ENABLE();
+	__HAL_RCC_USART3_CLK_ENABLE();
 
 	/*##-2- Configure peripheral GPIO ##########################################*/
 	/* UART TX GPIO pin configuration  */

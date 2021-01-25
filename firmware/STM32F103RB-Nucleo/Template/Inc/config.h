@@ -4,7 +4,7 @@
 
 /* Configs */
 #define CONFIG_USE_UART
-//#define CONFIG_USE_UART_DEBUG
+#define CONFIG_USE_UART_DEBUG
 #define CONFIG_USE_SYSTICK_TIMER
 #define CONFIG_USE_TICK_TIMER
 
