@@ -27,21 +27,21 @@ static void LEDTurnOffTask    ( void *pvParameters );
 
 int main(void)
 {
-  InitializeHW();
-  
-  g_sem = xSemaphoreCreateBinary();
-  if ( g_sem == NULL )
-    return -1;
-  
-  xSemaphoreGive( g_sem );
-  
-  // The bigger number the higher priority?  
-  xTaskCreate( LEDTurnOnTask,  "LEDTurnOnTask",  configMINIMAL_STACK_SIZE, NULL, TASK_PRIORITY(2), NULL );  
-  xTaskCreate( LEDTurnOffTask, "LEDTurnOffTask", configMINIMAL_STACK_SIZE, NULL, TASK_PRIORITY(1), NULL );    
-   
-  vTaskStartScheduler();
-  
-  while(1) { ; }
+	InitializeHW();
+
+	g_sem = xSemaphoreCreateBinary();
+	if ( g_sem == NULL )
+		return -1;
+
+	xSemaphoreGive( g_sem );
+
+	// The bigger number the higher priority?
+	xTaskCreate( LEDTurnOnTask,  "LEDTurnOnTask",  configMINIMAL_STACK_SIZE, NULL, TASK_PRIORITY(2), NULL );
+	xTaskCreate( LEDTurnOffTask, "LEDTurnOffTask", configMINIMAL_STACK_SIZE, NULL, TASK_PRIORITY(1), NULL );
+
+	vTaskStartScheduler();
+
+	while(1) { ; }
 }
 
 void LEDTurnOnTask( void *pvParameters )

@@ -1,4 +1,8 @@
 Feb. 13, 2021
+	1. line alignment.
+	2. deleted debug files.
+
+Feb. 13, 2021
 	1. changed the project name to 'FreeRTOS_F401RE'
 	2. changed .ld file to exactly match F401RE.
 
