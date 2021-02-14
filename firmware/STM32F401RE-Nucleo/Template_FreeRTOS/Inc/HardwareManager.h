@@ -1,7 +1,9 @@
 
-#ifndef _NUCLEO_HW_CONTROLLER_H_        
-#define _NUCLEO_HW_CONTROLLER_H_
+#ifndef _HW_MANAGER_H_
+#define _HW_MANAGER_H_
 
 void InitializeHW  (void);
 
-#endif
+
+
+#endif /* _HW_MANAGER_H_ */

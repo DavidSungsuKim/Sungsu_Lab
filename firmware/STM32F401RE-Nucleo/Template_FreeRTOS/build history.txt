@@ -1,7 +1,11 @@
-Oct.30, 2020
+Feb. 13, 2021
+	1. changed the project name to 'FreeRTOS_F401RE'
+	2. changed .ld file to exactly match F401RE.
+
+Oct. 30, 2020
 	1. applied changes in the location of libraries - STM32Cube_FW_F4_V1.9.0 to TrueStudio_Ubuntu.
 
 	1. applied changes in the location of libraries - STM32Cube_FW_F4_V1.9.0 to TrueStudio (Windows).
 
-Oct.29, 2020
+Oct. 29, 2020
 	1. registered Template_FreeRTOS with a support for TrueStudio.

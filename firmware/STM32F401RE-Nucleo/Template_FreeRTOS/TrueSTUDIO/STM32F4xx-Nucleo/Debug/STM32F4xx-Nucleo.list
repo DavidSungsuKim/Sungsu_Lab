@@ -15,27 +15,29 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, DATA
   5 .data         00000010  20000000  08003188  00020000  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  6 .bss          00012d44  20000010  08003198  00020010  2**2
+  6 .ccmram       00000000  10000000  10000000  00020010  2**0
+                  CONTENTS
+  7 .bss          00012d44  20000010  20000010  00020010  2**2
                   ALLOC
-  7 ._user_heap_stack 00000600  20012d54  08003198  00022d54  2**0
+  8 ._user_heap_stack 00000400  20012d54  20012d54  00020010  2**0
                   ALLOC
-  8 .ARM.attributes 0000002c  00000000  00000000  00020010  2**0
+  9 .ARM.attributes 00000030  00000000  00000000  00020010  2**0
                   CONTENTS, READONLY
-  9 .debug_info   0000f21d  00000000  00000000  0002003c  2**0
+ 10 .debug_info   0000f21d  00000000  00000000  00020040  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_abbrev 0000220b  00000000  00000000  0002f259  2**0
+ 11 .debug_abbrev 0000220b  00000000  00000000  0002f25d  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_aranges 000008d0  00000000  00000000  00031468  2**3
+ 12 .debug_aranges 000008d0  00000000  00000000  00031468  2**3
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 000007e8  00000000  00000000  00031d38  2**3
+ 13 .debug_ranges 000007e8  00000000  00000000  00031d38  2**3
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_line   00004e59  00000000  00000000  00032520  2**0
+ 14 .debug_line   00004e59  00000000  00000000  00032520  2**0
                   CONTENTS, READONLY, DEBUGGING
- 14 .debug_str    000039c5  00000000  00000000  00037379  2**0
+ 15 .debug_str    000039d5  00000000  00000000  00037379  2**0
                   CONTENTS, READONLY, DEBUGGING
- 15 .comment      0000007c  00000000  00000000  0003ad3e  2**0
+ 16 .comment      0000007c  00000000  00000000  0003ad4e  2**0
                   CONTENTS, READONLY
- 16 .debug_frame  000021d8  00000000  00000000  0003adbc  2**2
+ 17 .debug_frame  000021d8  00000000  00000000  0003adcc  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -2821,7 +2823,7 @@ LoopFillZerobss:
   bx  lr    
  8001112:	4770      	bx	lr
   ldr   sp, =_estack    		 /* set stack pointer */
- 8001114:	20017fff 	.word	0x20017fff
+ 8001114:	20018000 	.word	0x20018000
   ldr  r3, =_sidata
  8001118:	08003188 	.word	0x08003188
   ldr  r0, =_sdata
