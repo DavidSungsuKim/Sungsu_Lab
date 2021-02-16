@@ -457,9 +457,9 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>Example/User/HardwareManager.c</name>
+			<name>Example/User/HALInterface.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Src/HardwareManager.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/HALInterface.c</locationURI>
 		</link>
 		<link>
 			<name>Example/User/main.c</name>

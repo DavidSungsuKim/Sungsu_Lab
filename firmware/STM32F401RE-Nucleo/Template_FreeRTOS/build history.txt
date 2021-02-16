@@ -1,3 +1,14 @@
+Feb. 16, 2021
+	1. changed 'HardwareManager' to 'HALInterface'.
+	2. added a new header file to manage MCU resources like GPIO ports.
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Inc/HALInterface.h
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Inc/configSTM32.h
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Src/HALInterface.c
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Src/main.c
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/TrueSTUDIO/STM32F4xx-Nucleo/.project
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/TrueSTUDIO/STM32F4xx-Nucleo/.settings/language.settings.xml
+
+
 Feb. 13, 2021
 	1. line alignment.
 	2. deleted debug files.

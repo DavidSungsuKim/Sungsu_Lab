@@ -10,7 +10,7 @@
   */
 
 #include "main.h"
-#include "HardwareManager.h"
+#include "HALInterface.h"
     
 /* Scheduler includes. */
 #include "FreeRTOS.h"
@@ -27,7 +27,7 @@ static void LEDTurnOffTask    ( void *pvParameters );
 
 int main(void)
 {
-	InitializeHW();
+	HALIF_Initialize();
 
 	g_sem = xSemaphoreCreateBinary();
 	if ( g_sem == NULL )

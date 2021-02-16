@@ -1,18 +1,14 @@
 
 #include "main.h"
-#include "HardwareManager.h"
+#include "HALInterface.h"
+
+#include "configSTM32.h"
 
 static void SystemClock_Config  (void);
 static void Error_Handler       (void);
 
-void InitializeHW(void)
+void HALIF_Initialize(void)
 {
-  /* STM32F4xx HAL library initialization:
-       - Configure the Flash prefetch, instruction and Data caches
-       - Configure the Systick to generate an interrupt each 1 msec
-       - Set NVIC Group Priority to 4
-       - Global MSP (MCU Support Package) initialization
-     */
   HAL_Init();
   
   /* Configure the system clock to 84 MHz */
