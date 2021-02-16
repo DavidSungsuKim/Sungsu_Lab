@@ -1,3 +1,19 @@
+**************************************************************************************
+Project Name	: Template_FreeRTOS
+Author			: Sungsu Kim
+Starting Date	: Jan. 25, 2021.
+Description		: 
+**************************************************************************************
+
+Feb. 16, 2021
+	1. changed the project to a C++ project to support C++ and class interface as well as C.
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Src/main.cpp
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Inc/HALInterface.h
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/TrueSTUDIO/STM32F4xx-Nucleo/.cproject
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/TrueSTUDIO/STM32F4xx-Nucleo/.project
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/TrueSTUDIO/STM32F4xx-Nucleo/.settings/language.settings.xml
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/TrueSTUDIO/STM32F4xx-Nucleo/STM32F4xx-Nucleo.elf.launch
+
 Feb. 16, 2021
 	1. changed 'HardwareManager' to 'HALInterface'.
 	2. added a new header file to manage MCU resources like GPIO ports.
