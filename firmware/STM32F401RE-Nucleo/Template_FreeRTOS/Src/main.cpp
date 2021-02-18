@@ -10,6 +10,8 @@
   */
 
 #include "main.h"
+
+#include "common.h"
 #include "HALInterface.h"
     
 /* Scheduler includes. */
@@ -40,8 +42,6 @@ int main(void)
 	xTaskCreate( LEDTurnOffTask, "LEDTurnOffTask", configMINIMAL_STACK_SIZE, NULL, TASK_PRIORITY(1), NULL );
 
 	vTaskStartScheduler();
-
-	while(1) { ; }
 }
 
 void LEDTurnOnTask( void *pvParameters )
@@ -52,8 +52,10 @@ void LEDTurnOnTask( void *pvParameters )
     {    
       xSemaphoreTake( g_sem, tickWait );
      
-      BSP_LED_On(LED2); // HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-      
+      HALIF_TurnOnLED1();
+
+      int test = 1;
+      _printf("LEDTurnOnTask, test=%d\r\n", test);
       vTaskDelay(100);
 
       xSemaphoreGive( g_sem );
@@ -69,8 +71,12 @@ void LEDTurnOffTask( void *pvParameters )
     {    
       xSemaphoreTake( g_sem, tickWait );
      
-      BSP_LED_Off(LED2);
-      vTaskDelay(1000);            
+      HALIF_TurnOffLED1();
+
+      int test = 1;
+      _printf("LEDTurnOffTask, test=%d\r\n", test);
+
+      vTaskDelay(1000);
       
       xSemaphoreGive( g_sem );
     }

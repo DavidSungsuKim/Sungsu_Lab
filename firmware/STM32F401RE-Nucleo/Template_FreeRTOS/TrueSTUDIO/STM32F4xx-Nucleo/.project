@@ -463,6 +463,26 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Src/HALInterface.c</locationURI>
 		</link>
 		<link>
+			<name>Example/User/common.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/common.c</locationURI>
+		</link>
+		<link>
+			<name>Example/User/common.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Inc/common.h</locationURI>
+		</link>
+		<link>
+			<name>Example/User/config.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Inc/config.h</locationURI>
+		</link>
+		<link>
+			<name>Example/User/configSTM32.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Inc/configSTM32.h</locationURI>
+		</link>
+		<link>
 			<name>Example/User/main.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/main.cpp</locationURI>

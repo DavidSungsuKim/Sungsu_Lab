@@ -5,6 +5,20 @@ Starting Date	: Jan. 25, 2021.
 Description		: 
 **************************************************************************************
 
+Feb. 17, 2021
+	1. added new files.
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Inc/common.h
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Inc/config.h
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Inc/configSTM32.h
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Src/HALInterface.c
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Src/common.c
+	2. implemented HAL interface functions including HALIF_UART2SendSync().
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Inc/HALInterface.h
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Src/HALInterface.c
+	3. fixed a problem with _printf() function by increasing the default stack size of FreeRTOS tasks.
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Inc/FreeRTOSConfig.h
+
+
 Feb. 16, 2021
 	1. changed the project to a C++ project to support C++ and class interface as well as C.
 			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Src/main.cpp
