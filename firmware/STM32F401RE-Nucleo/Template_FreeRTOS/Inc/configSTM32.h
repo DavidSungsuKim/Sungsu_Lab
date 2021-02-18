@@ -4,27 +4,28 @@
 
 /* UART#1 *****************************************/
 #ifdef MODE_NUCLEO_F401RE
-	#define 	UART_INST				USART1
-	#define 	UART_GPIO_CLK_ENABLE()	__HAL_RCC_GPIOA_CLK_ENABLE();
-	#define 	UART_CLK_ENABLE()		__HAL_RCC_USART1_CLK_ENABLE();
-	#define		GPIO_PORT_UART_TX		GPIOA
-	#define		GPIO_PORT_UART_RX		GPIOA
-	#define 	PIN_UART_TX				GPIO_PIN_9
-	#define 	PIN_UART_RX				GPIO_PIN_10
+	#define 	UART1_INST				USART1
+	#define 	UART1_GPIO_CLK_ENABLE()	__HAL_RCC_GPIOA_CLK_ENABLE();
+	#define 	UART1_CLK_ENABLE()		__HAL_RCC_USART1_CLK_ENABLE();
+	#define 	UART1_TX_AF				GPIO_AF7_USART1
+	#define 	UART1_RX_AF				GPIO_AF7_USART1
+	#define		GPIO_PORT_UART1_TX		GPIOA
+	#define		GPIO_PORT_UART1_RX		GPIOA
+	#define 	PIN_UART1_TX			GPIO_PIN_9
+	#define 	PIN_UART1_RX			GPIO_PIN_10
 #endif /* MODE_NUCLEO_F401RE */
 
 /* UART#2 *****************************************/
 #ifdef MODE_NUCLEO_F401RE
-	#define 	UART2_INST				USART1
-	#define 	UART2_GPIO_CLK_ENABLE()	__HAL_RCC_GPIOA_CLK_ENABLE();
-	#define 	UART2_CLK_ENABLE()		__HAL_RCC_USART1_CLK_ENABLE();
-	#define 	UART2_TX_AF				GPIO_AF7_USART1	// F401RE only
-	#define 	UART2_RX_AF				GPIO_AF7_USART1	// F401RE only
-	#define		GPIO_PORT_UART2_TX		GPIOA
-	#define		GPIO_PORT_UART2_RX		GPIOA
-	#define		PIN_UART2_TX			GPIO_PIN_9
-	#define		PIN_UART2_RX			GPIO_PIN_10
-
+	#define 	UART2_INST				USART6
+	#define 	UART2_GPIO_CLK_ENABLE()	__HAL_RCC_GPIOC_CLK_ENABLE();
+	#define 	UART2_CLK_ENABLE()		__HAL_RCC_USART6_CLK_ENABLE();
+	#define 	UART2_TX_AF				GPIO_AF8_USART6
+	#define 	UART2_RX_AF				GPIO_AF8_USART6
+	#define		GPIO_PORT_UART2_TX		GPIOC
+	#define		GPIO_PORT_UART2_RX		GPIOC
+	#define		PIN_UART2_TX			GPIO_PIN_6
+	#define		PIN_UART2_RX			GPIO_PIN_7
 #endif /* MODE_NUCLEO_F401RE */
 
 /* OTHERS ******************************************/

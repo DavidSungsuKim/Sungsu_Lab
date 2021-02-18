@@ -6,6 +6,16 @@ Description		:
 **************************************************************************************
 
 Feb. 17, 2021
+	1. finished implementing two UART channel interface.
+		UART1 is on USART1 of F401RE and,
+		UART2 is on USART6 of F401RE
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Inc/HALInterface.h
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Inc/configSTM32.h
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Src/HALInterface.c
+			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Src/main.cpp
+
+
+Feb. 17, 2021
 	1. added new files.
 			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Inc/common.h
 			firmware/STM32F401RE-Nucleo/Template_FreeRTOS/Inc/config.h

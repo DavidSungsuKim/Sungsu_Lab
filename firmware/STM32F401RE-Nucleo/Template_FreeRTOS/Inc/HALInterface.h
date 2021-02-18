@@ -13,12 +13,6 @@ extern "C" {
 #define INT_PRIORITY_LOW		3
 #define INT_PRIORITY_LOWEST		15
 
-// UART
-#define	BAUD_RATE_UART			1250000
-
-// UART2
-#define	BAUD_RATE_UART2			1250000
-
 // SYS TIMER
 #define	SYS_TIMER_PERIOD_MS		1//10
 
@@ -28,14 +22,19 @@ extern "C" {
 
 struct stUartConfig
 {
-	unsigned int BaudRate;		// bps
-	/* NOTE :
-	 * add other UART properties as you wish
-	 */
+	unsigned int BaudRate;		// bps,  same as UART_InitTypeDef's
+	unsigned int DataLength;	// bits, same as UART_InitTypeDef's
+	unsigned int StopBits;		// same as UART_InitTypeDef's
+	unsigned int Parity;		// same as UART_InitTypeDef's
 };
 
 void 			HALIF_Initialize 	 	(void);
 
+int				HALIF_InitializeUART1	(const struct stUartConfig *apUart);
+int				HALIF_UART1SendByteSync	(char aData, int timeoutMs);
+int				HALIF_UART1SendSync		(const char *aStr);
+
+int				HALIF_InitializeUART2	(const struct stUartConfig *apUart);
 int				HALIF_UART2SendSync		(const char *aStr);
 
 void			HALIF_TurnOnLED1		();

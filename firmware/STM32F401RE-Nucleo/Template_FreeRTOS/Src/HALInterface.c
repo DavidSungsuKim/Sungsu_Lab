@@ -26,8 +26,8 @@ static void SystemClock_Config  (void);
 static void Error_Handler       (void);
 
 static void	InitializeLED		(void);
-static int	InitializeUART2		(void);
 
+static void UARTMspInit			(void);
 static void UART2MspInit		(void);
 
 void HALIF_Initialize(void)
@@ -37,7 +37,20 @@ void HALIF_Initialize(void)
 	SystemClock_Config();
 
 	InitializeLED();
-	InitializeUART2();
+
+	struct stUartConfig uart1;
+	uart1.BaudRate 		= 1250000;
+	uart1.DataLength	= UART_WORDLENGTH_9B;
+	uart1.StopBits		= UART_STOPBITS_1;
+	uart1.Parity		= UART_PARITY_ODD;
+	HALIF_InitializeUART1(&uart1);
+
+	struct stUartConfig uart2;
+	uart2.BaudRate 		= 1250000;
+	uart2.DataLength	= UART_WORDLENGTH_9B;
+	uart2.StopBits		= UART_STOPBITS_1;
+	uart2.Parity		= UART_PARITY_ODD;
+	HALIF_InitializeUART2(&uart2);
 }
 
 unsigned int HALIF_GetSysTick()
@@ -142,7 +155,89 @@ static void InitializeLED(void)
 	HAL_GPIO_Init(LED1_GPIO_PORT, &GPIO_InitStruct);
 }
 
-static int InitializeUART2(void)
+int HALIF_InitializeUART1(const struct stUartConfig *apUart)
+{
+	UARTMspInit();
+
+	UART_HandleTypeDef* pHandle = &g_UartHandle;
+
+	/*##-1- Configure the UART peripheral ######################################*/
+	pHandle->Instance        = UART1_INST;
+	pHandle->Init.BaudRate   = apUart->BaudRate;
+	pHandle->Init.WordLength = apUart->DataLength;
+	pHandle->Init.StopBits   = apUart->StopBits;
+	pHandle->Init.Parity     = apUart->Parity;
+	pHandle->Init.HwFlowCtl  = UART_HWCONTROL_NONE;
+	pHandle->Init.Mode       = UART_MODE_TX_RX;
+
+	if (HAL_UART_Init(pHandle) != HAL_OK)
+		return -1;
+
+/*	if (HAL_UART_Receive_IT(pHandle, g_bUart2RxBuf, BSP_UART_RX_BUFF_SIZE) != HAL_OK)
+		return -1;
+
+	pHandle->Instance->CR3 |= USART_CR3_EIE;
+	pHandle->Instance->CR1 |= USART_CR1_PEIE;
+*/
+	pHandle->State = HAL_UART_STATE_READY;	// Change the state to READY.
+
+	return 0;
+}
+
+static void UARTMspInit(void)
+{
+	/* NOTE :
+	 * Alternate setting is mandatory in F401RE.
+	 */
+
+	GPIO_InitTypeDef  GPIO_InitStruct;
+
+	/*##-1- Enable peripherals and GPIO Clocks #################################*/
+	/* Enable GPIO TX/RX clock */
+	UART1_GPIO_CLK_ENABLE();
+
+	/* Enable USARTx clock */
+	UART1_CLK_ENABLE();
+
+	/*##-2- Configure peripheral GPIO ##########################################*/
+	/* UART TX GPIO pin configuration  */
+	GPIO_InitStruct.Pin       	= PIN_UART1_TX;
+	GPIO_InitStruct.Mode      	= GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Pull      	= GPIO_PULLUP;
+	GPIO_InitStruct.Speed     	= GPIO_SPEED_FREQ_HIGH;
+	GPIO_InitStruct.Alternate 	= UART1_TX_AF;
+	HAL_GPIO_Init(GPIO_PORT_UART1_TX, &GPIO_InitStruct);
+
+	/* UART RX GPIO pin configuration  */
+	GPIO_InitStruct.Pin 		= PIN_UART1_RX;
+	GPIO_InitStruct.Mode      	= GPIO_MODE_INPUT;
+	GPIO_InitStruct.Pull      	= GPIO_PULLUP;
+	GPIO_InitStruct.Speed     	= GPIO_SPEED_FREQ_HIGH;
+	GPIO_InitStruct.Alternate 	= UART1_RX_AF;
+	HAL_GPIO_Init(GPIO_PORT_UART1_RX, &GPIO_InitStruct);
+
+//	HAL_NVIC_SetPriority(USART3_IRQn, INT_PRIORITY_HIGH, INT_PRIORITY_HIGH);
+//	HAL_NVIC_EnableIRQ(USART3_IRQn);
+}
+
+int	HALIF_UART1SendSync(const char *aStr)
+{
+	uint32_t size 	 = strlen(aStr);
+	uint32_t timeOut = 1; 	// This delay should be as small as possible.
+	HAL_UART_Transmit(&g_UartHandle, (uint8_t *)aStr, size, timeOut);
+
+	return 0;
+}
+
+int	HALIF_UART1SendByteSync(char aData, int timeoutMs)
+{
+	uint32_t timeOut = (uint32_t)timeoutMs;
+	HAL_UART_Transmit(&g_UartHandle, (uint8_t *)&aData, 1, timeOut);
+
+	return 0;
+}
+
+int HALIF_InitializeUART2(const struct stUartConfig *apUart)
 {
 	UART2MspInit();
 
@@ -150,10 +245,10 @@ static int InitializeUART2(void)
 
 	/*##-1- Configure the UART peripheral ######################################*/
 	pHandle->Instance        = UART2_INST;
-	pHandle->Init.BaudRate   = BAUD_RATE_UART2;
-	pHandle->Init.WordLength = UART_WORDLENGTH_9B;
-	pHandle->Init.StopBits   = UART_STOPBITS_1;
-	pHandle->Init.Parity     = UART_PARITY_ODD;
+	pHandle->Init.BaudRate   = apUart->BaudRate;
+	pHandle->Init.WordLength = apUart->DataLength;
+	pHandle->Init.StopBits   = apUart->StopBits;
+	pHandle->Init.Parity     = apUart->Parity;
 	pHandle->Init.HwFlowCtl  = UART_HWCONTROL_NONE;
 	pHandle->Init.Mode       = UART_MODE_TX_RX;
 
@@ -173,6 +268,10 @@ static int InitializeUART2(void)
 
 static void UART2MspInit(void)
 {
+	/* NOTE :
+	 * Alternate setting is mandatory in F401RE.
+	 */
+
 	GPIO_InitTypeDef  GPIO_InitStruct;
 
 	/*##-1- Enable peripherals and GPIO Clocks #################################*/
@@ -205,13 +304,10 @@ static void UART2MspInit(void)
 
 int	HALIF_UART2SendSync(const char *aStr)
 {
-#ifdef CONFIG_USE_UART_DEBUG
-
 	uint32_t size 	 = strlen(aStr);
 	uint32_t timeOut = 1; 	// This delay should be as small as possible.
 	HAL_UART_Transmit(&g_Uart2Handle, (uint8_t *)aStr, size, timeOut);
 
-#endif /* CONFIG_USE_UART_DEBUG */
 	return 0;
 }
 
