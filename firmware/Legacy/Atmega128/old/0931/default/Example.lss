@@ -1,0 +1,662 @@
+
+Example.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .data         0000007e  00800100  000003b4  00000448  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         000003b4  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .bss          0000000b  0080017e  0080017e  000004c6  2**0
+                  ALLOC
+  3 .stab         000006cc  00000000  00000000  000004c8  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  4 .stabstr      00000085  00000000  00000000  00000b94  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_aranges 00000060  00000000  00000000  00000c19  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_pubnames 00000135  00000000  00000000  00000c79  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_info   00000521  00000000  00000000  00000dae  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_abbrev 00000303  00000000  00000000  000012cf  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_line   00000501  00000000  00000000  000015d2  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_frame  000000c0  00000000  00000000  00001ad4  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_str    000001cb  00000000  00000000  00001b94  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_loc    00000059  00000000  00000000  00001d5f  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 46 00 	jmp	0x8c	; 0x8c <__ctors_end>
+   4:	0c 94 46 01 	jmp	0x28c	; 0x28c <__vector_1>
+   8:	0c 94 1a 01 	jmp	0x234	; 0x234 <__vector_2>
+   c:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  10:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  14:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  18:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  1c:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  20:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  24:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  28:	0c 94 10 01 	jmp	0x220	; 0x220 <__vector_10>
+  2c:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  30:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  34:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  38:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  3c:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  40:	0c 94 d8 00 	jmp	0x1b0	; 0x1b0 <__vector_16>
+  44:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  48:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  4c:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  50:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  54:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  58:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  5c:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  60:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  64:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  68:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  6c:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  70:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  74:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  78:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  7c:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  80:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  84:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+  88:	0c 94 65 00 	jmp	0xca	; 0xca <__bad_interrupt>
+
+0000008c <__ctors_end>:
+  8c:	11 24       	eor	r1, r1
+  8e:	1f be       	out	0x3f, r1	; 63
+  90:	cf ef       	ldi	r28, 0xFF	; 255
+  92:	d0 e1       	ldi	r29, 0x10	; 16
+  94:	de bf       	out	0x3e, r29	; 62
+  96:	cd bf       	out	0x3d, r28	; 61
+
+00000098 <__do_copy_data>:
+  98:	11 e0       	ldi	r17, 0x01	; 1
+  9a:	a0 e0       	ldi	r26, 0x00	; 0
+  9c:	b1 e0       	ldi	r27, 0x01	; 1
+  9e:	e4 eb       	ldi	r30, 0xB4	; 180
+  a0:	f3 e0       	ldi	r31, 0x03	; 3
+  a2:	00 e0       	ldi	r16, 0x00	; 0
+  a4:	0b bf       	out	0x3b, r16	; 59
+  a6:	02 c0       	rjmp	.+4      	; 0xac <__do_copy_data+0x14>
+  a8:	07 90       	elpm	r0, Z+
+  aa:	0d 92       	st	X+, r0
+  ac:	ae 37       	cpi	r26, 0x7E	; 126
+  ae:	b1 07       	cpc	r27, r17
+  b0:	d9 f7       	brne	.-10     	; 0xa8 <__do_copy_data+0x10>
+
+000000b2 <__do_clear_bss>:
+  b2:	11 e0       	ldi	r17, 0x01	; 1
+  b4:	ae e7       	ldi	r26, 0x7E	; 126
+  b6:	b1 e0       	ldi	r27, 0x01	; 1
+  b8:	01 c0       	rjmp	.+2      	; 0xbc <.do_clear_bss_start>
+
+000000ba <.do_clear_bss_loop>:
+  ba:	1d 92       	st	X+, r1
+
+000000bc <.do_clear_bss_start>:
+  bc:	a9 38       	cpi	r26, 0x89	; 137
+  be:	b1 07       	cpc	r27, r17
+  c0:	e1 f7       	brne	.-8      	; 0xba <.do_clear_bss_loop>
+  c2:	0e 94 ad 00 	call	0x15a	; 0x15a <main>
+  c6:	0c 94 d8 01 	jmp	0x3b0	; 0x3b0 <_exit>
+
+000000ca <__bad_interrupt>:
+  ca:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+000000ce <InitCPU>:
+}
+
+void InitCPU()
+{
+	// Port setting
+    DDRA = 0xFF;	// portA를 모두 output으로 설정.
+  ce:	8f ef       	ldi	r24, 0xFF	; 255
+  d0:	8a bb       	out	0x1a, r24	; 26
+	DDRB = 0xFF;	// 도트매트릭스용.
+  d2:	87 bb       	out	0x17, r24	; 23
+	DDRE = 0xFF; 	// 도트매트릭스용.
+  d4:	82 b9       	out	0x02, r24	; 2
+
+	DDRD = 0x00;	// 인터럽트 스위치용.
+  d6:	11 ba       	out	0x11, r1	; 17
+
+	sei();			// 전역인터럽트 허용
+  d8:	78 94       	sei
+
+	// TimerCounter0 Setting
+	TCCR0 = 0x00; 	// 표준모드, 타이머정지
+  da:	13 be       	out	0x33, r1	; 51
+	TCCR0 |= 0x07;	// 분주비 셋팅(1024)
+  dc:	83 b7       	in	r24, 0x33	; 51
+  de:	87 60       	ori	r24, 0x07	; 7
+  e0:	83 bf       	out	0x33, r24	; 51
+	TIMSK = 0x01;	// 인터럽트셋팅
+  e2:	91 e0       	ldi	r25, 0x01	; 1
+  e4:	97 bf       	out	0x37, r25	; 55
+//	TCCR2 |= 0x20;	// Compare Match 출력모드 설정
+//	TCCR2 |= 0x03;	// 분주비 셋팅(64)	
+//	OCR2 = 0;
+//	TIMSK |= 0x80;	// 인터럽트셋팅 -> ※이거하면 정상적으로 동작하지 않는다. 왜 그런가?
+
+	EICRA = (2<<ISC00);	// 하강엣지 트리거
+  e6:	82 e0       	ldi	r24, 0x02	; 2
+  e8:	80 93 6a 00 	sts	0x006A, r24
+	EIMSK = (1<<INT0);	// interrupt 0 허용f
+  ec:	99 bf       	out	0x39, r25	; 57
+	EIMSK = (1<<INT1);	// interrupt 1 허용
+  ee:	89 bf       	out	0x39, r24	; 57
+
+}
+  f0:	08 95       	ret
+
+000000f2 <InitDotMatrix>:
+
+void InitDotMatrix()
+{
+
+}
+  f2:	08 95       	ret
+
+000000f4 <DisplayDotMatrix>:
+
+void DisplayDotMatrix(unsigned char ucTenNum, unsigned char ucOneNum)
+{
+  f4:	cf 93       	push	r28
+  f6:	df 93       	push	r29
+  f8:	a5 e1       	ldi	r26, 0x15	; 21
+  fa:	b1 e0       	ldi	r27, 0x01	; 1
+  fc:	e6 2f       	mov	r30, r22
+  fe:	f0 e0       	ldi	r31, 0x00	; 0
+ 100:	93 e0       	ldi	r25, 0x03	; 3
+ 102:	ee 0f       	add	r30, r30
+ 104:	ff 1f       	adc	r31, r31
+ 106:	9a 95       	dec	r25
+ 108:	e1 f7       	brne	.-8      	; 0x102 <DisplayDotMatrix+0xe>
+ 10a:	e3 5e       	subi	r30, 0xE3	; 227
+ 10c:	fe 4f       	sbci	r31, 0xFE	; 254
+ 10e:	c8 2f       	mov	r28, r24
+ 110:	d0 e0       	ldi	r29, 0x00	; 0
+ 112:	83 e0       	ldi	r24, 0x03	; 3
+ 114:	cc 0f       	add	r28, r28
+ 116:	dd 1f       	adc	r29, r29
+ 118:	8a 95       	dec	r24
+ 11a:	e1 f7       	brne	.-8      	; 0x114 <DisplayDotMatrix+0x20>
+ 11c:	c3 5e       	subi	r28, 0xE3	; 227
+ 11e:	de 4f       	sbci	r29, 0xFE	; 254
+	unsigned short i;
+	
+	for(i = 0; i <= MAX_DOT_MATRIX_ROW; i++)
+	{
+		CTL_DOTMATRIX_ROW = gr_dot_scanline[i];
+ 120:	8d 91       	ld	r24, X+
+ 122:	83 b9       	out	0x03, r24	; 3
+		CTL_DOTMATRIX_COL = ~(gr_dot_num[ucOneNum][i]);
+ 124:	81 91       	ld	r24, Z+
+ 126:	80 95       	com	r24
+ 128:	88 bb       	out	0x18, r24	; 24
+{
+	uint16_t __ticks;
+	double __tmp = ((F_CPU) / 4e3) * __ms;
+#if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__)
+	extern void __builtin_avr_delay_cycles(unsigned long);
+	__builtin_avr_delay_cycles(__tmp);
+ 12a:	87 e8       	ldi	r24, 0x87	; 135
+ 12c:	93 e1       	ldi	r25, 0x13	; 19
+ 12e:	01 97       	sbiw	r24, 0x01	; 1
+ 130:	f1 f7       	brne	.-4      	; 0x12e <DisplayDotMatrix+0x3a>
+ 132:	00 c0       	rjmp	.+0      	; 0x134 <DisplayDotMatrix+0x40>
+ 134:	00 00       	nop
+
+		_delay_ms(PERIOD_DOT_MATRIX_UPDATE);
+
+		CTL_DOTMATRIX_COL = ~(gr_dot_num[ucTenNum][i] << 4);
+ 136:	89 91       	ld	r24, Y+
+ 138:	82 95       	swap	r24
+ 13a:	80 7f       	andi	r24, 0xF0	; 240
+ 13c:	80 95       	com	r24
+ 13e:	88 bb       	out	0x18, r24	; 24
+ 140:	87 e8       	ldi	r24, 0x87	; 135
+ 142:	93 e1       	ldi	r25, 0x13	; 19
+ 144:	01 97       	sbiw	r24, 0x01	; 1
+ 146:	f1 f7       	brne	.-4      	; 0x144 <DisplayDotMatrix+0x50>
+ 148:	00 c0       	rjmp	.+0      	; 0x14a <DisplayDotMatrix+0x56>
+ 14a:	00 00       	nop
+
+void DisplayDotMatrix(unsigned char ucTenNum, unsigned char ucOneNum)
+{
+	unsigned short i;
+	
+	for(i = 0; i <= MAX_DOT_MATRIX_ROW; i++)
+ 14c:	91 e0       	ldi	r25, 0x01	; 1
+ 14e:	ae 31       	cpi	r26, 0x1E	; 30
+ 150:	b9 07       	cpc	r27, r25
+ 152:	31 f7       	brne	.-52     	; 0x120 <DisplayDotMatrix+0x2c>
+		CTL_DOTMATRIX_COL = ~(gr_dot_num[ucTenNum][i] << 4);
+
+		_delay_ms(PERIOD_DOT_MATRIX_UPDATE);
+	}
+
+}
+ 154:	df 91       	pop	r29
+ 156:	cf 91       	pop	r28
+ 158:	08 95       	ret
+
+0000015a <main>:
+void InitDotMatrix();
+void DisplayDotMatrix(unsigned char ucRightNum, unsigned char ucLeftNum);
+
+int main()
+{	
+	InitCPU();
+ 15a:	0e 94 67 00 	call	0xce	; 0xce <InitCPU>
+	InitDotMatrix();
+
+  	while(1)
+	{	
+		test_i++;
+ 15e:	80 91 80 01 	lds	r24, 0x0180
+ 162:	90 91 81 01 	lds	r25, 0x0181
+ 166:	01 96       	adiw	r24, 0x01	; 1
+ 168:	90 93 81 01 	sts	0x0181, r25
+ 16c:	80 93 80 01 	sts	0x0180, r24
+
+		if(test_i > 10)
+ 170:	8b 30       	cpi	r24, 0x0B	; 11
+ 172:	91 05       	cpc	r25, r1
+ 174:	b0 f0       	brcs	.+44     	; 0x1a2 <main+0x48>
+		{
+			ucLeftNum++;
+ 176:	80 91 7e 01 	lds	r24, 0x017E
+ 17a:	8f 5f       	subi	r24, 0xFF	; 255
+ 17c:	80 93 7e 01 	sts	0x017E, r24
+			test_i = 0;
+ 180:	10 92 81 01 	sts	0x0181, r1
+ 184:	10 92 80 01 	sts	0x0180, r1
+
+			if(ucLeftNum == MAX_DOT_MATRIX_NUM)
+ 188:	8a 30       	cpi	r24, 0x0A	; 10
+ 18a:	59 f4       	brne	.+22     	; 0x1a2 <main+0x48>
+			{
+				ucLeftNum = 0;
+ 18c:	10 92 7e 01 	sts	0x017E, r1
+				ucRightNum++;
+ 190:	80 91 7f 01 	lds	r24, 0x017F
+ 194:	8f 5f       	subi	r24, 0xFF	; 255
+ 196:	80 93 7f 01 	sts	0x017F, r24
+
+				if(ucRightNum == MAX_DOT_MATRIX_NUM)
+ 19a:	8a 30       	cpi	r24, 0x0A	; 10
+ 19c:	11 f4       	brne	.+4      	; 0x1a2 <main+0x48>
+				{
+					ucRightNum = 0;
+ 19e:	10 92 7f 01 	sts	0x017F, r1
+				}
+			}
+		}	
+
+		DisplayDotMatrix(ucRightNum,ucLeftNum);	
+ 1a2:	80 91 7f 01 	lds	r24, 0x017F
+ 1a6:	60 91 7e 01 	lds	r22, 0x017E
+ 1aa:	0e 94 7a 00 	call	0xf4	; 0xf4 <DisplayDotMatrix>
+
+	};
+ 1ae:	d7 cf       	rjmp	.-82     	; 0x15e <main+0x4>
+
+000001b0 <__vector_16>:
+
+}
+
+// Timer0(8bit) overflow ISP
+ISR(TIMER0_OVF_vect)	
+{
+ 1b0:	1f 92       	push	r1
+ 1b2:	0f 92       	push	r0
+ 1b4:	0f b6       	in	r0, 0x3f	; 63
+ 1b6:	0f 92       	push	r0
+ 1b8:	0b b6       	in	r0, 0x3b	; 59
+ 1ba:	0f 92       	push	r0
+ 1bc:	11 24       	eor	r1, r1
+ 1be:	2f 93       	push	r18
+ 1c0:	8f 93       	push	r24
+ 1c2:	9f 93       	push	r25
+ 1c4:	ef 93       	push	r30
+ 1c6:	ff 93       	push	r31
+	static int index = 0;	 // pattern index
+	static char n_enter = 0; // count interrupt
+	static int i = 0;	
+
+	TCNT0 = 100;			 // 10msec 후에 interrupt 발생
+ 1c8:	84 e6       	ldi	r24, 0x64	; 100
+ 1ca:	82 bf       	out	0x32, r24	; 50
+	
+	n_enter++;
+ 1cc:	80 91 82 01 	lds	r24, 0x0182
+ 1d0:	8f 5f       	subi	r24, 0xFF	; 255
+ 1d2:	80 93 82 01 	sts	0x0182, r24
+
+	if(n_enter == 5)		 // 100msec 마다
+ 1d6:	85 30       	cpi	r24, 0x05	; 5
+ 1d8:	b9 f4       	brne	.+46     	; 0x208 <__vector_16+0x58>
+	{
+		PORTA = pattern[index];
+ 1da:	80 91 83 01 	lds	r24, 0x0183
+ 1de:	90 91 84 01 	lds	r25, 0x0184
+ 1e2:	fc 01       	movw	r30, r24
+ 1e4:	e0 50       	subi	r30, 0x00	; 0
+ 1e6:	ff 4f       	sbci	r31, 0xFF	; 255
+ 1e8:	20 81       	ld	r18, Z
+ 1ea:	2b bb       	out	0x1b, r18	; 27
+		
+		index++;
+ 1ec:	01 96       	adiw	r24, 0x01	; 1
+ 1ee:	90 93 84 01 	sts	0x0184, r25
+ 1f2:	80 93 83 01 	sts	0x0183, r24
+
+		if(index == 4)
+ 1f6:	84 30       	cpi	r24, 0x04	; 4
+ 1f8:	91 05       	cpc	r25, r1
+ 1fa:	21 f4       	brne	.+8      	; 0x204 <__vector_16+0x54>
+			index = 0;
+ 1fc:	10 92 84 01 	sts	0x0184, r1
+ 200:	10 92 83 01 	sts	0x0183, r1
+
+		n_enter = 0;
+ 204:	10 92 82 01 	sts	0x0182, r1
+	}
+
+}
+ 208:	ff 91       	pop	r31
+ 20a:	ef 91       	pop	r30
+ 20c:	9f 91       	pop	r25
+ 20e:	8f 91       	pop	r24
+ 210:	2f 91       	pop	r18
+ 212:	0f 90       	pop	r0
+ 214:	0b be       	out	0x3b, r0	; 59
+ 216:	0f 90       	pop	r0
+ 218:	0f be       	out	0x3f, r0	; 63
+ 21a:	0f 90       	pop	r0
+ 21c:	1f 90       	pop	r1
+ 21e:	18 95       	reti
+
+00000220 <__vector_10>:
+
+
+// Timer2(8bit) overflow ISP 
+ISR(TIMER2_OVF_vect)
+{
+ 220:	1f 92       	push	r1
+ 222:	0f 92       	push	r0
+ 224:	0f b6       	in	r0, 0x3f	; 63
+ 226:	0f 92       	push	r0
+ 228:	11 24       	eor	r1, r1
+	
+}	
+ 22a:	0f 90       	pop	r0
+ 22c:	0f be       	out	0x3f, r0	; 63
+ 22e:	0f 90       	pop	r0
+ 230:	1f 90       	pop	r1
+ 232:	18 95       	reti
+
+00000234 <__vector_2>:
+
+
+}
+
+ISR(INT1_vect)
+{
+ 234:	1f 92       	push	r1
+ 236:	0f 92       	push	r0
+ 238:	0f b6       	in	r0, 0x3f	; 63
+ 23a:	0f 92       	push	r0
+ 23c:	11 24       	eor	r1, r1
+ 23e:	8f 93       	push	r24
+ 240:	9f 93       	push	r25
+ 242:	8f e7       	ldi	r24, 0x7F	; 127
+ 244:	9e e3       	ldi	r25, 0x3E	; 62
+ 246:	01 97       	sbiw	r24, 0x01	; 1
+ 248:	f1 f7       	brne	.-4      	; 0x246 <__vector_2+0x12>
+ 24a:	00 c0       	rjmp	.+0      	; 0x24c <__vector_2+0x18>
+ 24c:	00 00       	nop
+	_delay_ms(DEBOUNCING);
+
+	static int num = 0;
+	num++;
+ 24e:	80 91 85 01 	lds	r24, 0x0185
+ 252:	90 91 86 01 	lds	r25, 0x0186
+ 256:	01 96       	adiw	r24, 0x01	; 1
+ 258:	90 93 86 01 	sts	0x0186, r25
+ 25c:	80 93 85 01 	sts	0x0185, r24
+
+	if(num == 10)
+ 260:	8a 30       	cpi	r24, 0x0A	; 10
+ 262:	91 05       	cpc	r25, r1
+ 264:	21 f4       	brne	.+8      	; 0x26e <__vector_2+0x3a>
+		num = 0;
+ 266:	10 92 86 01 	sts	0x0186, r1
+ 26a:	10 92 85 01 	sts	0x0185, r1
+
+
+	while(~PIND & 0x02);
+ 26e:	81 9b       	sbis	0x10, 1	; 16
+ 270:	fe cf       	rjmp	.-4      	; 0x26e <__vector_2+0x3a>
+ 272:	8f e7       	ldi	r24, 0x7F	; 127
+ 274:	9e e3       	ldi	r25, 0x3E	; 62
+ 276:	01 97       	sbiw	r24, 0x01	; 1
+ 278:	f1 f7       	brne	.-4      	; 0x276 <__vector_2+0x42>
+ 27a:	00 c0       	rjmp	.+0      	; 0x27c <__vector_2+0x48>
+ 27c:	00 00       	nop
+
+	_delay_ms(DEBOUNCING);
+
+}
+ 27e:	9f 91       	pop	r25
+ 280:	8f 91       	pop	r24
+ 282:	0f 90       	pop	r0
+ 284:	0f be       	out	0x3f, r0	; 63
+ 286:	0f 90       	pop	r0
+ 288:	1f 90       	pop	r1
+ 28a:	18 95       	reti
+
+0000028c <__vector_1>:
+
+extern unsigned char ucLeftNum;
+extern unsigned char ucRightNum;
+
+ISR(INT0_vect)
+{
+ 28c:	1f 92       	push	r1
+ 28e:	0f 92       	push	r0
+ 290:	0f b6       	in	r0, 0x3f	; 63
+ 292:	0f 92       	push	r0
+ 294:	11 24       	eor	r1, r1
+ 296:	8f 93       	push	r24
+ 298:	9f 93       	push	r25
+ 29a:	8f e7       	ldi	r24, 0x7F	; 127
+ 29c:	9e e3       	ldi	r25, 0x3E	; 62
+ 29e:	01 97       	sbiw	r24, 0x01	; 1
+ 2a0:	f1 f7       	brne	.-4      	; 0x29e <__vector_1+0x12>
+ 2a2:	00 c0       	rjmp	.+0      	; 0x2a4 <__vector_1+0x18>
+ 2a4:	00 00       	nop
+		i = 0;
+	PORTA = pattern[i];
+*/
+
+	// Timer2 duty ratio 조절
+	duty += 10;
+ 2a6:	80 91 87 01 	lds	r24, 0x0187
+ 2aa:	90 91 88 01 	lds	r25, 0x0188
+ 2ae:	0a 96       	adiw	r24, 0x0a	; 10
+ 2b0:	90 93 88 01 	sts	0x0188, r25
+ 2b4:	80 93 87 01 	sts	0x0187, r24
+
+	OCR2 = duty;
+ 2b8:	83 bd       	out	0x23, r24	; 35
+
+	if(duty >= 245)
+ 2ba:	85 3f       	cpi	r24, 0xF5	; 245
+ 2bc:	91 05       	cpc	r25, r1
+ 2be:	24 f0       	brlt	.+8      	; 0x2c8 <__vector_1+0x3c>
+		duty = 0;
+ 2c0:	10 92 88 01 	sts	0x0188, r1
+ 2c4:	10 92 87 01 	sts	0x0187, r1
+	
+	//**************************
+	// 도트매트릭스 숫자 컨트롤
+	ucLeftNum++;
+ 2c8:	80 91 7e 01 	lds	r24, 0x017E
+ 2cc:	8f 5f       	subi	r24, 0xFF	; 255
+ 2ce:	80 93 7e 01 	sts	0x017E, r24
+	//**************************
+
+	while(~PIND & 0x01);
+ 2d2:	80 9b       	sbis	0x10, 0	; 16
+ 2d4:	fe cf       	rjmp	.-4      	; 0x2d2 <__vector_1+0x46>
+ 2d6:	8f e7       	ldi	r24, 0x7F	; 127
+ 2d8:	9e e3       	ldi	r25, 0x3E	; 62
+ 2da:	01 97       	sbiw	r24, 0x01	; 1
+ 2dc:	f1 f7       	brne	.-4      	; 0x2da <__vector_1+0x4e>
+ 2de:	00 c0       	rjmp	.+0      	; 0x2e0 <__vector_1+0x54>
+ 2e0:	00 00       	nop
+	_delay_ms(DEBOUNCING);
+
+
+
+
+}
+ 2e2:	9f 91       	pop	r25
+ 2e4:	8f 91       	pop	r24
+ 2e6:	0f 90       	pop	r0
+ 2e8:	0f be       	out	0x3f, r0	; 63
+ 2ea:	0f 90       	pop	r0
+ 2ec:	1f 90       	pop	r1
+ 2ee:	18 95       	reti
+
+000002f0 <CalClock>:
+// Normal mode에서 timer 호출간격을 위한 클록수를 계산해주는 함수
+// TCNTn 의 입력으로 들어간다.
+// ※ 만들다가 말았음.
+//***************************************************************
+unsigned char CalClock(int sec, unsigned char tccr)
+{
+ 2f0:	1f 93       	push	r17
+ 2f2:	16 2f       	mov	r17, r22
+ 2f4:	9c 01       	movw	r18, r24
+ 2f6:	b9 01       	movw	r22, r18
+ 2f8:	88 27       	eor	r24, r24
+ 2fa:	77 fd       	sbrc	r23, 7
+ 2fc:	80 95       	com	r24
+ 2fe:	98 2f       	mov	r25, r24
+ 300:	20 e0       	ldi	r18, 0x00	; 0
+ 302:	34 e2       	ldi	r19, 0x24	; 36
+ 304:	44 ef       	ldi	r20, 0xF4	; 244
+ 306:	50 e0       	ldi	r21, 0x00	; 0
+ 308:	0e 94 97 01 	call	0x32e	; 0x32e <__mulsi3>
+ 30c:	e1 2f       	mov	r30, r17
+ 30e:	f0 e0       	ldi	r31, 0x00	; 0
+ 310:	e7 70       	andi	r30, 0x07	; 7
+ 312:	f0 70       	andi	r31, 0x00	; 0
+ 314:	ee 0f       	add	r30, r30
+ 316:	ff 1f       	adc	r31, r31
+ 318:	e3 59       	subi	r30, 0x93	; 147
+ 31a:	fe 4f       	sbci	r31, 0xFE	; 254
+ 31c:	20 81       	ld	r18, Z
+ 31e:	31 81       	ldd	r19, Z+1	; 0x01
+ 320:	40 e0       	ldi	r20, 0x00	; 0
+ 322:	50 e0       	ldi	r21, 0x00	; 0
+ 324:	0e 94 b6 01 	call	0x36c	; 0x36c <__udivmodsi4>
+ 328:	82 2f       	mov	r24, r18
+
+	index = tccr & 0x07;
+	tcntn = (sec * F_CPU) / freescale_timer0[index];
+	
+	return tcntn;
+}
+ 32a:	1f 91       	pop	r17
+ 32c:	08 95       	ret
+
+0000032e <__mulsi3>:
+ 32e:	62 9f       	mul	r22, r18
+ 330:	d0 01       	movw	r26, r0
+ 332:	73 9f       	mul	r23, r19
+ 334:	f0 01       	movw	r30, r0
+ 336:	82 9f       	mul	r24, r18
+ 338:	e0 0d       	add	r30, r0
+ 33a:	f1 1d       	adc	r31, r1
+ 33c:	64 9f       	mul	r22, r20
+ 33e:	e0 0d       	add	r30, r0
+ 340:	f1 1d       	adc	r31, r1
+ 342:	92 9f       	mul	r25, r18
+ 344:	f0 0d       	add	r31, r0
+ 346:	83 9f       	mul	r24, r19
+ 348:	f0 0d       	add	r31, r0
+ 34a:	74 9f       	mul	r23, r20
+ 34c:	f0 0d       	add	r31, r0
+ 34e:	65 9f       	mul	r22, r21
+ 350:	f0 0d       	add	r31, r0
+ 352:	99 27       	eor	r25, r25
+ 354:	72 9f       	mul	r23, r18
+ 356:	b0 0d       	add	r27, r0
+ 358:	e1 1d       	adc	r30, r1
+ 35a:	f9 1f       	adc	r31, r25
+ 35c:	63 9f       	mul	r22, r19
+ 35e:	b0 0d       	add	r27, r0
+ 360:	e1 1d       	adc	r30, r1
+ 362:	f9 1f       	adc	r31, r25
+ 364:	bd 01       	movw	r22, r26
+ 366:	cf 01       	movw	r24, r30
+ 368:	11 24       	eor	r1, r1
+ 36a:	08 95       	ret
+
+0000036c <__udivmodsi4>:
+ 36c:	a1 e2       	ldi	r26, 0x21	; 33
+ 36e:	1a 2e       	mov	r1, r26
+ 370:	aa 1b       	sub	r26, r26
+ 372:	bb 1b       	sub	r27, r27
+ 374:	fd 01       	movw	r30, r26
+ 376:	0d c0       	rjmp	.+26     	; 0x392 <__udivmodsi4_ep>
+
+00000378 <__udivmodsi4_loop>:
+ 378:	aa 1f       	adc	r26, r26
+ 37a:	bb 1f       	adc	r27, r27
+ 37c:	ee 1f       	adc	r30, r30
+ 37e:	ff 1f       	adc	r31, r31
+ 380:	a2 17       	cp	r26, r18
+ 382:	b3 07       	cpc	r27, r19
+ 384:	e4 07       	cpc	r30, r20
+ 386:	f5 07       	cpc	r31, r21
+ 388:	20 f0       	brcs	.+8      	; 0x392 <__udivmodsi4_ep>
+ 38a:	a2 1b       	sub	r26, r18
+ 38c:	b3 0b       	sbc	r27, r19
+ 38e:	e4 0b       	sbc	r30, r20
+ 390:	f5 0b       	sbc	r31, r21
+
+00000392 <__udivmodsi4_ep>:
+ 392:	66 1f       	adc	r22, r22
+ 394:	77 1f       	adc	r23, r23
+ 396:	88 1f       	adc	r24, r24
+ 398:	99 1f       	adc	r25, r25
+ 39a:	1a 94       	dec	r1
+ 39c:	69 f7       	brne	.-38     	; 0x378 <__udivmodsi4_loop>
+ 39e:	60 95       	com	r22
+ 3a0:	70 95       	com	r23
+ 3a2:	80 95       	com	r24
+ 3a4:	90 95       	com	r25
+ 3a6:	9b 01       	movw	r18, r22
+ 3a8:	ac 01       	movw	r20, r24
+ 3aa:	bd 01       	movw	r22, r26
+ 3ac:	cf 01       	movw	r24, r30
+ 3ae:	08 95       	ret
+
+000003b0 <_exit>:
+ 3b0:	f8 94       	cli
+
+000003b2 <__stop_program>:
+ 3b2:	ff cf       	rjmp	.-2      	; 0x3b2 <__stop_program>
