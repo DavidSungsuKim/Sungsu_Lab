@@ -6,6 +6,9 @@ Designer	: Sungsu Kim
 Note!!		: Edit always using Notepad++.
 ********************************************************************************
 
+	Feb 25, 2021
+		1. changed .icf file path.
+
 	Oct 31, 2020
 		1. changed include paths and file locations.
 

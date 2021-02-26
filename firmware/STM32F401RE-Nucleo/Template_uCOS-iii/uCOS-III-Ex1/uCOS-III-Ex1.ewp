@@ -740,7 +740,7 @@
         </option>
         <option>
           <name>IlinkIcfFile</name>
-          <state>D:\Sungsu_LAB\App\Firmware\STM\Micrium\Software\EvalBoards\ST\STM32F401-Nucleo\BSP\IAR\stm32f401xe_flash.icf</state>
+          <state>$PROJ_DIR$\..\BSP\IAR\stm32f401xe_flash.icf</state>
         </option>
         <option>
           <name>IlinkIcfFileSlave</name>
