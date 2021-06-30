@@ -41,12 +41,12 @@ eStatus			HALIF_UART1SendSync		(const char *aStr);
 eStatus			HALIF_InitializeUART2	(const struct stUartConfig *apUart);
 eStatus			HALIF_UART2SendSync		(const char *aStr);
 
-void			HALIF_TurnOnLED1		();
-void			HALIF_TurnOffLED1		();
-void			HALIF_ToggleLED1		();
+void			HALIF_TurnOnLED1		(void);
+void			HALIF_TurnOffLED1		(void);
+void			HALIF_ToggleLED1		(void);
 
-void			HALIF_InterruptEnable	();
-void			HALIF_InterruptDisable	();
+void			HALIF_InterruptEnable	(void);
+void			HALIF_InterruptDisable	(void);
 
 #ifdef __cplusplus
 }

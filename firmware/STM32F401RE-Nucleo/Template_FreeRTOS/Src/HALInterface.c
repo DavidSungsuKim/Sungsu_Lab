@@ -38,6 +38,7 @@ void HALIF_Initialize(void)
 
 	InitializeLED();
 
+	// For Serial Comm.
 	struct stUartConfig uart1;
 	uart1.BaudRate 		= 1250000;
 	uart1.DataLength	= UART_WORDLENGTH_9B;
@@ -45,6 +46,7 @@ void HALIF_Initialize(void)
 	uart1.Parity		= UART_PARITY_ODD;
 	HALIF_InitializeUART1(&uart1);
 
+	// For printf()
 	struct stUartConfig uart2;
 	uart2.BaudRate 		= 1250000;
 	uart2.DataLength	= UART_WORDLENGTH_9B;
@@ -53,32 +55,32 @@ void HALIF_Initialize(void)
 	HALIF_InitializeUART2(&uart2);
 }
 
-unsigned int HALIF_GetSysTick()
+unsigned int HALIF_GetSysTick(void)
 {
 	return HAL_GetTick();
 }
 
-void HALIF_TurnOnLED1()
+void HALIF_TurnOnLED1(void)
 {
 	HAL_GPIO_WritePin(LED1_GPIO_PORT, LED1_PIN, GPIO_PIN_RESET);
 }
 
-void HALIF_TurnOffLED1()
+void HALIF_TurnOffLED1(void)
 {
 	HAL_GPIO_WritePin(LED1_GPIO_PORT, LED1_PIN, GPIO_PIN_SET);
 }
 
-void HALIF_ToggleLED1()
+void HALIF_ToggleLED1(void)
 {
 	HAL_GPIO_TogglePin(LED1_GPIO_PORT, LED1_PIN);
 }
 
-void HALIF_InterruptEnable()
+void HALIF_InterruptEnable(void)
 {
 	__enable_irq();
 }
 
-void HALIF_InterruptDisable()
+void HALIF_InterruptDisable(void)
 {
 	__disable_irq();
 }
