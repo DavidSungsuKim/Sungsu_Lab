@@ -188,6 +188,69 @@ eStatus HALIF_InitializeUART1(const struct stUartConfig *apUart)
 	return ret;
 }
 
+eStatus HALIF_InitializeUART2(const struct stUartConfig *apUart)
+{
+	eStatus ret = eOK;
+
+	UART2MspInit();
+
+	UART_HandleTypeDef* pHandle = &g_Uart2Handle;
+
+	/*##-1- Configure the UART peripheral ######################################*/
+	pHandle->Instance        = UART2_INST;
+	pHandle->Init.BaudRate   = apUart->BaudRate;
+	pHandle->Init.WordLength = apUart->DataLength;
+	pHandle->Init.StopBits   = apUart->StopBits;
+	pHandle->Init.Parity     = apUart->Parity;
+	pHandle->Init.HwFlowCtl  = UART_HWCONTROL_NONE;
+	pHandle->Init.Mode       = UART_MODE_TX_RX;
+
+	if (HAL_UART_Init(pHandle) != HAL_OK)
+		return -1;
+
+/*	if (HAL_UART_Receive_IT(pHandle, g_bUart2RxBuf, BSP_UART_RX_BUFF_SIZE) != HAL_OK)
+		return -1;
+
+	pHandle->Instance->CR3 |= USART_CR3_EIE;
+	pHandle->Instance->CR1 |= USART_CR1_PEIE;
+*/
+	pHandle->State = HAL_UART_STATE_READY;	// Change the state to READY.
+
+	return ret;
+}
+
+eStatus	HALIF_UART1SendSync(const char *aStr)
+{
+	eStatus ret = eOK;
+
+	uint32_t size 	 = strlen(aStr);
+	uint32_t timeOut = 1; 	// This delay should be as small as possible.
+	HAL_UART_Transmit(&g_UartHandle, (uint8_t *)aStr, size, timeOut);
+
+	return ret;
+}
+
+eStatus	HALIF_UART1SendByteSync(int8_t aData, uint32_t timeoutMs)
+{
+	eStatus ret = eOK;
+
+	uint32_t timeOut = (uint32_t)timeoutMs;
+	HAL_UART_Transmit(&g_UartHandle, (uint8_t *)&aData, 1, timeOut);
+
+	return ret;
+}
+
+eStatus	HALIF_UART2SendSync(const char *aStr)
+{
+	eStatus ret = eOK;
+
+	uint32_t size 	 = strlen(aStr);
+	uint32_t timeOut = 1; 	// This delay should be as small as possible.
+	HAL_UART_Transmit(&g_Uart2Handle, (uint8_t *)aStr, size, timeOut);
+
+	return ret;
+}
+
 static void UARTMspInit(void)
 {
 	/* NOTE :
@@ -224,58 +287,6 @@ static void UARTMspInit(void)
 //	HAL_NVIC_EnableIRQ(USART3_IRQn);
 }
 
-eStatus	HALIF_UART1SendSync(const char *aStr)
-{
-	eStatus ret = eOK;
-
-	uint32_t size 	 = strlen(aStr);
-	uint32_t timeOut = 1; 	// This delay should be as small as possible.
-	HAL_UART_Transmit(&g_UartHandle, (uint8_t *)aStr, size, timeOut);
-
-	return ret;
-}
-
-eStatus	HALIF_UART1SendByteSync(int8_t aData, uint32_t timeoutMs)
-{
-	eStatus ret = eOK;
-
-	uint32_t timeOut = (uint32_t)timeoutMs;
-	HAL_UART_Transmit(&g_UartHandle, (uint8_t *)&aData, 1, timeOut);
-
-	return ret;
-}
-
-eStatus HALIF_InitializeUART2(const struct stUartConfig *apUart)
-{
-	eStatus ret = eOK;
-
-	UART2MspInit();
-
-	UART_HandleTypeDef* pHandle = &g_Uart2Handle;
-
-	/*##-1- Configure the UART peripheral ######################################*/
-	pHandle->Instance        = UART2_INST;
-	pHandle->Init.BaudRate   = apUart->BaudRate;
-	pHandle->Init.WordLength = apUart->DataLength;
-	pHandle->Init.StopBits   = apUart->StopBits;
-	pHandle->Init.Parity     = apUart->Parity;
-	pHandle->Init.HwFlowCtl  = UART_HWCONTROL_NONE;
-	pHandle->Init.Mode       = UART_MODE_TX_RX;
-
-	if (HAL_UART_Init(pHandle) != HAL_OK)
-		return -1;
-
-/*	if (HAL_UART_Receive_IT(pHandle, g_bUart2RxBuf, BSP_UART_RX_BUFF_SIZE) != HAL_OK)
-		return -1;
-
-	pHandle->Instance->CR3 |= USART_CR3_EIE;
-	pHandle->Instance->CR1 |= USART_CR1_PEIE;
-*/
-	pHandle->State = HAL_UART_STATE_READY;	// Change the state to READY.
-
-	return ret;
-}
-
 static void UART2MspInit(void)
 {
 	/* NOTE :
@@ -310,17 +321,6 @@ static void UART2MspInit(void)
 
 //	HAL_NVIC_SetPriority(USART3_IRQn, INT_PRIORITY_HIGH, INT_PRIORITY_HIGH);
 //	HAL_NVIC_EnableIRQ(USART3_IRQn);
-}
-
-eStatus	HALIF_UART2SendSync(const char *aStr)
-{
-	eStatus ret = eOK;
-
-	uint32_t size 	 = strlen(aStr);
-	uint32_t timeOut = 1; 	// This delay should be as small as possible.
-	HAL_UART_Transmit(&g_Uart2Handle, (uint8_t *)aStr, size, timeOut);
-
-	return ret;
 }
 
 static void Error_Handler(void)
