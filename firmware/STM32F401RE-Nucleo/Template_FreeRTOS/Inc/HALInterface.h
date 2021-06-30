@@ -2,6 +2,10 @@
 #ifndef _HAL_INTERFACE_H_
 #define _HAL_INTERFACE_H_
 
+#include <stdint.h>
+#include <stdbool.h>
+#include "errorCode.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -30,12 +34,12 @@ struct stUartConfig
 
 void 			HALIF_Initialize 	 	(void);
 
-int				HALIF_InitializeUART1	(const struct stUartConfig *apUart);
-int				HALIF_UART1SendByteSync	(char aData, int timeoutMs);
-int				HALIF_UART1SendSync		(const char *aStr);
+eStatus			HALIF_InitializeUART1	(const struct stUartConfig *apUart);
+eStatus			HALIF_UART1SendByteSync	(int8_t aData, uint32_t timeoutMs);
+eStatus			HALIF_UART1SendSync		(const char *aStr);
 
-int				HALIF_InitializeUART2	(const struct stUartConfig *apUart);
-int				HALIF_UART2SendSync		(const char *aStr);
+eStatus			HALIF_InitializeUART2	(const struct stUartConfig *apUart);
+eStatus			HALIF_UART2SendSync		(const char *aStr);
 
 void			HALIF_TurnOnLED1		();
 void			HALIF_TurnOffLED1		();

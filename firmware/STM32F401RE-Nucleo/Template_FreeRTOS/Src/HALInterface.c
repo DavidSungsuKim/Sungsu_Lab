@@ -155,8 +155,10 @@ static void InitializeLED(void)
 	HAL_GPIO_Init(LED1_GPIO_PORT, &GPIO_InitStruct);
 }
 
-int HALIF_InitializeUART1(const struct stUartConfig *apUart)
+eStatus HALIF_InitializeUART1(const struct stUartConfig *apUart)
 {
+	eStatus ret = eOK;
+
 	UARTMspInit();
 
 	UART_HandleTypeDef* pHandle = &g_UartHandle;
@@ -181,7 +183,7 @@ int HALIF_InitializeUART1(const struct stUartConfig *apUart)
 */
 	pHandle->State = HAL_UART_STATE_READY;	// Change the state to READY.
 
-	return 0;
+	return ret;
 }
 
 static void UARTMspInit(void)
@@ -220,25 +222,31 @@ static void UARTMspInit(void)
 //	HAL_NVIC_EnableIRQ(USART3_IRQn);
 }
 
-int	HALIF_UART1SendSync(const char *aStr)
+eStatus	HALIF_UART1SendSync(const char *aStr)
 {
+	eStatus ret = eOK;
+
 	uint32_t size 	 = strlen(aStr);
 	uint32_t timeOut = 1; 	// This delay should be as small as possible.
 	HAL_UART_Transmit(&g_UartHandle, (uint8_t *)aStr, size, timeOut);
 
-	return 0;
+	return ret;
 }
 
-int	HALIF_UART1SendByteSync(char aData, int timeoutMs)
+eStatus	HALIF_UART1SendByteSync(int8_t aData, uint32_t timeoutMs)
 {
+	eStatus ret = eOK;
+
 	uint32_t timeOut = (uint32_t)timeoutMs;
 	HAL_UART_Transmit(&g_UartHandle, (uint8_t *)&aData, 1, timeOut);
 
-	return 0;
+	return ret;
 }
 
-int HALIF_InitializeUART2(const struct stUartConfig *apUart)
+eStatus HALIF_InitializeUART2(const struct stUartConfig *apUart)
 {
+	eStatus ret = eOK;
+
 	UART2MspInit();
 
 	UART_HandleTypeDef* pHandle = &g_Uart2Handle;
@@ -263,7 +271,7 @@ int HALIF_InitializeUART2(const struct stUartConfig *apUart)
 */
 	pHandle->State = HAL_UART_STATE_READY;	// Change the state to READY.
 
-	return 0;
+	return ret;
 }
 
 static void UART2MspInit(void)
@@ -302,13 +310,15 @@ static void UART2MspInit(void)
 //	HAL_NVIC_EnableIRQ(USART3_IRQn);
 }
 
-int	HALIF_UART2SendSync(const char *aStr)
+eStatus	HALIF_UART2SendSync(const char *aStr)
 {
+	eStatus ret = eOK;
+
 	uint32_t size 	 = strlen(aStr);
 	uint32_t timeOut = 1; 	// This delay should be as small as possible.
 	HAL_UART_Transmit(&g_Uart2Handle, (uint8_t *)aStr, size, timeOut);
 
-	return 0;
+	return ret;
 }
 
 static void Error_Handler(void)
