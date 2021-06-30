@@ -9,6 +9,9 @@ extern "C" {
 typedef enum
 {
 	eOK	= 0,
+	eERR_STM32_DRIVER,
+
+	eERR_PWM_INVALID_CHAN
 
 }eStatus;
 

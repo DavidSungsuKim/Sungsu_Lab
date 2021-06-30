@@ -18,6 +18,9 @@ static uint8_t             	g_bUartRxBuf[BSP_UART_RX_BUFF_SIZE];
 static UART_HandleTypeDef 	g_Uart2Handle;
 static uint8_t             	g_bUart2RxBuf[BSP_UART_RX_BUFF_SIZE];
 
+/* TIMER *******************************************/
+static  TIM_HandleTypeDef   g_hTimerPWM;
+
 /* OTHERS ******************************************/
 static GPIO_InitTypeDef  	GPIO_InitStruct;
 
@@ -53,6 +56,8 @@ void HALIF_Initialize(void)
 	uart2.StopBits		= UART_STOPBITS_1;
 	uart2.Parity		= UART_PARITY_ODD;
 	HALIF_InitializeUART2(&uart2);
+
+	HALIF_InitPWM();
 }
 
 unsigned int HALIF_GetSysTick(void)
@@ -247,6 +252,78 @@ eStatus	HALIF_UART2SendSync(const char *aStr)
 	uint32_t size 	 = strlen(aStr);
 	uint32_t timeOut = 1; 	// This delay should be as small as possible.
 	HAL_UART_Transmit(&g_Uart2Handle, (uint8_t *)aStr, size, timeOut);
+
+	return ret;
+}
+
+eStatus HALIF_InitPWM(void)
+{
+	eStatus ret = eOK;
+
+	TIM_HandleTypeDef*     pHdl   = &g_hTimerPWM;
+
+	uint32_t      clkFreqHz       = HAL_RCC_GetSysClockFreq();
+	uint32_t      prescaler       = 25;
+	uint32_t      clkFreqHzScaled = clkFreqHz / (prescaler + 1);
+	double        pwmPeriodSec    = 0.005;											// application specific.
+	double        pwmPeriodHz     = ( 1. / pwmPeriodSec );
+	uint32_t      timPeriod       = ( clkFreqHzScaled / (uint32_t)pwmPeriodHz ) - 1;// 0xFFFF is the maximum period that I can use.
+
+	_printf("CPU clock=%d[Hz]\r\n",        clkFreqHz);
+	_printf("pwmPeriodSec=%.3f[Sec]\r\n",  pwmPeriodSec);
+	_printf("PwmPeriod=%.3f[Hz]\r\n",      pwmPeriodHz);
+	_printf("TimPeriod=%d[Hz]\r\n",        timPeriod);
+
+	pHdl->Instance                = TIMER_PWM_INST;
+	pHdl->Init.Period             = timPeriod;                                    	// 0x0000~0xFFFF
+	pHdl->Init.Prescaler          = prescaler;                                    	// 0x0000~0xFFFF
+	pHdl->Init.ClockDivision      = TIM_CLOCKDIVISION_DIV1;
+	pHdl->Init.CounterMode        = TIM_COUNTERMODE_UP;
+
+	//pHdl->Init.RepetitionCounter  = 0x80;                                         // 0x00~0xFF // Valid only for TIM1 and TIM8
+
+	ASSERT( HAL_TIM_PWM_Init(pHdl) == HAL_OK )
+
+	return ret;
+}
+
+eStatus	HALIF_ControlPWM(ePwmChan aChannel, uint32_t aDuty)
+{
+	eStatus ret = eOK;
+
+	TIM_HandleTypeDef*    pHdl          = &g_hTimerPWM;
+	uint32_t              timPeriod      = pHdl->Init.Period;
+	uint32_t              pwmChan;
+	switch( aChannel )
+	{
+		case ePWM_CH1 : pwmChan = TIM_CHANNEL_1; break;
+		case ePWM_CH2 : pwmChan = TIM_CHANNEL_2; break;
+		case ePWM_CH3 : pwmChan = TIM_CHANNEL_3; break;
+		case ePWM_CH4 : pwmChan = TIM_CHANNEL_4; break;
+		default:
+			return eERR_PWM_INVALID_CHAN;
+	}
+
+	uint32_t dutycopied = aDuty;
+
+	_printf("Duty=%d%\r\n", dutycopied);
+
+	TIM_OC_InitTypeDef    ocConfig;
+	uint32_t              pulse   = ((timPeriod + 1) * dutycopied) / 100 - 1;
+
+	if ( pulse > timPeriod )
+		pulse = timPeriod;
+
+	ocConfig.OCMode              = TIM_OCMODE_PWM2;
+	ocConfig.Pulse               = pulse;
+	ocConfig.OCPolarity          = TIM_OCPOLARITY_LOW;
+	ocConfig.OCNPolarity         = TIM_OCNPOLARITY_LOW;
+
+	if ( HAL_TIM_PWM_ConfigChannel(pHdl, &ocConfig, pwmChan) != HAL_OK )
+		return eERR_STM32_DRIVER;
+
+	if ( HAL_TIM_PWM_Start(pHdl, pwmChan) != HAL_OK )
+		return eERR_STM32_DRIVER;
 
 	return ret;
 }

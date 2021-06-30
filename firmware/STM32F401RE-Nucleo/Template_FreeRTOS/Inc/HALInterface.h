@@ -24,6 +24,14 @@ extern "C" {
 #define	TICK_TIMER_UNIT_US		0
 #define	TICK_TIMER_UNIT_MS		1
 
+typedef enum
+{
+	ePWM_CH1	= 1,
+	ePWM_CH2,
+	ePWM_CH3,
+	ePWM_CH4
+}ePwmChan;
+
 struct stUartConfig
 {
 	unsigned int BaudRate;		// bps,  same as UART_InitTypeDef's
@@ -40,6 +48,9 @@ eStatus			HALIF_UART1SendSync		(const char *aStr);
 
 eStatus			HALIF_InitializeUART2	(const struct stUartConfig *apUart);
 eStatus			HALIF_UART2SendSync		(const char *aStr);
+
+eStatus			HALIF_InitPWM			(void);
+eStatus			HALIF_ControlPWM		(ePwmChan aChannel, uint32_t aDuty);
 
 void			HALIF_TurnOnLED1		(void);
 void			HALIF_TurnOffLED1		(void);
