@@ -8,6 +8,9 @@ extern "C" {
 
 #include "config.h"
 
+#define	ASSERT(x)					if(!x) \
+										while(1);
+
 #define _printf(f_, ...)			PrintfUART((f_), ##__VA_ARGS__);
 #define _printfEx(f_, ...)			PrintfUARTEx( __FILE__, __LINE__, (f_), ##__VA_ARGS__);
 
