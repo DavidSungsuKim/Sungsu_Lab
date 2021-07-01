@@ -10,8 +10,8 @@ typedef enum
 {
 	eOK	= 0,
 	eERR_STM32_DRIVER,
-
-	eERR_PWM_INVALID_CHAN
+	eERR_PWM_INVALID_CHAN,
+	eERR_SPI_INVALID_MODE
 
 }eStatus;
 

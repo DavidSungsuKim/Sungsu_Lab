@@ -76,11 +76,11 @@ void LEDTurnOffTask( void *pvParameters )
 
 void TestTask( void *pvparameters )
 {
-	uint32_t duty = 0;
 	for(;;)
 	{
 		vTaskDelay(1000);
-
+#if 0
+		static uint32_t duty = 0;
 		HALIF_ControlPWM( ePWM_CH1, duty );
 		HALIF_ControlPWM( ePWM_CH2, duty );
 		HALIF_ControlPWM( ePWM_CH3, duty );
@@ -89,5 +89,9 @@ void TestTask( void *pvparameters )
 		duty += 10;
 		if ( duty > 100 )
 			duty = 0;
+#endif
+#if 0
+		HALIF_TestSPI();
+#endif
 	}
 }

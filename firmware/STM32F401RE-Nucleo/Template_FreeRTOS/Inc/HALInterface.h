@@ -32,6 +32,12 @@ typedef enum
 	ePWM_CH4
 }ePwmChan;
 
+typedef enum
+{
+	eSPI_MODE_MASTER = 0,
+	eSPI_MODE_SLAVE
+}eSpiMode;
+
 struct stUartConfig
 {
 	unsigned int BaudRate;		// bps,  same as UART_InitTypeDef's
@@ -51,6 +57,11 @@ eStatus			HALIF_UART2SendSync		(const char *aStr);
 
 eStatus			HALIF_InitPWM			(double aPeriodSec);
 eStatus			HALIF_ControlPWM		(ePwmChan aChannel, uint32_t aDuty);
+
+eStatus			HALIF_InitSPI			(eSpiMode aMode);
+eStatus			HALIF_WriteReadByteSPI	(uint8_t tx, uint8_t *rx);
+eStatus			HALIF_ReadSPI			(uint8_t *buf, uint16_t size, uint32_t timeOutMs);
+eStatus			HALIF_TestSPI			(void);
 
 void			HALIF_TurnOnLED1		(void);
 void			HALIF_TurnOffLED1		(void);

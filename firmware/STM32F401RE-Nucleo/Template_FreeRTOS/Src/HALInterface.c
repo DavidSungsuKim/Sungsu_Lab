@@ -1,4 +1,6 @@
 
+
+/********************************* Include *******************************/
 #include <string.h>
 
 #include "main.h"
@@ -7,33 +9,42 @@
 
 #include "configSTM32.h"
 
-const  uint32_t				cFLAG_UART_ERROR = (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE);
+/********************************* Const *********************************/
+const uint32_t cFLAG_UART_ERROR = (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE);
 
-/* UART#1 ******************************************/
-#define  BSP_UART_RX_BUFF_SIZE		1
-UART_HandleTypeDef 			g_UartHandle;
+#define BSP_UART_RX_BUFF_SIZE		(1u)
+#define	SPI_TIMEOUT_MS				(1000u)
+
+/********************************* Types *********************************/
+/********************************* Macro *********************************/
+/***************************** Local Variable ****************************/
+// UART1
+static UART_HandleTypeDef 	g_UartHandle;
 static uint8_t             	g_bUartRxBuf[BSP_UART_RX_BUFF_SIZE];
-
-/* UART#2 (For Debugging) **************************/
+// UART2
 static UART_HandleTypeDef 	g_Uart2Handle;
 static uint8_t             	g_bUart2RxBuf[BSP_UART_RX_BUFF_SIZE];
-
-/* TIMER *******************************************/
-static  TIM_HandleTypeDef   g_hTimerPWM;
-
-/* OTHERS ******************************************/
+// PWM Timer
+static TIM_HandleTypeDef   	g_hTimerPWM;
+// SPI
+static SPI_HandleTypeDef	g_hSpi;
+// GPIO
 static GPIO_InitTypeDef  	GPIO_InitStruct;
 
-
+/**************************** Global Variable ***************************/
+/************************* Function Declaration *************************/
 static void SystemClock_Config  (void);
 static void Error_Handler       (void);
 
 static void	InitializeLED		(void);
-
 static void UARTMspInit			(void);
 static void UART2MspInit		(void);
 static void PWMMspInit			(void);
+static void InitSPIModeMaster	(void);
+static void InitSPIModeSlave	(void);
+static void SPIMspInit			(void);
 
+/************************* Function Definition *************************/
 void HALIF_Initialize(void)
 {
 	HAL_Init();
@@ -59,6 +70,7 @@ void HALIF_Initialize(void)
 	HALIF_InitializeUART2(&uart2);
 
 	HALIF_InitPWM(PWM_PERIOD_SEC);
+	HALIF_InitSPI(eSPI_MODE_MASTER);
 }
 
 unsigned int HALIF_GetSysTick(void)
@@ -296,8 +308,9 @@ eStatus	HALIF_ControlPWM(ePwmChan aChannel, uint32_t aDuty)
 	eStatus ret = eOK;
 
 	TIM_HandleTypeDef*    pHdl          = &g_hTimerPWM;
-	uint32_t              timPeriod      = pHdl->Init.Period;
+	uint32_t              timPeriod     = pHdl->Init.Period;
 	uint32_t              pwmChan;
+
 	switch( aChannel )
 	{
 		case ePWM_CH1 : pwmChan = TIM_CHANNEL_1; break;
@@ -328,6 +341,66 @@ eStatus	HALIF_ControlPWM(ePwmChan aChannel, uint32_t aDuty)
 
 	if ( HAL_TIM_PWM_Start(pHdl, pwmChan) != HAL_OK )
 		return eERR_STM32_DRIVER;
+
+	return ret;
+}
+
+eStatus HALIF_InitSPI(eSpiMode aMode)
+{
+	eStatus ret = eOK;
+
+	switch ( aMode )
+	{
+	case eSPI_MODE_MASTER:
+		InitSPIModeMaster();
+		break;
+	case eSPI_MODE_SLAVE:
+		InitSPIModeSlave();
+		break;
+	default:
+		ret = eERR_SPI_INVALID_MODE;
+		break;
+	}
+
+	return ret;
+}
+
+eStatus	HALIF_WriteReadByteSPI(uint8_t tx, uint8_t *rx)
+{
+	eStatus ret = eOK;
+	HAL_StatusTypeDef retHAL = HAL_OK;
+
+	retHAL = HAL_SPI_TransmitReceive(&g_hSpi, &tx, rx, 1, SPI_TIMEOUT_MS);
+	if( retHAL != HAL_OK )
+		ret = eERR_STM32_DRIVER;
+
+	return ret;
+}
+
+eStatus HALIF_ReadSPI(uint8_t *buf, uint16_t size, uint32_t timeOutMs)
+{
+	eStatus ret = eOK;
+	HAL_StatusTypeDef retHAL = HAL_OK;
+
+	retHAL = HAL_SPI_Receive(&g_hSpi, buf, size, timeOutMs);
+	if( retHAL != HAL_OK)
+		ret = eERR_STM32_DRIVER;
+
+	return ret;
+}
+
+eStatus	HALIF_TestSPI(void)
+{
+	eStatus ret = eOK;
+
+	uint8_t txByte = 0xaa;
+	uint8_t rxByte = 0x00;
+
+	HALIF_WriteReadByteSPI( txByte, &rxByte );
+
+	uint8_t bSame = 0;
+	if ( txByte == rxByte )
+		bSame = 1;
 
 	return ret;
 }
@@ -431,6 +504,90 @@ static void PWMMspInit(void)
 	// Pin config for ch4
 	GPIO_InitStruct.Pin           = PWM_PIN_CHANNEL4;
 	HAL_GPIO_Init(TIMER_PWM_GPIO_PORT, &GPIO_InitStruct);
+}
+
+static void InitSPIModeMaster(void)
+{
+	if( HAL_SPI_GetState(&g_hSpi) != HAL_SPI_STATE_RESET )
+		return;
+
+	SPIMspInit();
+
+	g_hSpi.Instance = SPI_INST;
+
+	SPI_InitTypeDef *init	= &(g_hSpi.Init);
+
+	init->BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
+	init->Direction 		= SPI_DIRECTION_2LINES;
+	init->CLKPhase 			= SPI_PHASE_2EDGE;
+	init->CLKPolarity 		= SPI_POLARITY_HIGH;
+	init->CRCCalculation 	= SPI_CRCCALCULATION_DISABLED;
+	init->CRCPolynomial 	= 7;
+	init->DataSize 			= SPI_DATASIZE_8BIT;
+	init->FirstBit 			= SPI_FIRSTBIT_MSB;
+	init->NSS 				= SPI_NSS_SOFT;
+	init->TIMode 			= SPI_TIMODE_DISABLED;
+	init->Mode 				= SPI_MODE_MASTER;
+
+	HAL_SPI_Init(&g_hSpi);
+}
+
+static void InitSPIModeSlave(void)
+{
+	if( HAL_SPI_GetState(&g_hSpi) != HAL_SPI_STATE_RESET )
+		return;
+
+	SPIMspInit();
+
+	g_hSpi.Instance = SPI_INST;
+
+	SPI_InitTypeDef *init	= &(g_hSpi.Init);
+
+	init->BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8; 	// effective on master mode only
+	init->Direction 		= SPI_DIRECTION_2LINES;		// SPI_DIRECTION_2LINES;
+	init->CLKPhase 			= SPI_PHASE_1EDGE;			// SPI_PHASE_2EDGE;
+	init->CLKPolarity 		= SPI_POLARITY_LOW;			// SPI_POLARITY_HIGH;
+	init->CRCCalculation 	= SPI_CRCCALCULATION_DISABLED;
+	init->CRCPolynomial 	= 7;
+	init->DataSize 			= SPI_DATASIZE_8BIT;
+	init->FirstBit 			= SPI_FIRSTBIT_MSB;			// effective on master mode only
+	init->NSS 				= SPI_NSS_SOFT;				// SPI_NSS_HARD_INPUT;//SPI_NSS_SOFT; // this SPI module in slave mode is internally selected
+	init->TIMode 			= SPI_TIMODE_DISABLED;
+	init->Mode 				= SPI_MODE_SLAVE;			// SPI_MODE_MASTER;
+
+	HAL_SPI_Init(&g_hSpi);
+}
+
+static void SPIMspInit(void)
+{
+	GPIO_InitTypeDef  GPIO_InitStruct;
+
+	SPI_CLK_ENABLE();
+
+	SPI_CLK_GPIO_CLK_ENABLE();
+	SPI_MISO_GPIO_CLK_ENABLE();
+	SPI_MOSI_GPIO_CLK_ENABLE();
+
+	/* Configure SPI SCK */
+	GPIO_InitStruct.Pin 		= PIN_SPI_SCK;
+	GPIO_InitStruct.Mode 		= GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Pull  		= GPIO_PULLUP;
+	GPIO_InitStruct.Speed 		= GPIO_SPEED_HIGH;
+	GPIO_InitStruct.Alternate 	= SPI_AF;
+	HAL_GPIO_Init(GPIO_PORT_SPI_SCK, &GPIO_InitStruct);
+
+	/* Configure SPI MISO and MOSI */
+	GPIO_InitStruct.Pin 		= PIN_SPI_MOSI;
+	GPIO_InitStruct.Alternate 	= NUCLEO_SPIx_MISO_MOSI_AF;
+	GPIO_InitStruct.Pull  		= GPIO_PULLDOWN;
+	HAL_GPIO_Init(GPIO_PORT_SPI_MOSI, &GPIO_InitStruct);
+
+	GPIO_InitStruct.Pin 		= PIN_SPI_MISO;
+	HAL_GPIO_Init(GPIO_PORT_SPI_MISO, &GPIO_InitStruct);
+
+	/*** Configure the SPI peripheral ***/
+	/* Enable SPI clock */
+	NUCLEO_SPIx_CLK_ENABLE();
 }
 
 static void Error_Handler(void)
