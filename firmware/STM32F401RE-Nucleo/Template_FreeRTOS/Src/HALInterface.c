@@ -44,18 +44,18 @@ void HALIF_Initialize(void)
 
 	// For Serial Comm.
 	struct stUartConfig uart1;
-	uart1.BaudRate 		= 1250000;
-	uart1.DataLength	= UART_WORDLENGTH_9B;
+	uart1.BaudRate 		= 115200;
+	uart1.DataLength	= UART_WORDLENGTH_8B;
 	uart1.StopBits		= UART_STOPBITS_1;
-	uart1.Parity		= UART_PARITY_ODD;
+	uart1.Parity		= UART_PARITY_NONE;
 	HALIF_InitializeUART1(&uart1);
 
 	// For printf()
 	struct stUartConfig uart2;
-	uart2.BaudRate 		= 1250000;
-	uart2.DataLength	= UART_WORDLENGTH_9B;
+	uart2.BaudRate 		= 115200;
+	uart2.DataLength	= UART_WORDLENGTH_8B;
 	uart2.StopBits		= UART_STOPBITS_1;
-	uart2.Parity		= UART_PARITY_ODD;
+	uart2.Parity		= UART_PARITY_NONE;
 	HALIF_InitializeUART2(&uart2);
 
 	HALIF_InitPWM(PWM_PERIOD_SEC);
