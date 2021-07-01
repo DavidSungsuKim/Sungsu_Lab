@@ -14,8 +14,9 @@
 
 SemaphoreHandle_t g_sem;
 
-static void LEDTurnOnTask     ( void *pvParameters );
-static void LEDTurnOffTask    ( void *pvParameters );
+void 	LEDTurnOnTask     	( void *pvParameters );
+void 	LEDTurnOffTask    	( void *pvParameters );
+void	TestTask			( void *pvparameters );
 
 int main(void)
 {
@@ -28,8 +29,9 @@ int main(void)
 	xSemaphoreGive( g_sem );
 
 	// The bigger number the higher priority?
-	xTaskCreate( LEDTurnOnTask,  "LEDTurnOnTask",  configMINIMAL_STACK_SIZE, NULL, TASK_PRIORITY(2), NULL );
-	xTaskCreate( LEDTurnOffTask, "LEDTurnOffTask", configMINIMAL_STACK_SIZE, NULL, TASK_PRIORITY(1), NULL );
+	xTaskCreate( LEDTurnOnTask,  	"LEDTurnOnTask",  	configMINIMAL_STACK_SIZE, NULL, TASK_PRIORITY(2), NULL );
+	xTaskCreate( LEDTurnOffTask, 	"LEDTurnOffTask", 	configMINIMAL_STACK_SIZE, NULL, TASK_PRIORITY(1), NULL );
+	xTaskCreate( TestTask, 			"TestTask",			configMINIMAL_STACK_SIZE, NULL, TASK_PRIORITY(1), NULL );
 
 	vTaskStartScheduler();
 }
@@ -70,4 +72,22 @@ void LEDTurnOffTask( void *pvParameters )
       
       xSemaphoreGive( g_sem );
     }
+}
+
+void TestTask( void *pvparameters )
+{
+	uint32_t duty = 0;
+	for(;;)
+	{
+		vTaskDelay(1000);
+
+		HALIF_ControlPWM( ePWM_CH1, duty );
+		HALIF_ControlPWM( ePWM_CH2, duty );
+		HALIF_ControlPWM( ePWM_CH3, duty );
+		HALIF_ControlPWM( ePWM_CH4, duty );
+
+		duty += 10;
+		if ( duty > 100 )
+			duty = 0;
+	}
 }

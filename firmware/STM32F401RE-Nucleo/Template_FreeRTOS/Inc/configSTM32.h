@@ -30,6 +30,7 @@
 
 /* PWM TIMER **************************************/
 #ifdef MODE_NUCLEO_F401RE
+#define PWM_PERIOD_SEC				(0.005)
 #define	TIMER_PWM_INST				TIM4
 #define	TIMER_PWM_CLOCK_ENABLE()	__HAL_RCC_TIM4_CLK_ENABLE()
 #define TIMER_PWM_GPIO_CLK_ENABLE() __HAL_RCC_GPIOB_CLK_ENABLE()
@@ -41,11 +42,15 @@
 #define PWM_AF_TIMER_PWM       		GPIO_AF2_TIM4
 #endif
 
+/* INTERRUPTS **************************************/
+#define UART1_IRQ					USART1_IRQn
+#define UART2_IRQ					USART6_IRQn
+
 /* OTHERS ******************************************/
 #ifdef MODE_NUCLEO_F401RE
-#define 	LED1_GPIO_CLK_ENABLE()	__HAL_RCC_GPIOA_CLK_ENABLE();
-#define 	LED1_GPIO_PORT			GPIOA
-#define 	LED1_PIN            	GPIO_PIN_5
+#define LED1_GPIO_CLK_ENABLE()		__HAL_RCC_GPIOA_CLK_ENABLE();
+#define LED1_GPIO_PORT				GPIOA
+#define LED1_PIN            		GPIO_PIN_5
 #endif /* MODE_NUCLEO_F401RE */
 
 #endif /* _CONFIG_STM32_H_ */

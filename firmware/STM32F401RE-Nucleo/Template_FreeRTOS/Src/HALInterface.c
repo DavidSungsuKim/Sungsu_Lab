@@ -32,6 +32,7 @@ static void	InitializeLED		(void);
 
 static void UARTMspInit			(void);
 static void UART2MspInit		(void);
+static void PWMMspInit			(void);
 
 void HALIF_Initialize(void)
 {
@@ -57,7 +58,7 @@ void HALIF_Initialize(void)
 	uart2.Parity		= UART_PARITY_ODD;
 	HALIF_InitializeUART2(&uart2);
 
-	HALIF_InitPWM();
+	HALIF_InitPWM(PWM_PERIOD_SEC);
 }
 
 unsigned int HALIF_GetSysTick(void)
@@ -256,24 +257,26 @@ eStatus	HALIF_UART2SendSync(const char *aStr)
 	return ret;
 }
 
-eStatus HALIF_InitPWM(void)
+eStatus HALIF_InitPWM(double aPeriodSec)
 {
 	eStatus ret = eOK;
+
+	PWMMspInit();
 
 	TIM_HandleTypeDef*     pHdl   = &g_hTimerPWM;
 
 	uint32_t      clkFreqHz       = HAL_RCC_GetSysClockFreq();
 	uint32_t      prescaler       = 25;
 	uint32_t      clkFreqHzScaled = clkFreqHz / (prescaler + 1);
-	double        pwmPeriodSec    = 0.005;											// application specific.
+	double        pwmPeriodSec    = aPeriodSec;//0.005;											// application specific.
 	double        pwmPeriodHz     = ( 1. / pwmPeriodSec );
-	uint32_t      timPeriod       = ( clkFreqHzScaled / (uint32_t)pwmPeriodHz ) - 1;// 0xFFFF is the maximum period that I can use.
+	uint32_t      timPeriod       = ( clkFreqHzScaled / (uint32_t)pwmPeriodHz ) - 1;
 
-	_printf("CPU clock=%d[Hz]\r\n",        clkFreqHz);
+/*	_printf("CPU clock=%d[Hz]\r\n",        clkFreqHz);
 	_printf("pwmPeriodSec=%.3f[Sec]\r\n",  pwmPeriodSec);
 	_printf("PwmPeriod=%.3f[Hz]\r\n",      pwmPeriodHz);
 	_printf("TimPeriod=%d[Hz]\r\n",        timPeriod);
-
+*/
 	pHdl->Instance                = TIMER_PWM_INST;
 	pHdl->Init.Period             = timPeriod;                                    	// 0x0000~0xFFFF
 	pHdl->Init.Prescaler          = prescaler;                                    	// 0x0000~0xFFFF
@@ -282,7 +285,8 @@ eStatus HALIF_InitPWM(void)
 
 	//pHdl->Init.RepetitionCounter  = 0x80;                                         // 0x00~0xFF // Valid only for TIM1 and TIM8
 
-	ASSERT( HAL_TIM_PWM_Init(pHdl) == HAL_OK )
+	if ( HAL_TIM_PWM_Init(pHdl) != HAL_OK )
+		return eERR_STM32_DRIVER;
 
 	return ret;
 }
@@ -314,10 +318,10 @@ eStatus	HALIF_ControlPWM(ePwmChan aChannel, uint32_t aDuty)
 	if ( pulse > timPeriod )
 		pulse = timPeriod;
 
-	ocConfig.OCMode              = TIM_OCMODE_PWM2;
-	ocConfig.Pulse               = pulse;
-	ocConfig.OCPolarity          = TIM_OCPOLARITY_LOW;
-	ocConfig.OCNPolarity         = TIM_OCNPOLARITY_LOW;
+	ocConfig.OCMode			= TIM_OCMODE_PWM2;
+	ocConfig.Pulse          = pulse;
+	ocConfig.OCPolarity		= TIM_OCPOLARITY_LOW;
+	ocConfig.OCNPolarity    = TIM_OCNPOLARITY_LOW;
 
 	if ( HAL_TIM_PWM_ConfigChannel(pHdl, &ocConfig, pwmChan) != HAL_OK )
 		return eERR_STM32_DRIVER;
@@ -360,8 +364,8 @@ static void UARTMspInit(void)
 	GPIO_InitStruct.Alternate 	= UART1_RX_AF;
 	HAL_GPIO_Init(GPIO_PORT_UART1_RX, &GPIO_InitStruct);
 
-//	HAL_NVIC_SetPriority(USART3_IRQn, INT_PRIORITY_HIGH, INT_PRIORITY_HIGH);
-//	HAL_NVIC_EnableIRQ(USART3_IRQn);
+	HAL_NVIC_SetPriority(UART1_IRQ, INT_PRIORITY_HIGH, INT_PRIORITY_HIGH);
+	HAL_NVIC_EnableIRQ(UART1_IRQ);
 }
 
 static void UART2MspInit(void)
@@ -396,8 +400,37 @@ static void UART2MspInit(void)
 	GPIO_InitStruct.Alternate 	= UART2_RX_AF;
 	HAL_GPIO_Init(GPIO_PORT_UART2_RX, &GPIO_InitStruct);
 
-//	HAL_NVIC_SetPriority(USART3_IRQn, INT_PRIORITY_HIGH, INT_PRIORITY_HIGH);
-//	HAL_NVIC_EnableIRQ(USART3_IRQn);
+	HAL_NVIC_SetPriority(UART2_IRQ, INT_PRIORITY_HIGH, INT_PRIORITY_HIGH);
+	HAL_NVIC_EnableIRQ(UART2_IRQ);
+}
+
+static void PWMMspInit(void)
+{
+	GPIO_InitTypeDef  GPIO_InitStruct;
+
+	TIMER_PWM_GPIO_CLK_ENABLE();
+	TIMER_PWM_CLOCK_ENABLE();
+
+	// Pin config for ch1
+	GPIO_InitStruct.Pin           = PWM_PIN_CHANNEL1;
+	GPIO_InitStruct.Mode          = GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Pull          = GPIO_PULLDOWN;
+	GPIO_InitStruct.Speed         = GPIO_SPEED_HIGH;
+	GPIO_InitStruct.Alternate     = PWM_AF_TIMER_PWM;
+
+	HAL_GPIO_Init(TIMER_PWM_GPIO_PORT, &GPIO_InitStruct);
+
+	// Pin config for ch2
+	GPIO_InitStruct.Pin           = PWM_PIN_CHANNEL2;
+	HAL_GPIO_Init(TIMER_PWM_GPIO_PORT, &GPIO_InitStruct);
+
+	// Pin config for ch3
+	GPIO_InitStruct.Pin           = PWM_PIN_CHANNEL3;
+	HAL_GPIO_Init(TIMER_PWM_GPIO_PORT, &GPIO_InitStruct);
+
+	// Pin config for ch4
+	GPIO_InitStruct.Pin           = PWM_PIN_CHANNEL4;
+	HAL_GPIO_Init(TIMER_PWM_GPIO_PORT, &GPIO_InitStruct);
 }
 
 static void Error_Handler(void)

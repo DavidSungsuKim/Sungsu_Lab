@@ -49,7 +49,7 @@ eStatus			HALIF_UART1SendSync		(const char *aStr);
 eStatus			HALIF_InitializeUART2	(const struct stUartConfig *apUart);
 eStatus			HALIF_UART2SendSync		(const char *aStr);
 
-eStatus			HALIF_InitPWM			(void);
+eStatus			HALIF_InitPWM			(double aPeriodSec);
 eStatus			HALIF_ControlPWM		(ePwmChan aChannel, uint32_t aDuty);
 
 void			HALIF_TurnOnLED1		(void);
