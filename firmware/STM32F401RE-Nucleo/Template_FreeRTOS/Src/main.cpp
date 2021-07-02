@@ -24,7 +24,7 @@
 #define TASK_PRIORITY(x) (tskIDLE_PRIORITY + x)
 
 /***************************** Local Variable ****************************/
-SemaphoreHandle_t g_sem;
+static SemaphoreHandle_t g_sem;
 
 /**************************** Global Variable ****************************/
 
