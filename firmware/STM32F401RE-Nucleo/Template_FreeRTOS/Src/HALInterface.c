@@ -34,6 +34,8 @@ static uint8_t             		g_bUart2RxBuf	[UART_RX_BUFF_SIZE];
 static void SystemClock_Config  (void);
 static void Error_Handler       (void);
 
+static void ConfigIRQ			(void);
+
 static void	InitLED				(void);
 static void UARTMspInit			(void);
 static void UART2MspInit		(void);
@@ -69,6 +71,8 @@ void HALIF_Init(void)
 
 	HALIF_InitPWM(PWM_PERIOD_SEC);
 	HALIF_InitSPI(eSPI_MODE_MASTER);
+
+	ConfigIRQ();
 }
 
 unsigned int HALIF_GetSysTick(void)
@@ -185,13 +189,12 @@ eStatus HALIF_InitUART1(const struct stUartConfig *apUart)
 	if (HAL_UART_Init(pHandle) != HAL_OK)
 		return -1;
 
-/*	if (HAL_UART_Receive_IT(pHandle, g_bUart2RxBuf, BSP_UART_RX_BUFF_SIZE) != HAL_OK)
+	if (HAL_UART_Receive_IT(pHandle, g_bUart2RxBuf, UART_RX_BUFF_SIZE) != HAL_OK)
 		return -1;
 
 	pHandle->Instance->CR3 |= USART_CR3_EIE;
 	pHandle->Instance->CR1 |= USART_CR1_PEIE;
-*/
-	pHandle->State = HAL_UART_STATE_READY;	// Change the state to READY.
+	pHandle->State = HAL_UART_STATE_READY;
 
 	return ret;
 }
@@ -216,13 +219,12 @@ eStatus HALIF_InitUART2(const struct stUartConfig *apUart)
 	if (HAL_UART_Init(pHandle) != HAL_OK)
 		return -1;
 
-/*	if (HAL_UART_Receive_IT(pHandle, g_bUart2RxBuf, BSP_UART_RX_BUFF_SIZE) != HAL_OK)
+	if (HAL_UART_Receive_IT(pHandle, g_bUart2RxBuf, UART_RX_BUFF_SIZE) != HAL_OK)
 		return -1;
 
 	pHandle->Instance->CR3 |= USART_CR3_EIE;
 	pHandle->Instance->CR1 |= USART_CR1_PEIE;
-*/
-	pHandle->State = HAL_UART_STATE_READY;	// Change the state to READY.
+	pHandle->State = HAL_UART_STATE_READY;
 
 	return ret;
 }
@@ -236,6 +238,11 @@ eStatus	HALIF_UART1SendSync(const char *aStr)
 	HAL_UART_Transmit(&g_hUart1, (uint8_t *)aStr, size, timeOut);
 
 	return ret;
+}
+
+void HALIF_UART1RecvCallback(int8_t aData)
+{
+	TBD;
 }
 
 eStatus	HALIF_UART1SendByteSync(int8_t aData, uint32_t timeoutMs)
@@ -395,11 +402,17 @@ eStatus	HALIF_TestSPI(void)
 	return ret;
 }
 
+static void ConfigIRQ(void)
+{
+	HAL_NVIC_SetPriority(UART1_IRQ, INT_PRIORITY_HIGH, INT_PRIORITY_HIGH);
+	HAL_NVIC_SetPriority(UART2_IRQ, INT_PRIORITY_HIGH, INT_PRIORITY_HIGH);
+
+	HAL_NVIC_EnableIRQ(UART1_IRQ);
+	HAL_NVIC_EnableIRQ(UART2_IRQ);
+}
+
 static void UARTMspInit(void)
 {
-	/* NOTE :
-	 * Alternate setting is mandatory in F401RE.
-	 */
 	GPIO_InitTypeDef  GPIO_InitStruct;
 
 	/*##-1- Enable peripherals and GPIO Clocks #################################*/
@@ -412,27 +425,20 @@ static void UARTMspInit(void)
 	GPIO_InitStruct.Mode      	= GPIO_MODE_AF_PP;
 	GPIO_InitStruct.Pull      	= GPIO_PULLUP;
 	GPIO_InitStruct.Speed     	= GPIO_SPEED_FREQ_HIGH;
-	GPIO_InitStruct.Alternate 	= UART1_TX_AF;
+	GPIO_InitStruct.Alternate 	= UART1_AF;
 	HAL_GPIO_Init(UART1_GPIO_PORT_TX, &GPIO_InitStruct);
 
 	/* UART RX GPIO pin configuration  */
 	GPIO_InitStruct.Pin 		= UART1_PIN_RX;
-	GPIO_InitStruct.Mode      	= GPIO_MODE_INPUT;
+	GPIO_InitStruct.Mode      	= GPIO_MODE_AF_PP;
 	GPIO_InitStruct.Pull      	= GPIO_PULLUP;
 	GPIO_InitStruct.Speed     	= GPIO_SPEED_FREQ_HIGH;
-	GPIO_InitStruct.Alternate 	= UART1_RX_AF;
+	GPIO_InitStruct.Alternate 	= UART1_AF;
 	HAL_GPIO_Init(UART1_GPIO_PORT_RX, &GPIO_InitStruct);
-
-	HAL_NVIC_SetPriority(UART1_IRQ, INT_PRIORITY_HIGH, INT_PRIORITY_HIGH);
-	HAL_NVIC_EnableIRQ(UART1_IRQ);
 }
 
 static void UART2MspInit(void)
 {
-	/* NOTE :
-	 * Alternate setting is mandatory in F401RE.
-	 */
-
 	GPIO_InitTypeDef  GPIO_InitStruct;
 
 	/*##-1- Enable peripherals and GPIO Clocks #################################*/
@@ -445,19 +451,16 @@ static void UART2MspInit(void)
 	GPIO_InitStruct.Mode      	= GPIO_MODE_AF_PP;
 	GPIO_InitStruct.Pull      	= GPIO_PULLUP;
 	GPIO_InitStruct.Speed     	= GPIO_SPEED_FREQ_HIGH;
-	GPIO_InitStruct.Alternate 	= UART2_TX_AF;
+	GPIO_InitStruct.Alternate 	= UART2_AF;
 	HAL_GPIO_Init(UART2_GPIO_PORT_TX, &GPIO_InitStruct);
 
 	/* UART RX GPIO pin configuration  */
 	GPIO_InitStruct.Pin 		= UART2_PIN_RX;
-	GPIO_InitStruct.Mode      	= GPIO_MODE_INPUT;
+	GPIO_InitStruct.Mode      	= GPIO_MODE_AF_PP;
 	GPIO_InitStruct.Pull      	= GPIO_PULLUP;
 	GPIO_InitStruct.Speed     	= GPIO_SPEED_FREQ_HIGH;
-	GPIO_InitStruct.Alternate 	= UART2_RX_AF;
+	GPIO_InitStruct.Alternate 	= UART2_AF;
 	HAL_GPIO_Init(UART2_GPIO_PORT_RX, &GPIO_InitStruct);
-
-	HAL_NVIC_SetPriority(UART2_IRQ, INT_PRIORITY_HIGH, INT_PRIORITY_HIGH);
-	HAL_NVIC_EnableIRQ(UART2_IRQ);
 }
 
 static void PWMMspInit(void)
@@ -567,10 +570,16 @@ static void SPIMspInit(void)
 
 	GPIO_InitStruct.Pin 		= SPI_PIN_MISO;
 	HAL_GPIO_Init(SPI_GPIO_PORT_MISO, &GPIO_InitStruct);
+}
 
-	/*** Configure the SPI peripheral ***/
-	/* Enable SPI clock */
-	NUCLEO_SPIx_CLK_ENABLE();
+void ISR_UART(void)
+{
+
+}
+
+void ISR_UART2(void)
+{
+
 }
 
 static void Error_Handler(void)

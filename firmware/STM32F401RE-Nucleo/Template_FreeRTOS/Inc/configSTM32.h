@@ -12,8 +12,7 @@
 #define	UART1_GPIO_PORT_RX			GPIOA
 #define UART1_PIN_TX				GPIO_PIN_9
 #define UART1_PIN_RX				GPIO_PIN_10
-#define UART1_TX_AF					GPIO_AF7_USART1
-#define UART1_RX_AF					GPIO_AF7_USART1
+#define UART1_AF					GPIO_AF7_USART1
 
 /* UART#2 *****************************************/
 #define UART2_INST					USART6
@@ -23,8 +22,7 @@
 #define	UART2_GPIO_PORT_RX			GPIOC
 #define	UART2_PIN_TX				GPIO_PIN_6
 #define	UART2_PIN_RX				GPIO_PIN_7
-#define UART2_TX_AF					GPIO_AF8_USART6
-#define UART2_RX_AF					GPIO_AF8_USART6
+#define UART2_AF					GPIO_AF8_USART6
 
 /* PWM TIMER **************************************/
 #define PWM_PERIOD_SEC				(0.005)
@@ -52,7 +50,9 @@
 #define SPI_PIN_MOSI                GPIO_PIN_5
 #define SPI_AF                  	GPIO_AF5_SPI1
 
-/* INTERRUPTS **************************************/
+/* IRS & INTERRUPT *********************************/
+#define ISR_UART					USART1_IRQHandler
+#define ISR_UART2					USART6_IRQHandler
 #define UART1_IRQ					USART1_IRQn
 #define UART2_IRQ					USART6_IRQn
 

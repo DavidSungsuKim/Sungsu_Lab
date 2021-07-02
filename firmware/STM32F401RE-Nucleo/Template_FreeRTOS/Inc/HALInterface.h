@@ -63,6 +63,7 @@ void 			HALIF_Init 	 			(void);
 eStatus			HALIF_InitUART1			(const struct stUartConfig *apUart);
 eStatus			HALIF_UART1SendByteSync	(int8_t aData, uint32_t timeoutMs);
 eStatus			HALIF_UART1SendSync		(const char *aStr);
+void			HALIF_UART1RecvCallback	(int8_t aData);
 
 eStatus			HALIF_InitUART2			(const struct stUartConfig *apUart);
 eStatus			HALIF_UART2SendSync		(const char *aStr);
