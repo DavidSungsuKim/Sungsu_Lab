@@ -41,15 +41,15 @@
 /* SPI *********************************************/
 #define SPI_INST					SPI1
 #define SPI_CLK_ENABLE()			__SPI1_CLK_ENABLE()
-#define SPI_CLK_GPIO_CLK_ENABLE()   __GPIOA_CLK_ENABLE()
-#define SPI_MISO_GPIO_CLK_ENABLE()  __GPIOA_CLK_ENABLE()
-#define SPI_MOSI_GPIO_CLK_ENABLE()  __GPIOA_CLK_ENABLE()
-#define GPIO_PORT_SPI_SCK           GPIOA
-#define GPIO_PORT_SPI_MISO          GPIOA
-#define GPIO_PORT_SPI_MOSI          GPIOA
-#define PIN_SPI_SCK                 GPIO_PIN_5
-#define PIN_SPI_MISO                GPIO_PIN_6
-#define PIN_SPI_MOSI                GPIO_PIN_7
+#define SPI_CLK_GPIO_CLK_ENABLE()   __GPIOB_CLK_ENABLE()
+#define SPI_MISO_GPIO_CLK_ENABLE()  __GPIOB_CLK_ENABLE()
+#define SPI_MOSI_GPIO_CLK_ENABLE()  __GPIOB_CLK_ENABLE()
+#define GPIO_PORT_SPI_SCK           GPIOB
+#define GPIO_PORT_SPI_MISO          GPIOB
+#define GPIO_PORT_SPI_MOSI          GPIOB
+#define PIN_SPI_SCK                 GPIO_PIN_3
+#define PIN_SPI_MISO                GPIO_PIN_4
+#define PIN_SPI_MOSI                GPIO_PIN_5
 #define SPI_AF                  	GPIO_AF5_SPI1
 
 /* INTERRUPTS **************************************/
