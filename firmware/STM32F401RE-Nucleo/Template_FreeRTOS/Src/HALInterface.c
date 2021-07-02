@@ -12,31 +12,29 @@
 /********************************* Const *********************************/
 const uint32_t cFLAG_UART_ERROR = (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE);
 
-#define BSP_UART_RX_BUFF_SIZE		(1u)
+#define UART_RX_BUFF_SIZE			(1u)
 #define	SPI_TIMEOUT_MS				(1000u)
 
 /********************************* Types *********************************/
-/********************************* Macro *********************************/
-/***************************** Local Variable ****************************/
-// UART1
-static UART_HandleTypeDef 	g_UartHandle;
-static uint8_t             	g_bUartRxBuf[BSP_UART_RX_BUFF_SIZE];
-// UART2
-static UART_HandleTypeDef 	g_Uart2Handle;
-static uint8_t             	g_bUart2RxBuf[BSP_UART_RX_BUFF_SIZE];
-// PWM Timer
-static TIM_HandleTypeDef   	g_hTimerPWM;
-// SPI
-static SPI_HandleTypeDef	g_hSpi;
-// GPIO
-static GPIO_InitTypeDef  	GPIO_InitStruct;
 
-/**************************** Global Variable ***************************/
-/************************* Function Declaration *************************/
+/********************************* Macro *********************************/
+
+/***************************** Local Variable ****************************/
+static UART_HandleTypeDef 		g_hUart1;
+static UART_HandleTypeDef 		g_hUart2;
+static TIM_HandleTypeDef   		g_hTimerPWM;
+static SPI_HandleTypeDef		g_hSpi;
+
+static uint8_t             		g_bUartRxBuf	[UART_RX_BUFF_SIZE];
+static uint8_t             		g_bUart2RxBuf	[UART_RX_BUFF_SIZE];
+
+/**************************** Global Variable ****************************/
+
+/************************* Function Declaration **************************/
 static void SystemClock_Config  (void);
 static void Error_Handler       (void);
 
-static void	InitializeLED		(void);
+static void	InitLED				(void);
 static void UARTMspInit			(void);
 static void UART2MspInit		(void);
 static void PWMMspInit			(void);
@@ -44,30 +42,30 @@ static void InitSPIModeMaster	(void);
 static void InitSPIModeSlave	(void);
 static void SPIMspInit			(void);
 
-/************************* Function Definition *************************/
-void HALIF_Initialize(void)
+/************************* Function Definition **************************/
+void HALIF_Init(void)
 {
 	HAL_Init();
 
 	SystemClock_Config();
 
-	InitializeLED();
+	InitLED();
 
 	// For Serial Comm.
 	struct stUartConfig uart1;
-	uart1.BaudRate 		= 115200;
-	uart1.DataLength	= UART_WORDLENGTH_8B;
-	uart1.StopBits		= UART_STOPBITS_1;
-	uart1.Parity		= UART_PARITY_NONE;
-	HALIF_InitializeUART1(&uart1);
+	uart1.baudRate 		= 115200;
+	uart1.dataLength	= UART_WORDLENGTH_8B;
+	uart1.stopBits		= UART_STOPBITS_1;
+	uart1.parity		= UART_PARITY_NONE;
+	HALIF_InitUART1(&uart1);
 
 	// For printf()
 	struct stUartConfig uart2;
-	uart2.BaudRate 		= 115200;
-	uart2.DataLength	= UART_WORDLENGTH_8B;
-	uart2.StopBits		= UART_STOPBITS_1;
-	uart2.Parity		= UART_PARITY_NONE;
-	HALIF_InitializeUART2(&uart2);
+	uart2.baudRate 		= 115200;
+	uart2.dataLength	= UART_WORDLENGTH_8B;
+	uart2.stopBits		= UART_STOPBITS_1;
+	uart2.parity		= UART_PARITY_NONE;
+	HALIF_InitUART2(&uart2);
 
 	HALIF_InitPWM(PWM_PERIOD_SEC);
 	HALIF_InitSPI(eSPI_MODE_MASTER);
@@ -80,27 +78,17 @@ unsigned int HALIF_GetSysTick(void)
 
 void HALIF_TurnOnLED1(void)
 {
-	HAL_GPIO_WritePin(LED1_GPIO_PORT, LED1_PIN, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LED_GREEN_GPIO_PORT, LED_GREEN_PIN, GPIO_PIN_RESET);
 }
 
 void HALIF_TurnOffLED1(void)
 {
-	HAL_GPIO_WritePin(LED1_GPIO_PORT, LED1_PIN, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(LED_GREEN_GPIO_PORT, LED_GREEN_PIN, GPIO_PIN_SET);
 }
 
 void HALIF_ToggleLED1(void)
 {
-	HAL_GPIO_TogglePin(LED1_GPIO_PORT, LED1_PIN);
-}
-
-void HALIF_InterruptEnable(void)
-{
-	__enable_irq();
-}
-
-void HALIF_InterruptDisable(void)
-{
-	__disable_irq();
+	HAL_GPIO_TogglePin(LED_GREEN_GPIO_PORT, LED_GREEN_PIN);
 }
 
 /**
@@ -149,11 +137,11 @@ static void SystemClock_Config(void)
   
 	/* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
 	clocks dividers */
-	RCC_ClkInitStruct.ClockType 		= (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-	RCC_ClkInitStruct.SYSCLKSource 		= RCC_SYSCLKSOURCE_PLLCLK;
-	RCC_ClkInitStruct.AHBCLKDivider 	= RCC_SYSCLK_DIV1;
-	RCC_ClkInitStruct.APB1CLKDivider 	= RCC_HCLK_DIV2;
-	RCC_ClkInitStruct.APB2CLKDivider 	= RCC_HCLK_DIV1;
+	RCC_ClkInitStruct.ClockType 			= (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
+	RCC_ClkInitStruct.SYSCLKSource 			= RCC_SYSCLKSOURCE_PLLCLK;
+	RCC_ClkInitStruct.AHBCLKDivider 		= RCC_SYSCLK_DIV1;
+	RCC_ClkInitStruct.APB1CLKDivider 		= RCC_HCLK_DIV2;
+	RCC_ClkInitStruct.APB2CLKDivider 		= RCC_HCLK_DIV1;
 
 	if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
 	{
@@ -161,34 +149,36 @@ static void SystemClock_Config(void)
 	}
 }
 
-static void InitializeLED(void)
+static void InitLED(void)
 {
 	// For LED1
-	LED1_GPIO_CLK_ENABLE();
+	LED_GREEN_GPIO_CLK_ENABLE();
+
+	GPIO_InitTypeDef  GPIO_InitStruct;
 
 	GPIO_InitStruct.Mode  	= GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull  	= GPIO_PULLUP;
 	GPIO_InitStruct.Speed 	= GPIO_SPEED_FREQ_LOW;
 
-	GPIO_InitStruct.Pin 	= LED1_PIN;
+	GPIO_InitStruct.Pin 	= LED_GREEN_PIN;
 
-	HAL_GPIO_Init(LED1_GPIO_PORT, &GPIO_InitStruct);
+	HAL_GPIO_Init(LED_GREEN_GPIO_PORT, &GPIO_InitStruct);
 }
 
-eStatus HALIF_InitializeUART1(const struct stUartConfig *apUart)
+eStatus HALIF_InitUART1(const struct stUartConfig *apUart)
 {
 	eStatus ret = eOK;
 
 	UARTMspInit();
 
-	UART_HandleTypeDef* pHandle = &g_UartHandle;
+	UART_HandleTypeDef* pHandle = &g_hUart1;
 
 	/*##-1- Configure the UART peripheral ######################################*/
 	pHandle->Instance        = UART1_INST;
-	pHandle->Init.BaudRate   = apUart->BaudRate;
-	pHandle->Init.WordLength = apUart->DataLength;
-	pHandle->Init.StopBits   = apUart->StopBits;
-	pHandle->Init.Parity     = apUart->Parity;
+	pHandle->Init.BaudRate   = apUart->baudRate;
+	pHandle->Init.WordLength = apUart->dataLength;
+	pHandle->Init.StopBits   = apUart->stopBits;
+	pHandle->Init.Parity     = apUart->parity;
 	pHandle->Init.HwFlowCtl  = UART_HWCONTROL_NONE;
 	pHandle->Init.Mode       = UART_MODE_TX_RX;
 
@@ -206,20 +196,20 @@ eStatus HALIF_InitializeUART1(const struct stUartConfig *apUart)
 	return ret;
 }
 
-eStatus HALIF_InitializeUART2(const struct stUartConfig *apUart)
+eStatus HALIF_InitUART2(const struct stUartConfig *apUart)
 {
 	eStatus ret = eOK;
 
 	UART2MspInit();
 
-	UART_HandleTypeDef* pHandle = &g_Uart2Handle;
+	UART_HandleTypeDef* pHandle = &g_hUart2;
 
 	/*##-1- Configure the UART peripheral ######################################*/
 	pHandle->Instance        = UART2_INST;
-	pHandle->Init.BaudRate   = apUart->BaudRate;
-	pHandle->Init.WordLength = apUart->DataLength;
-	pHandle->Init.StopBits   = apUart->StopBits;
-	pHandle->Init.Parity     = apUart->Parity;
+	pHandle->Init.BaudRate   = apUart->baudRate;
+	pHandle->Init.WordLength = apUart->dataLength;
+	pHandle->Init.StopBits   = apUart->stopBits;
+	pHandle->Init.Parity     = apUart->parity;
 	pHandle->Init.HwFlowCtl  = UART_HWCONTROL_NONE;
 	pHandle->Init.Mode       = UART_MODE_TX_RX;
 
@@ -243,7 +233,7 @@ eStatus	HALIF_UART1SendSync(const char *aStr)
 
 	uint32_t size 	 = strlen(aStr);
 	uint32_t timeOut = 1; 	// This delay should be as small as possible.
-	HAL_UART_Transmit(&g_UartHandle, (uint8_t *)aStr, size, timeOut);
+	HAL_UART_Transmit(&g_hUart1, (uint8_t *)aStr, size, timeOut);
 
 	return ret;
 }
@@ -253,7 +243,7 @@ eStatus	HALIF_UART1SendByteSync(int8_t aData, uint32_t timeoutMs)
 	eStatus ret = eOK;
 
 	uint32_t timeOut = (uint32_t)timeoutMs;
-	HAL_UART_Transmit(&g_UartHandle, (uint8_t *)&aData, 1, timeOut);
+	HAL_UART_Transmit(&g_hUart1, (uint8_t *)&aData, 1, timeOut);
 
 	return ret;
 }
@@ -264,7 +254,7 @@ eStatus	HALIF_UART2SendSync(const char *aStr)
 
 	uint32_t size 	 = strlen(aStr);
 	uint32_t timeOut = 1; 	// This delay should be as small as possible.
-	HAL_UART_Transmit(&g_Uart2Handle, (uint8_t *)aStr, size, timeOut);
+	HAL_UART_Transmit(&g_hUart2, (uint8_t *)aStr, size, timeOut);
 
 	return ret;
 }
@@ -280,7 +270,7 @@ eStatus HALIF_InitPWM(double aPeriodSec)
 	uint32_t      clkFreqHz       = HAL_RCC_GetSysClockFreq();
 	uint32_t      prescaler       = 25;
 	uint32_t      clkFreqHzScaled = clkFreqHz / (prescaler + 1);
-	double        pwmPeriodSec    = aPeriodSec;//0.005;											// application specific.
+	double        pwmPeriodSec    = aPeriodSec;//0.005;								// application specific.
 	double        pwmPeriodHz     = ( 1. / pwmPeriodSec );
 	uint32_t      timPeriod       = ( clkFreqHzScaled / (uint32_t)pwmPeriodHz ) - 1;
 
@@ -410,14 +400,10 @@ static void UARTMspInit(void)
 	/* NOTE :
 	 * Alternate setting is mandatory in F401RE.
 	 */
-
 	GPIO_InitTypeDef  GPIO_InitStruct;
 
 	/*##-1- Enable peripherals and GPIO Clocks #################################*/
-	/* Enable GPIO TX/RX clock */
 	UART1_GPIO_CLK_ENABLE();
-
-	/* Enable USARTx clock */
 	UART1_CLK_ENABLE();
 
 	/*##-2- Configure peripheral GPIO ##########################################*/
@@ -450,10 +436,7 @@ static void UART2MspInit(void)
 	GPIO_InitTypeDef  GPIO_InitStruct;
 
 	/*##-1- Enable peripherals and GPIO Clocks #################################*/
-	/* Enable GPIO TX/RX clock */
 	UART2_GPIO_CLK_ENABLE();
-
-	/* Enable USARTx clock */
 	UART2_CLK_ENABLE();
 
 	/*##-2- Configure peripheral GPIO ##########################################*/

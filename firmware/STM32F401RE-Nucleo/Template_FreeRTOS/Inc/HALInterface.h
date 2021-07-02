@@ -2,6 +2,7 @@
 #ifndef _HAL_INTERFACE_H_
 #define _HAL_INTERFACE_H_
 
+/********************************* Include *******************************/
 #include <stdint.h>
 #include <stdbool.h>
 #include "errorCode.h"
@@ -10,6 +11,7 @@
 extern "C" {
 #endif
 
+/********************************* Const *********************************/
 // Interrupts.
 #define INT_PRIORITY_HIGHEST	0
 #define INT_PRIORITY_HIGH		1
@@ -24,6 +26,7 @@ extern "C" {
 #define	TICK_TIMER_UNIT_US		0
 #define	TICK_TIMER_UNIT_MS		1
 
+/********************************* Types *********************************/
 typedef enum
 {
 	ePWM_CH1	= 1,
@@ -40,19 +43,28 @@ typedef enum
 
 struct stUartConfig
 {
-	unsigned int BaudRate;		// bps,  same as UART_InitTypeDef's
-	unsigned int DataLength;	// bits, same as UART_InitTypeDef's
-	unsigned int StopBits;		// same as UART_InitTypeDef's
-	unsigned int Parity;		// same as UART_InitTypeDef's
+	uint32_t baudRate;		// bps,  same as UART_InitTypeDef's
+	uint32_t dataLength;	// bits, same as UART_InitTypeDef's
+	uint32_t stopBits;		// same as UART_InitTypeDef's
+	uint32_t parity;		// same as UART_InitTypeDef's
 };
 
-void 			HALIF_Initialize 	 	(void);
+/********************************* Macro *********************************/
+#define HALIF_EnableInterrupt()			__enable_irq()
+#define HALIF_DisableInterrupt()		__disable_irq()
 
-eStatus			HALIF_InitializeUART1	(const struct stUartConfig *apUart);
+/***************************** Local Variable ****************************/
+
+/**************************** Global Variable ****************************/
+
+/************************* Function Declaration **************************/
+void 			HALIF_Init 	 			(void);
+
+eStatus			HALIF_InitUART1			(const struct stUartConfig *apUart);
 eStatus			HALIF_UART1SendByteSync	(int8_t aData, uint32_t timeoutMs);
 eStatus			HALIF_UART1SendSync		(const char *aStr);
 
-eStatus			HALIF_InitializeUART2	(const struct stUartConfig *apUart);
+eStatus			HALIF_InitUART2			(const struct stUartConfig *apUart);
 eStatus			HALIF_UART2SendSync		(const char *aStr);
 
 eStatus			HALIF_InitPWM			(double aPeriodSec);
@@ -67,9 +79,7 @@ void			HALIF_TurnOnLED1		(void);
 void			HALIF_TurnOffLED1		(void);
 void			HALIF_ToggleLED1		(void);
 
-void			HALIF_InterruptEnable	(void);
-void			HALIF_InterruptDisable	(void);
-
+/************************* Function Definition ***************************/
 #ifdef __cplusplus
 }
 #endif

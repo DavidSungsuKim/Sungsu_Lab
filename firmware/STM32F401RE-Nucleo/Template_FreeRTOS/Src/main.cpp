@@ -20,7 +20,7 @@ void	TestTask			( void *pvparameters );
 
 int main(void)
 {
-	HALIF_Initialize();
+	HALIF_Init();
 
 	g_sem = xSemaphoreCreateBinary();
 	if ( g_sem == NULL )

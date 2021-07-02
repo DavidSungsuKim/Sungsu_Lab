@@ -57,9 +57,9 @@
 #define UART2_IRQ					USART6_IRQn
 
 /* OTHERS ******************************************/
-#define LED1_GPIO_CLK_ENABLE()		__HAL_RCC_GPIOA_CLK_ENABLE();
-#define LED1_GPIO_PORT				GPIOA
-#define LED1_PIN            		GPIO_PIN_5
+#define LED_GREEN_GPIO_CLK_ENABLE()	__HAL_RCC_GPIOA_CLK_ENABLE();
+#define LED_GREEN_GPIO_PORT			GPIOA
+#define LED_GREEN_PIN            	GPIO_PIN_5
 
 #endif /* MODE_NUCLEO_F401RE */
 #endif /* _CONFIG_STM32_H_ */
