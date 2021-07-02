@@ -5,6 +5,7 @@
 /* MODES **************************************/
 //#define MODE_DEBUG
 #define MODE_TEST					// The codes that will finally be deleted after development
+#define TBD
 
 /* CONFIGURATIONS *****************************/
 #define CONFIG_USE_RTOS
