@@ -279,7 +279,7 @@ eStatus HALIF_InitPWM(double aPeriodSec)
 	_printf("PwmPeriod=%.3f[Hz]\r\n",      pwmPeriodHz);
 	_printf("TimPeriod=%d[Hz]\r\n",        timPeriod);
 */
-	pHdl->Instance                = TIMER_PWM_INST;
+	pHdl->Instance                = PWM_TIMER_INST;
 	pHdl->Init.Period             = timPeriod;                                    	// 0x0000~0xFFFF
 	pHdl->Init.Prescaler          = prescaler;                                    	// 0x0000~0xFFFF
 	pHdl->Init.ClockDivision      = TIM_CLOCKDIVISION_DIV1;
@@ -408,20 +408,20 @@ static void UARTMspInit(void)
 
 	/*##-2- Configure peripheral GPIO ##########################################*/
 	/* UART TX GPIO pin configuration  */
-	GPIO_InitStruct.Pin       	= PIN_UART1_TX;
+	GPIO_InitStruct.Pin       	= UART1_PIN_TX;
 	GPIO_InitStruct.Mode      	= GPIO_MODE_AF_PP;
 	GPIO_InitStruct.Pull      	= GPIO_PULLUP;
 	GPIO_InitStruct.Speed     	= GPIO_SPEED_FREQ_HIGH;
 	GPIO_InitStruct.Alternate 	= UART1_TX_AF;
-	HAL_GPIO_Init(GPIO_PORT_UART1_TX, &GPIO_InitStruct);
+	HAL_GPIO_Init(UART1_GPIO_PORT_TX, &GPIO_InitStruct);
 
 	/* UART RX GPIO pin configuration  */
-	GPIO_InitStruct.Pin 		= PIN_UART1_RX;
+	GPIO_InitStruct.Pin 		= UART1_PIN_RX;
 	GPIO_InitStruct.Mode      	= GPIO_MODE_INPUT;
 	GPIO_InitStruct.Pull      	= GPIO_PULLUP;
 	GPIO_InitStruct.Speed     	= GPIO_SPEED_FREQ_HIGH;
 	GPIO_InitStruct.Alternate 	= UART1_RX_AF;
-	HAL_GPIO_Init(GPIO_PORT_UART1_RX, &GPIO_InitStruct);
+	HAL_GPIO_Init(UART1_GPIO_PORT_RX, &GPIO_InitStruct);
 
 	HAL_NVIC_SetPriority(UART1_IRQ, INT_PRIORITY_HIGH, INT_PRIORITY_HIGH);
 	HAL_NVIC_EnableIRQ(UART1_IRQ);
@@ -441,20 +441,20 @@ static void UART2MspInit(void)
 
 	/*##-2- Configure peripheral GPIO ##########################################*/
 	/* UART TX GPIO pin configuration  */
-	GPIO_InitStruct.Pin       	= PIN_UART2_TX;
+	GPIO_InitStruct.Pin       	= UART2_PIN_TX;
 	GPIO_InitStruct.Mode      	= GPIO_MODE_AF_PP;
 	GPIO_InitStruct.Pull      	= GPIO_PULLUP;
 	GPIO_InitStruct.Speed     	= GPIO_SPEED_FREQ_HIGH;
 	GPIO_InitStruct.Alternate 	= UART2_TX_AF;
-	HAL_GPIO_Init(GPIO_PORT_UART2_TX, &GPIO_InitStruct);
+	HAL_GPIO_Init(UART2_GPIO_PORT_TX, &GPIO_InitStruct);
 
 	/* UART RX GPIO pin configuration  */
-	GPIO_InitStruct.Pin 		= PIN_UART2_RX;
+	GPIO_InitStruct.Pin 		= UART2_PIN_RX;
 	GPIO_InitStruct.Mode      	= GPIO_MODE_INPUT;
 	GPIO_InitStruct.Pull      	= GPIO_PULLUP;
 	GPIO_InitStruct.Speed     	= GPIO_SPEED_FREQ_HIGH;
 	GPIO_InitStruct.Alternate 	= UART2_RX_AF;
-	HAL_GPIO_Init(GPIO_PORT_UART2_RX, &GPIO_InitStruct);
+	HAL_GPIO_Init(UART2_GPIO_PORT_RX, &GPIO_InitStruct);
 
 	HAL_NVIC_SetPriority(UART2_IRQ, INT_PRIORITY_HIGH, INT_PRIORITY_HIGH);
 	HAL_NVIC_EnableIRQ(UART2_IRQ);
@@ -464,29 +464,29 @@ static void PWMMspInit(void)
 {
 	GPIO_InitTypeDef  GPIO_InitStruct;
 
-	TIMER_PWM_GPIO_CLK_ENABLE();
-	TIMER_PWM_CLOCK_ENABLE();
+	PWM_TIMER_GPIO_CLK_ENABLE();
+	PWM_TIMER_CLOCK_ENABLE();
 
 	// Pin config for ch1
-	GPIO_InitStruct.Pin           = PWM_PIN_CHANNEL1;
+	GPIO_InitStruct.Pin           = PWM_TIMER_PIN_CHAN1;
 	GPIO_InitStruct.Mode          = GPIO_MODE_AF_PP;
 	GPIO_InitStruct.Pull          = GPIO_PULLDOWN;
 	GPIO_InitStruct.Speed         = GPIO_SPEED_HIGH;
-	GPIO_InitStruct.Alternate     = PWM_AF_TIMER_PWM;
+	GPIO_InitStruct.Alternate     = PWM_TIMER_AF;
 
-	HAL_GPIO_Init(TIMER_PWM_GPIO_PORT, &GPIO_InitStruct);
+	HAL_GPIO_Init(PWM_TIMER_GPIO_PORT, &GPIO_InitStruct);
 
 	// Pin config for ch2
-	GPIO_InitStruct.Pin           = PWM_PIN_CHANNEL2;
-	HAL_GPIO_Init(TIMER_PWM_GPIO_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin           = PWM_TIMER_PIN_CHAN2;
+	HAL_GPIO_Init(PWM_TIMER_GPIO_PORT, &GPIO_InitStruct);
 
 	// Pin config for ch3
-	GPIO_InitStruct.Pin           = PWM_PIN_CHANNEL3;
-	HAL_GPIO_Init(TIMER_PWM_GPIO_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin           = PWM_TIMER_PIN_CHAN3;
+	HAL_GPIO_Init(PWM_TIMER_GPIO_PORT, &GPIO_InitStruct);
 
 	// Pin config for ch4
-	GPIO_InitStruct.Pin           = PWM_PIN_CHANNEL4;
-	HAL_GPIO_Init(TIMER_PWM_GPIO_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin           = PWM_TIMER_PIN_CHAN4;
+	HAL_GPIO_Init(PWM_TIMER_GPIO_PORT, &GPIO_InitStruct);
 }
 
 static void InitSPIModeMaster(void)
@@ -547,26 +547,26 @@ static void SPIMspInit(void)
 
 	SPI_CLK_ENABLE();
 
-	SPI_CLK_GPIO_CLK_ENABLE();
-	SPI_MISO_GPIO_CLK_ENABLE();
-	SPI_MOSI_GPIO_CLK_ENABLE();
+	SPI_GPIO_CLK_CLK_ENABLE();
+	SPI_GPIO_MISO_CLK_ENABLE();
+	SPI_GPIO_MOSI_CLK_ENABLE();
 
 	/* Configure SPI SCK */
-	GPIO_InitStruct.Pin 		= PIN_SPI_SCK;
+	GPIO_InitStruct.Pin 		= SPI_PIN_SCK;
 	GPIO_InitStruct.Mode 		= GPIO_MODE_AF_PP;
 	GPIO_InitStruct.Pull  		= GPIO_PULLUP;
 	GPIO_InitStruct.Speed 		= GPIO_SPEED_HIGH;
 	GPIO_InitStruct.Alternate 	= SPI_AF;
-	HAL_GPIO_Init(GPIO_PORT_SPI_SCK, &GPIO_InitStruct);
+	HAL_GPIO_Init(SPI_GPIO_PORT_SCK, &GPIO_InitStruct);
 
 	/* Configure SPI MISO and MOSI */
-	GPIO_InitStruct.Pin 		= PIN_SPI_MOSI;
+	GPIO_InitStruct.Pin 		= SPI_PIN_MOSI;
 	GPIO_InitStruct.Alternate 	= NUCLEO_SPIx_MISO_MOSI_AF;
 	GPIO_InitStruct.Pull  		= GPIO_PULLDOWN;
-	HAL_GPIO_Init(GPIO_PORT_SPI_MOSI, &GPIO_InitStruct);
+	HAL_GPIO_Init(SPI_GPIO_PORT_MOSI, &GPIO_InitStruct);
 
-	GPIO_InitStruct.Pin 		= PIN_SPI_MISO;
-	HAL_GPIO_Init(GPIO_PORT_SPI_MISO, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin 		= SPI_PIN_MISO;
+	HAL_GPIO_Init(SPI_GPIO_PORT_MISO, &GPIO_InitStruct);
 
 	/*** Configure the SPI peripheral ***/
 	/* Enable SPI clock */
