@@ -1,17 +1,45 @@
+/**************************************************************************
+ * @file    config.h
+ * @author  Sungsu Kim
+ *
+ * @date	July, 2021
+ * @brief
+ */
 
-#ifndef _CONFIG_H_
-#define _CONFIG_H_
+#ifndef __CONFIG_H__
+#define __CONFIG_H__
 
-/* MODES **************************************/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/********************************* Include *******************************/
+
+/********************************* Const *********************************/
+// MODES
 //#define MODE_DEBUG
-#define MODE_TEST					// The codes that will finally be deleted after development
+#define MODE_TEST
 #define TBD
 
-/* CONFIGURATIONS *****************************/
+// CONFIGURATIONS
 #define CONFIG_USE_RTOS
 #define CONFIG_USE_UART_DEBUG
 #define CONFIG_USE_SYSTICK_TIMER
 
-/* OTHERS *************************************/
+/********************************* Types *********************************/
 
-#endif /* _CONFIG_H_ */
+/********************************* Macro *********************************/
+
+/***************************** Local Variable ****************************/
+
+/**************************** Global Variable ****************************/
+
+/************************* Function Declaration **************************/
+
+/************************* Function Definition ***************************/
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __CONFIG_H__ */

@@ -1,3 +1,10 @@
+/**************************************************************************
+ * @file    common.c
+ * @author  Sungsu Kim
+ *
+ * @date	July, 2021
+ * @brief
+ */
 
 #include <stdio.h>
 #include <string.h>

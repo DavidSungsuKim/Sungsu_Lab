@@ -1,6 +1,13 @@
+/**************************************************************************
+ * @file    common.h
+ * @author  Sungsu Kim
+ *
+ * @date	July, 2021
+ * @brief
+ */
 
-#ifndef _COMMON_H_
-#define _COMMON_H_
+#ifndef __COMMON_H__
+#define __COMMON_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,4 +28,4 @@ void	PrintfUARTEx	(const char *file, int line, const char* str, ...);
 }
 #endif
 
-#endif /* _COMMON_H_ */
+#endif /* __COMMON_H__ */

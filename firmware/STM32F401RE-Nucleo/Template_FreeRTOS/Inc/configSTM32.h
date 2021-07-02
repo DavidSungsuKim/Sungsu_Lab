@@ -1,6 +1,13 @@
+/**************************************************************************
+ * @file    configSTM32.h
+ * @author  Sungsu Kim
+ *
+ * @date	July, 2021
+ * @brief
+ */
 
-#ifndef _CONFIG_STM32_H_
-#define _CONFIG_STM32_H_
+#ifndef __CONFIG_STM32_H__
+#define __CONFIG_STM32_H__
 
 #ifdef MODE_NUCLEO_F401RE
 
@@ -62,4 +69,4 @@
 #define LED_GREEN_PIN            	GPIO_PIN_5
 
 #endif /* MODE_NUCLEO_F401RE */
-#endif /* _CONFIG_STM32_H_ */
+#endif /* __CONFIG_STM32_H__ */

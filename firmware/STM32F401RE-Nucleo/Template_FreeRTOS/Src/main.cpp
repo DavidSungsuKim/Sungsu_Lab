@@ -1,23 +1,39 @@
+/**************************************************************************
+ * @file    main.cpp
+ * @author  Sungsu Kim
+ *
+ * @date	July, 2021
+ * @brief
+ */
 
-
+/********************************* Include *******************************/
 #include "main.h"
 #include "common.h"
 #include "HALInterface.h"
-    
-/* Scheduler includes. */
+
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
 
+/********************************* Const *********************************/
+
+/********************************* Types *********************************/
+
+/********************************* Macro *********************************/
 #define TASK_PRIORITY(x) (tskIDLE_PRIORITY + x)
 
+/***************************** Local Variable ****************************/
 SemaphoreHandle_t g_sem;
 
+/**************************** Global Variable ****************************/
+
+/************************* Function Declaration **************************/
 void 	LEDTurnOnTask     	( void *pvParameters );
 void 	LEDTurnOffTask    	( void *pvParameters );
 void	TestTask			( void *pvparameters );
 
+/************************* Function Definition ***************************/
 int main(void)
 {
 	HALIF_Init();

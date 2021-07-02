@@ -1,6 +1,13 @@
+/**************************************************************************
+ * @file    HALInterface.h
+ * @author  Sungsu Kim
+ *
+ * @date	July, 2021
+ * @brief
+ */
 
-#ifndef _HAL_INTERFACE_H_
-#define _HAL_INTERFACE_H_
+#ifndef __HAL_INTERFACE_H__
+#define __HAL_INTERFACE_H__
 
 /********************************* Include *******************************/
 #include <stdint.h>
@@ -86,4 +93,4 @@ void			HALIF_ToggleLED1		(void);
 }
 #endif
 
-#endif /* _HAL_INTERFACE_H_ */
+#endif /* __HAL_INTERFACE_H__ */

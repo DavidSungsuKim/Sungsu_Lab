@@ -1,6 +1,13 @@
+/**************************************************************************
+ * @file    errorCode.h
+ * @author  Sungsu Kim
+ *
+ * @date	July, 2021
+ * @brief
+ */
 
-#ifndef _ERROR_CODE_H_
-#define _ERROR_CODE_H_
+#ifndef __ERROR_CODE_H__
+#define __ERROR_CODE_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,4 +26,4 @@ typedef enum
 }
 #endif
 
-#endif /* _ERROR_CODE_H_ */
+#endif /* __ERROR_CODE_H__ */
