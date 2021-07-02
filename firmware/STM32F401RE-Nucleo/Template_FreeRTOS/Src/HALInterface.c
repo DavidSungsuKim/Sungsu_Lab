@@ -266,6 +266,11 @@ eStatus	HALIF_UART2SendSync(const char *aStr)
 	return ret;
 }
 
+void HALIF_UART2RecvCallback(int8_t aData)
+{
+	TBD;
+}
+
 eStatus HALIF_InitPWM(double aPeriodSec)
 {
 	eStatus ret = eOK;
@@ -574,12 +579,162 @@ static void SPIMspInit(void)
 
 void ISR_UART(void)
 {
+	UART_HandleTypeDef *huart = &g_hUart1;
 
+	uint32_t tmp1 = 0, tmp2 = 0;
+
+	tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_PE);
+	tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_PE);
+
+	/* UART parity error interrupt occurred ------------------------------------*/
+	if((tmp1 != RESET) && (tmp2 != RESET))
+	{
+		__HAL_UART_CLEAR_PEFLAG(huart);
+		huart->ErrorCode |= HAL_UART_ERROR_PE;
+	}
+
+	tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_FE);
+	tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR);
+
+	/* UART frame error interrupt occurred -------------------------------------*/
+	if((tmp1 != RESET) && (tmp2 != RESET))
+	{
+		__HAL_UART_CLEAR_FEFLAG(huart);
+		huart->ErrorCode |= HAL_UART_ERROR_FE;
+	}
+
+	tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_NE);
+	tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR);
+
+	/* UART noise error interrupt occurred -------------------------------------*/
+	if((tmp1 != RESET) && (tmp2 != RESET))
+	{
+		__HAL_UART_CLEAR_NEFLAG(huart);
+		huart->ErrorCode |= HAL_UART_ERROR_NE;
+	}
+
+	tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_ORE);
+	tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR);
+
+	/* UART Over-Run interrupt occurred ----------------------------------------*/
+	if((tmp1 != RESET) && (tmp2 != RESET))
+	{
+		__HAL_UART_CLEAR_OREFLAG(huart);
+		huart->ErrorCode |= HAL_UART_ERROR_ORE;
+	}
+
+	tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE);
+	tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE);
+
+	/* UART in mode Receiver ---------------------------------------------------*/
+	if((tmp1 != RESET) && (tmp2 != RESET))
+	{
+		HALIF_UART1RecvCallback( huart->Instance->DR );
+	}
+
+	tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_TXE);
+	tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_TXE);
+
+	/* UART in mode Transmitter ------------------------------------------------*/
+	if((tmp1 != RESET) && (tmp2 != RESET))
+	{
+		;
+	}
+
+	tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_TC);
+	tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_TC);
+
+	/* UART in mode Transmitter end --------------------------------------------*/
+	if((tmp1 != RESET) && (tmp2 != RESET))
+	{
+		;
+	}
+
+	if(huart->ErrorCode != HAL_UART_ERROR_NONE)
+	{
+		/* Set the UART state ready to be able to start again the process */
+		huart->State = HAL_UART_STATE_READY;
+	}
 }
 
 void ISR_UART2(void)
 {
+	UART_HandleTypeDef *huart = &g_hUart2;
 
+	uint32_t tmp1 = 0, tmp2 = 0;
+
+	tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_PE);
+	tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_PE);
+
+	/* UART parity error interrupt occurred ------------------------------------*/
+	if((tmp1 != RESET) && (tmp2 != RESET))
+	{
+		__HAL_UART_CLEAR_PEFLAG(huart);
+		huart->ErrorCode |= HAL_UART_ERROR_PE;
+	}
+
+	tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_FE);
+	tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR);
+
+	/* UART frame error interrupt occurred -------------------------------------*/
+	if((tmp1 != RESET) && (tmp2 != RESET))
+	{
+		__HAL_UART_CLEAR_FEFLAG(huart);
+		huart->ErrorCode |= HAL_UART_ERROR_FE;
+	}
+
+	tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_NE);
+	tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR);
+
+	/* UART noise error interrupt occurred -------------------------------------*/
+	if((tmp1 != RESET) && (tmp2 != RESET))
+	{
+		__HAL_UART_CLEAR_NEFLAG(huart);
+		huart->ErrorCode |= HAL_UART_ERROR_NE;
+	}
+
+	tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_ORE);
+	tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR);
+
+	/* UART Over-Run interrupt occurred ----------------------------------------*/
+	if((tmp1 != RESET) && (tmp2 != RESET))
+	{
+		__HAL_UART_CLEAR_OREFLAG(huart);
+		huart->ErrorCode |= HAL_UART_ERROR_ORE;
+	}
+
+	tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE);
+	tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE);
+
+	/* UART in mode Receiver ---------------------------------------------------*/
+	if((tmp1 != RESET) && (tmp2 != RESET))
+	{
+		HALIF_UART2RecvCallback( huart->Instance->DR );
+	}
+
+	tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_TXE);
+	tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_TXE);
+
+	/* UART in mode Transmitter ------------------------------------------------*/
+	if((tmp1 != RESET) && (tmp2 != RESET))
+	{
+		;
+	}
+
+	tmp1 = __HAL_UART_GET_FLAG(huart, UART_FLAG_TC);
+	tmp2 = __HAL_UART_GET_IT_SOURCE(huart, UART_IT_TC);
+
+	/* UART in mode Transmitter end --------------------------------------------*/
+	if((tmp1 != RESET) && (tmp2 != RESET))
+	{
+		;
+	}
+
+	if(huart->ErrorCode != HAL_UART_ERROR_NONE)
+	{
+		/* Set the UART state ready to be able to start again the process */
+		huart->State = HAL_UART_STATE_READY;
+	}
 }
 
 static void Error_Handler(void)
