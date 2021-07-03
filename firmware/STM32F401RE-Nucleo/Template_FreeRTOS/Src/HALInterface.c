@@ -75,7 +75,7 @@ void HALIF_Init(void)
 	uart2.parity		= UART_PARITY_NONE;
 	HALIF_InitUART2(&uart2);
 
-	HALIF_InitPWM(PWM_PERIOD_SEC);
+//	HALIF_InitPWM(PWM_PERIOD_SEC);
 	HALIF_InitSPI(eSPI_MODE_MASTER);
 
 	ConfigIRQ();
@@ -288,7 +288,7 @@ eStatus HALIF_InitPWM(double aPeriodSec)
 	uint32_t      clkFreqHz       = HAL_RCC_GetSysClockFreq();
 	uint32_t      prescaler       = 25;
 	uint32_t      clkFreqHzScaled = clkFreqHz / (prescaler + 1);
-	double        pwmPeriodSec    = aPeriodSec;//0.005;								// application specific.
+	double        pwmPeriodSec    = aPeriodSec;
 	double        pwmPeriodHz     = ( 1. / pwmPeriodSec );
 	uint32_t      timPeriod       = ( clkFreqHzScaled / (uint32_t)pwmPeriodHz ) - 1;
 

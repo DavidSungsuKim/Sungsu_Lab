@@ -9,6 +9,7 @@
 /********************************* Include *******************************/
 #include "common.h"
 #include "HALInterface.h"
+#include "driver_motor_servo_hs311.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -36,6 +37,8 @@ void	TestTask			( void *pvparameters );
 int main(void)
 {
 	HALIF_Init();
+
+	HS311_Init();
 
 	g_sem = xSemaphoreCreateBinary();
 	if ( g_sem == NULL )
@@ -100,13 +103,15 @@ void TestTask( void *pvparameters )
 		HALIF_ControlPWM( ePWM_CH2, duty );
 		HALIF_ControlPWM( ePWM_CH3, duty );
 		HALIF_ControlPWM( ePWM_CH4, duty );
-
 		duty += 10;
 		if ( duty > 100 )
 			duty = 0;
 #endif
 #if 0
 		HALIF_TestSPI();
+#endif
+#if 1
+		HS311_Move( 0 );
 #endif
 	}
 }
