@@ -77,7 +77,7 @@ eStatus			HALIF_UART2SendSync		(const char *aStr);
 void			HALIF_UART2RecvCallback	(int8_t aData);
 
 eStatus			HALIF_InitPWM			(double aPeriodSec);
-eStatus			HALIF_ControlPWM		(ePwmChan aChannel, uint32_t aDuty);
+eStatus			HALIF_ControlPWM		(ePwmChan aChannel, float aDuty);
 
 eStatus			HALIF_InitSPI			(eSpiMode aMode);
 eStatus			HALIF_WriteReadByteSPI	(uint8_t tx, uint8_t *rx);

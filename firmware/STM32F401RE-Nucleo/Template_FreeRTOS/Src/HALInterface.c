@@ -75,7 +75,6 @@ void HALIF_Init(void)
 	uart2.parity		= UART_PARITY_NONE;
 	HALIF_InitUART2(&uart2);
 
-//	HALIF_InitPWM(PWM_PERIOD_SEC);
 	HALIF_InitSPI(eSPI_MODE_MASTER);
 
 	ConfigIRQ();
@@ -311,7 +310,7 @@ eStatus HALIF_InitPWM(double aPeriodSec)
 	return ret;
 }
 
-eStatus	HALIF_ControlPWM(ePwmChan aChannel, uint32_t aDuty)
+eStatus	HALIF_ControlPWM(ePwmChan aChannel, float aDuty)
 {
 	eStatus ret = eOK;
 
@@ -329,12 +328,8 @@ eStatus	HALIF_ControlPWM(ePwmChan aChannel, uint32_t aDuty)
 			return eERR_PWM_INVALID_CHAN;
 	}
 
-	uint32_t dutycopied = aDuty;
-
-	_printf("Duty=%d%\r\n", dutycopied);
-
 	TIM_OC_InitTypeDef    ocConfig;
-	uint32_t              pulse   = ((timPeriod + 1) * dutycopied) / 100 - 1;
+	uint32_t              pulse   = (uint32_t)((((float)timPeriod + 1.) * aDuty) / 100. - 1.);
 
 	if ( pulse > timPeriod )
 		pulse = timPeriod;
