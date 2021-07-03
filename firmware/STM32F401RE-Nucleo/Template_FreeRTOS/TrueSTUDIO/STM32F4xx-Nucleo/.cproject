@@ -106,6 +106,7 @@
 									<listOptionValue builtIn="false" value="../../../../../STM32Cube_FW_F4_V1.9.0/Drivers/STM32F4xx_HAL_Driver/Inc"/>
 									<listOptionValue builtIn="false" value="../../../../../STM32Cube_FW_F4_V1.9.0/Drivers/BSP/STM32F4xx-Nucleo"/>
 									<listOptionValue builtIn="false" value="../../../../../STM32Cube_FW_F4_V1.9.0/Drivers/CMSIS/Include"/>
+									<listOptionValue builtIn="false" value="../../../Inc/drivers"/>
 								</option>
 								<inputType id="com.atollic.truestudio.gpp.input.829102000" superClass="com.atollic.truestudio.gpp.input"/>
 							</tool>
