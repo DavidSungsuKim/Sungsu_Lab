@@ -7,7 +7,6 @@
  */
 
 /********************************* Include *******************************/
-#include "main.h"
 #include "common.h"
 #include "HALInterface.h"
 
