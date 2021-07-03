@@ -9,8 +9,8 @@
 /********************************* Include *******************************/
 #include <string.h>
 
-#include "main.h"
 #include "common.h"
+#include "stm32f4xx_hal.h"
 #include "HALInterface.h"
 
 #include "configSTM32.h"
@@ -575,7 +575,7 @@ static void SPIMspInit(void)
 
 	/* Configure SPI MISO and MOSI */
 	GPIO_InitStruct.Pin 		= SPI_PIN_MOSI;
-	GPIO_InitStruct.Alternate 	= NUCLEO_SPIx_MISO_MOSI_AF;
+	GPIO_InitStruct.Alternate 	= SPI_AF;
 	GPIO_InitStruct.Pull  		= GPIO_PULLDOWN;
 	HAL_GPIO_Init(SPI_GPIO_PORT_MOSI, &GPIO_InitStruct);
 
