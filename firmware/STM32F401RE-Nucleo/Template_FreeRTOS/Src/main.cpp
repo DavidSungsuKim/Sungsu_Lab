@@ -96,7 +96,7 @@ void TestTask( void *pvparameters )
 {
 	for(;;)
 	{
-		vTaskDelay(1000);
+		vTaskDelay(100);
 #if 0
 		static uint32_t duty = 0;
 		HALIF_ControlPWM( ePWM_CH1, duty );
@@ -110,8 +110,8 @@ void TestTask( void *pvparameters )
 #if 0
 		HALIF_TestSPI();
 #endif
-#if 1
-		HS311_Move( 0 );
+#if 0
+		HS311_Test();
 #endif
 	}
 }

@@ -29,8 +29,10 @@ extern "C" {
 
 /************************* Function Declaration **************************/
 eStatus HS311_Init	(void);
-eStatus HS311_Move	(int32_t aDeg);
+eStatus HS311_Move	(float aDeg);
 eStatus HS311_Stop	(void);
+
+void	HS311_Test	(void);
 
 /************************* Function Definition ***************************/
 

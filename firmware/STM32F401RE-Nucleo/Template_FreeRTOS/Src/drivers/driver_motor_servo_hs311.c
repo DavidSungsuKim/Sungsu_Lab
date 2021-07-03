@@ -7,18 +7,16 @@
  */
 
 /********************************* Include *******************************/
+#include <stdbool.h>
+#include "common.h"
 #include "driver_motor_servo_hs311.h"
 #include "HALInterface.h"
 
 /********************************* Const *********************************/
-#define	PWM_PERIOD_SEC				(0.01)
-#define HS311_NL_DEG				(-45.0)
-#define HS311_PL_DEG        		( 45.0)
-#define HS311_DEG_OFFSET			(45.0)
-#define HS311_RANGE_DEG     		(90.0)
-#define HS311_TIME_PWM_ON_NL		(1.0)
-#define HS311_DUTY_AT_NL_DEG		(10.0)
-#define	HS311_DUTY_DEGREE_RATIO		(5.0 / 90.0)
+#define	PWM_PERIOD_SEC					(0.01f)
+#define HS311_PWM_DUTY_OFFSET_PERCENT	(10.f)
+#define	HS311_DUTY_DEGREE_RATIO			(5.f / 45.f)
+#define HS311_RANGE_DEG     			(90.f)
 
 /********************************* Types *********************************/
 
@@ -29,7 +27,7 @@
 /**************************** Global Variable ****************************/
 
 /************************* Function Declaration **************************/
-static uint32_t	calculatePWMduty	(int32_t aDeg);
+static float	calculatePWMduty	(float aDeg);
 
 /************************* Function Definition ***************************/
 eStatus HS311_Init(void)
@@ -41,32 +39,12 @@ eStatus HS311_Init(void)
 	return ret;
 }
 
-eStatus HS311_Move(int32_t aDeg)
+eStatus HS311_Move(float aDeg)
 {
 	eStatus ret = eOK;
-
-	static uint32_t dir	 = 0;
-	static uint32_t duty = 10;//calculatePWMduty( aDeg );
+	float duty = calculatePWMduty( aDeg );
 
 	ret = HALIF_ControlPWM( ePWM_CH1, duty );
-
-	if ( !dir )
-	{
-		duty += 1;
-		if ( duty > 20 )
-			dir = 1;
-	}
-
-	if ( dir )
-	{
-		duty -= 1;
-		if ( duty < 10 )
-		{
-			duty = 10;
-			dir = 0;
-		}
-	}
-
 	return ret;
 }
 
@@ -77,13 +55,37 @@ eStatus HS311_Stop(void)
 	return ret;
 }
 
-static uint32_t	calculatePWMduty(int32_t aDeg)
+void HS311_Test(void)
 {
-	if ( aDeg < HS311_NL_DEG )
-		aDeg = HS311_NL_DEG;
-	else if ( aDeg > HS311_PL_DEG)
+#define MOVE_AMOUNT_DEGREE	(1.0)
+
+	static float 	deg 	= 0.0;
+	static bool		bInc 	= true;
+
+	_printf("HS311_Test, deg=%.3f\r\n", deg);
+
+	HS311_Move( deg );
+	if ( bInc )
+	{
+		deg += MOVE_AMOUNT_DEGREE;
+		if ( deg >= 90.0 )
+			bInc = false;
+	}
+	else
+	{
+		deg -= MOVE_AMOUNT_DEGREE;
+		if ( deg <= 0.0 )
+			bInc = true;
+	}
+}
+
+static float calculatePWMduty(float aDeg)
+{
+	if ( aDeg < 0 )
+		aDeg = 0;
+	else if ( aDeg > HS311_RANGE_DEG)
 		aDeg = HS311_RANGE_DEG;
 
-	uint32_t pulseDuty 	= (( aDeg + HS311_DEG_OFFSET ) * HS311_DUTY_DEGREE_RATIO + HS311_TIME_PWM_ON_NL ) / PWM_PERIOD_SEC / 10;
+	float pulseDuty = (( aDeg * HS311_DUTY_DEGREE_RATIO ) + HS311_PWM_DUTY_OFFSET_PERCENT);
 	return pulseDuty;
 }
