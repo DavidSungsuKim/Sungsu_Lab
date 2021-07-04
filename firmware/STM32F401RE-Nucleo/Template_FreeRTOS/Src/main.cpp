@@ -10,6 +10,7 @@
 #include "common.h"
 #include "HALInterface.h"
 #include "driver_motor_servo_hs311.h"
+#include "servo.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -25,6 +26,7 @@
 
 /***************************** Local Variable ****************************/
 static SemaphoreHandle_t g_sem;
+static CServo g_servo( 10.0, 1.0, 2.0, 90.0 );
 
 /**************************** Global Variable ****************************/
 
@@ -38,7 +40,8 @@ int main(void)
 {
 	HALIF_Init();
 
-	HS311_Init();
+    //HS311_Init();
+	g_servo.Init();
 
 	g_sem = xSemaphoreCreateBinary();
 	if ( g_sem == NULL )
@@ -111,7 +114,8 @@ void TestTask( void *pvparameters )
 		HALIF_TestSPI();
 #endif
 #if 0
-		HS311_Test();
+		g_servo.Test();
+	//	HS311_Test();
 #endif
 	}
 }
