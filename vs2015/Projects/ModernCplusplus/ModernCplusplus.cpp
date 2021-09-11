@@ -2,10 +2,49 @@
 //
 
 #include <iostream>
+#include "ModernCpp.h"
+
+void TestBasics();
+void TestModernCpp();
+void TestModernTemplate();
 
 int main()
 {
-	printf("test modern C++\r\n");
+	TestBasics();
+	TestModernCpp();
+	TestModernTemplate();
 	
 	return 0;
+}
+
+void TestBasics()
+{
+	int array[10];
+
+	int size = sizeof(array);
+
+	printf("size=%d\r\n", size);
+}
+
+void TestModernCpp()
+{
+	printf("test modern C++\r\n");
+
+	CModernCpp	modern;
+	modern.TypeDeduction();
+}
+
+void TestModernTemplate()
+{
+	int a = 1234;
+	CModernTemplate<int> test(a);
+
+	int b = test.Return();
+	printf("a=%d, b=%d\r\n", a, b);
+
+	test.Func1(b);
+
+	printf("b=%d\r\n", b);
+	test.Func3(b);
+	printf("b=%d\r\n", b);
 }
