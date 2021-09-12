@@ -8,6 +8,8 @@ public:
 
 public:
 	void TypeDeduction();
+	void Auto();
+	void UniversalReference();
 };
 
 template<typename T>

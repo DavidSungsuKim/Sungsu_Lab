@@ -32,6 +32,8 @@ void TestModernCpp()
 
 	CModernCpp	modern;
 	modern.TypeDeduction();
+	modern.UniversalReference();
+	modern.Auto();
 }
 
 void TestModernTemplate()
