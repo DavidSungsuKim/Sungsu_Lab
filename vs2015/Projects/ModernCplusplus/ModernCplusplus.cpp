@@ -34,6 +34,11 @@ void TestModernCpp()
 	modern.TypeDeduction();
 	modern.UniversalReference();
 	modern.Auto();
+	modern.Initialization();
+	modern.DeclType();
+	modern.StdFunction();
+	modern.LamdaExpression();
+	modern.LamdaExpressionForDisassembly();
 }
 
 void TestModernTemplate()

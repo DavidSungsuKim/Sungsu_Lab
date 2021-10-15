@@ -10,6 +10,12 @@ public:
 	void TypeDeduction();
 	void Auto();
 	void UniversalReference();
+	void Initialization();
+	auto ReturnAuto( int a );	// not working; need to dig into
+	void DeclType();
+	void StdFunction();
+	void LamdaExpression();
+	void LamdaExpressionForDisassembly();
 };
 
 template<typename T>
@@ -44,4 +50,16 @@ template<typename T>
 void CModernTemplate<T>::Func3(T param)
 {
 	param = 1;
+}
+
+template<typename Container, typename Index>
+decltype(auto) AuthAndAccess(Container& c, Index i)
+{
+	return c[i];
+}
+
+template<typename Container, typename Index>
+auto& AuthAndAccess2(Container& c, Index i)
+{
+	return c[i];
 }
