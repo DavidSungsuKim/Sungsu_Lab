@@ -176,3 +176,47 @@ void CModernCpp::LamdaExpressionForDisassembly()
 	int ret = lamdaTest1(2);
 	printf("ret=%d, x1=%d\r\n", ret, x1);
 }
+
+void CModernCpp::ParentheseBraces()
+{
+	int x{ 0 }; // braces, allowed only in modern C++
+	int y = 0; 
+	int z(0); // parentheses
+
+	std::vector<int> test = { 1,2,3 };
+
+	int a = { 1 + 2 + 3 }; // It works!
+	int b(1 + 2 + 3);	   // It works either!
+
+	int value;
+	CTestClass a1;
+	CTestClass a2(10);
+	value = a2.getValue();
+
+//	CTestClass a3();	// It's actually for declaring a function!
+//	value = a3.getValue();
+
+	CTestClass a4{};
+}
+
+void CModernCpp::InitializerList()
+{
+	int num;
+	CTestClass a1{ 1,2 };
+	num = a1.getNumElement();
+
+	CTestClass a2{ 1,2,3,4,5,6 };
+	num = a2.getNumElement();
+
+	CTestClass a3{ 1, 2.0 };
+	num = a3.getNumElement();
+
+	CTestClass a4{};
+	num = a4.getNumElement();
+}
+
+void CModernCpp::NullPtr()
+{
+	CTestClass  testNull;
+	testNull.func(0);
+}

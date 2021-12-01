@@ -39,6 +39,9 @@ void TestModernCpp()
 	modern.StdFunction();
 	modern.LamdaExpression();
 	modern.LamdaExpressionForDisassembly();
+	modern.ParentheseBraces();
+	modern.InitializerList();
+	modern.NullPtr();
 }
 
 void TestModernTemplate()

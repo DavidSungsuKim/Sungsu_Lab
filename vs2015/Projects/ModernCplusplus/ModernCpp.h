@@ -1,5 +1,27 @@
 #pragma once
 
+#include <list>
+class CTestClass
+{
+public:
+	CTestClass() {};
+	CTestClass(int a) { m_a = a; }
+	CTestClass(std::initializer_list<long double> il) { m_list = il; }
+
+	~CTestClass() {}
+
+	int getValue()		{ return m_a; }
+	int getNumElement()	{ return m_list.size();  }
+
+	void func(int) { };
+	void func(bool) { };
+	void func(void*) { };
+
+private:
+	int m_a;
+	std::list<long double> m_list;
+};
+
 class CModernCpp
 {
 public:
@@ -16,6 +38,9 @@ public:
 	void StdFunction();
 	void LamdaExpression();
 	void LamdaExpressionForDisassembly();
+	void ParentheseBraces();
+	void InitializerList();
+	void NullPtr();
 };
 
 template<typename T>
