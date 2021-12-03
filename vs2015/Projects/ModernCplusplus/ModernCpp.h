@@ -41,6 +41,10 @@ public:
 	void ParentheseBraces();
 	void InitializerList();
 	void NullPtr();
+	void ScopedEnums();
+	void Tuple();
+	void Delete();
+	void DeleteForNonMembers();
 };
 
 template<typename T>

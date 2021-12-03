@@ -42,6 +42,10 @@ void TestModernCpp()
 	modern.ParentheseBraces();
 	modern.InitializerList();
 	modern.NullPtr();
+	modern.ScopedEnums();
+	modern.Tuple();
+	modern.Delete();
+	modern.DeleteForNonMembers();
 }
 
 void TestModernTemplate()

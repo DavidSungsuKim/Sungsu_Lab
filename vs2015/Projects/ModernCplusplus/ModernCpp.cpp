@@ -220,3 +220,97 @@ void CModernCpp::NullPtr()
 	CTestClass  testNull;
 	testNull.func(0);
 }
+
+void CModernCpp::ScopedEnums()
+{
+#if 0 // not working
+	enum color
+	{
+		black,
+		white,
+		red
+	};
+
+	auto black = 1;
+#endif 
+
+#if 0 // 
+	enum color
+	{
+		black,
+		white,
+		red
+	};
+
+	auto anyColor = black;
+#endif 
+
+#if 0 // working
+	enum class color
+	{
+		black,
+		white,
+		red
+	};
+
+	auto black = 1;
+#endif
+
+#if 0
+	enum class color
+	{
+		black,
+		white,
+		red
+	};
+
+	auto black = black;
+#endif
+
+	enum color
+	{
+		black,
+		white,
+		red
+	};
+
+	int x = color::black;
+}
+
+void CModernCpp::Tuple()
+{
+	using MyTuple = std::tuple<int, double, long>;
+
+	MyTuple tuple1 = { 1,2,3.4 };
+
+	auto x = std::get<2>(tuple1);
+	std::cout << x;
+}
+
+void funcNonMember(int a)  {};
+void funcNonMember(char a) = delete;
+void funcNonMember(bool a) = delete;
+
+void CModernCpp::DeleteForNonMembers()
+{
+	funcNonMember(1);
+}
+
+class x
+{
+public:
+	void func() { };
+	template<typename T>
+	void funcDoNotUse(T* ptr) { }
+};
+
+template<>
+void x::funcDoNotUse<void>(void*) = delete;
+
+void CModernCpp::Delete()
+{
+	x x1;
+	x1.func();
+//	x1.funcDoNotUse();
+}
+
