@@ -57,6 +57,20 @@
 #define SPI_PIN_MOSI                GPIO_PIN_5
 #define SPI_AF                  	GPIO_AF5_SPI1
 
+/* GPIO OUT PORTS **********************************/
+#define GPIO_OUT1_CLK_ENABLE() 		__GPIOA_CLK_ENABLE()
+#define GPIO_OUT2_CLK_ENABLE() 		__GPIOB_CLK_ENABLE()
+#define GPIO_OUT3_CLK_ENABLE()		__GPIOC_CLK_ENABLE()
+#define GPIO_OUT4_CLK_ENABLE() 		__GPIOC_CLK_ENABLE()
+#define GPIO_OUT1_PORT      		GPIOA
+#define GPIO_OUT2_PORT      		GPIOB
+#define GPIO_OUT3_PORT      		GPIOC
+#define GPIO_OUT4_PORT      		GPIOC
+#define GPIO_OUT1_PIN       		GPIO_PIN_4
+#define GPIO_OUT2_PIN       		GPIO_PIN_0
+#define GPIO_OUT3_PIN       		GPIO_PIN_1
+#define GPIO_OUT4_PIN       		GPIO_PIN_0
+
 /* IRS & INTERRUPT *********************************/
 #define ISR_UART					USART1_IRQHandler
 #define ISR_UART2					USART6_IRQHandler

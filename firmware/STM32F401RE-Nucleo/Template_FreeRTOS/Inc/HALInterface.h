@@ -84,6 +84,11 @@ eStatus			HALIF_WriteReadByteSPI	(uint8_t tx, uint8_t *rx);
 eStatus			HALIF_ReadSPI			(uint8_t *buf, uint16_t size, uint32_t timeOutMs);
 eStatus			HALIF_TestSPI			(void);
 
+void			HALIF_setGPIO1			(bool bOn);
+void			HALIF_setGPIO2			(bool bOn);
+void			HALIF_setGPIO3			(bool bOn);
+void			HALIF_setGPIO4			(bool bOn);
+
 void			HALIF_TurnOnLED1		(void);
 void			HALIF_TurnOffLED1		(void);
 void			HALIF_ToggleLED1		(void);

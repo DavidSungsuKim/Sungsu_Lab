@@ -49,6 +49,7 @@ static void PWMMspInit			(void);
 static void InitSPIModeMaster	(void);
 static void InitSPIModeSlave	(void);
 static void SPIMspInit			(void);
+static void GpioOutMspInit		(void);
 
 /************************* Function Definition **************************/
 void HALIF_Init(void)
@@ -76,6 +77,8 @@ void HALIF_Init(void)
 	HALIF_InitUART2(&uart2);
 
 	HALIF_InitSPI(eSPI_MODE_MASTER);
+
+	GpioOutMspInit();
 
 	ConfigIRQ();
 }
@@ -408,6 +411,26 @@ eStatus	HALIF_TestSPI(void)
 	return ret;
 }
 
+void HALIF_setGPIO1(bool bOn)
+{
+	HAL_GPIO_WritePin( GPIO_OUT1_PORT, GPIO_OUT1_PIN, (bOn ? GPIO_PIN_SET : GPIO_PIN_RESET));
+}
+
+void HALIF_setGPIO2(bool bOn)
+{
+	HAL_GPIO_WritePin( GPIO_OUT2_PORT, GPIO_OUT2_PIN, (bOn ? GPIO_PIN_SET : GPIO_PIN_RESET));
+}
+
+void HALIF_setGPIO3(bool bOn)
+{
+	HAL_GPIO_WritePin( GPIO_OUT3_PORT, GPIO_OUT3_PIN, (bOn ? GPIO_PIN_SET : GPIO_PIN_RESET));
+}
+
+void HALIF_setGPIO4(bool bOn)
+{
+	HAL_GPIO_WritePin( GPIO_OUT4_PORT, GPIO_OUT4_PIN, (bOn ? GPIO_PIN_SET : GPIO_PIN_RESET));
+}
+
 static void ConfigIRQ(void)
 {
 	HAL_NVIC_SetPriority(UART1_IRQ, INT_PRIORITY_HIGH, INT_PRIORITY_HIGH);
@@ -576,6 +599,31 @@ static void SPIMspInit(void)
 
 	GPIO_InitStruct.Pin 		= SPI_PIN_MISO;
 	HAL_GPIO_Init(SPI_GPIO_PORT_MISO, &GPIO_InitStruct);
+}
+
+static void GpioOutMspInit(void)
+{
+	GPIO_InitTypeDef  GPIO_InitStruct;
+
+	GPIO_OUT1_CLK_ENABLE();
+	GPIO_OUT2_CLK_ENABLE();
+	GPIO_OUT3_CLK_ENABLE();
+	GPIO_OUT4_CLK_ENABLE();
+
+	GPIO_InitStruct.Pin 		= GPIO_OUT1_PIN;
+	GPIO_InitStruct.Mode 		= GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull  		= GPIO_NOPULL;//GPIO_PULLUP;
+	GPIO_InitStruct.Speed 		= GPIO_SPEED_LOW;
+	HAL_GPIO_Init(GPIO_OUT1_PORT, &GPIO_InitStruct);
+
+	GPIO_InitStruct.Pin 		= GPIO_OUT2_PIN;
+	HAL_GPIO_Init(GPIO_OUT2_PORT, &GPIO_InitStruct);
+
+	GPIO_InitStruct.Pin 		= GPIO_OUT3_PIN;
+	HAL_GPIO_Init(GPIO_OUT3_PORT, &GPIO_InitStruct);
+
+	GPIO_InitStruct.Pin 		= GPIO_OUT4_PIN;
+	HAL_GPIO_Init(GPIO_OUT4_PORT, &GPIO_InitStruct);
 }
 
 void ISR_UART(void)
