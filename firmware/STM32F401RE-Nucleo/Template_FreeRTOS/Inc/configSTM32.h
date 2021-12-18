@@ -46,15 +46,15 @@
 /* SPI *********************************************/
 #define SPI_INST					SPI1
 #define SPI_CLK_ENABLE()			__SPI1_CLK_ENABLE()
-#define SPI_GPIO_CLK_CLK_ENABLE()   __GPIOB_CLK_ENABLE()
-#define SPI_GPIO_MISO_CLK_ENABLE()  __GPIOB_CLK_ENABLE()
-#define SPI_GPIO_MOSI_CLK_ENABLE()  __GPIOB_CLK_ENABLE()
-#define SPI_GPIO_PORT_SCK           GPIOB
-#define SPI_GPIO_PORT_MISO          GPIOB
-#define SPI_GPIO_PORT_MOSI          GPIOB
-#define SPI_PIN_SCK                 GPIO_PIN_3
-#define SPI_PIN_MISO                GPIO_PIN_4
-#define SPI_PIN_MOSI                GPIO_PIN_5
+#define SPI_GPIO_CLK_CLK_ENABLE()   __GPIOA_CLK_ENABLE()
+#define SPI_GPIO_MISO_CLK_ENABLE()  __GPIOA_CLK_ENABLE()
+#define SPI_GPIO_MOSI_CLK_ENABLE()  __GPIOA_CLK_ENABLE()
+#define SPI_GPIO_PORT_SCK           GPIOA
+#define SPI_GPIO_PORT_MISO          GPIOA
+#define SPI_GPIO_PORT_MOSI          GPIOA
+#define SPI_PIN_SCK                 GPIO_PIN_5
+#define SPI_PIN_MISO                GPIO_PIN_6
+#define SPI_PIN_MOSI                GPIO_PIN_7
 #define SPI_AF                  	GPIO_AF5_SPI1
 
 /* GPIO OUT PORTS **********************************/
