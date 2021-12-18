@@ -10,8 +10,7 @@
 #define __HAL_INTERFACE_H__
 
 /********************************* Include *******************************/
-#include <stdint.h>
-#include <stdbool.h>
+#include "common.h"
 #include "errorCode.h"
 
 #ifdef __cplusplus
@@ -66,6 +65,8 @@ struct stUartConfig
 
 /************************* Function Declaration **************************/
 void 			HALIF_Init 	 			(void);
+
+uint32_t 		HALIF_GetSysTick		(void);
 
 eStatus			HALIF_InitUART1			(const struct stUartConfig *apUart);
 eStatus			HALIF_UART1SendByteSync	(int8_t aData, uint32_t timeoutMs);

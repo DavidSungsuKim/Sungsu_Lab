@@ -7,13 +7,13 @@
  */
 
 /********************************* Include *******************************/
-#include <string.h>
-
 #include "common.h"
 #include "stm32f4xx_hal.h"
 #include "HALInterface.h"
-
 #include "configSTM32.h"
+
+#include "FreeRTOS.h"
+#include "task.h"
 
 /********************************* Const *********************************/
 const uint32_t cFLAG_UART_ERROR = (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE);
@@ -83,9 +83,10 @@ void HALIF_Init(void)
 	ConfigIRQ();
 }
 
-unsigned int HALIF_GetSysTick(void)
+uint32_t HALIF_GetSysTick(void)
 {
-	return HAL_GetTick();
+	volatile TickType_t tick = xTaskGetTickCount();
+	return (uint32_t)tick;
 }
 
 void HALIF_TurnOnLED1(void)

@@ -40,6 +40,7 @@ eStatus	STEP_UNI_moveOneStep(void)
 {
 	eStatus ret = eOK;
 
+	TBD;
 
 	return ret;
 }
@@ -50,12 +51,12 @@ eStatus	STEP_UNI_move(uint32_t aStep)
 	if ( !g_stepCount )
 		return eERR_STEP_COUNT_NOT_DEFINED;
 
-
+	TBD;
 
 	return ret;
 }
 
 static void moveStep(uint32_t aStep)
 {
-
+	TBD;
 }
