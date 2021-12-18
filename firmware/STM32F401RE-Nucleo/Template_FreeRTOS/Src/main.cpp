@@ -14,10 +14,7 @@
 #include "servo.h"
 #include "commPi.h"
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
-#include "semphr.h"
+#include "os.h"
 
 /********************************* Const *********************************/
 
@@ -27,7 +24,7 @@
 #define FW_VERSION			"V00.00.00"
 
 #define TASK_PRIORITY(x) 	(tskIDLE_PRIORITY + x)			// The bigger number the higher priority?
-#define TEST_SPI
+//#define TEST_SPI
 //#define TEST_PWM
 //#define TEST_SERVO
 

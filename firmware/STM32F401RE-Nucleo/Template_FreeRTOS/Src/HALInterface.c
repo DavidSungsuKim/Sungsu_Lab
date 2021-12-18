@@ -12,8 +12,7 @@
 #include "HALInterface.h"
 #include "configSTM32.h"
 
-#include "FreeRTOS.h"
-#include "task.h"
+#include "os.h"
 
 /********************************* Const *********************************/
 const uint32_t cFLAG_UART_ERROR = (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE);
@@ -407,7 +406,10 @@ eStatus	HALIF_TestSPI(void)
 
 	uint8_t bSame = 0;
 	if ( txByte == rxByte )
+	{
 		bSame = 1;
+		_printf("same\r\n");
+	}
 
 	return ret;
 }
