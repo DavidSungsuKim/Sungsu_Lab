@@ -9,7 +9,7 @@
 #include "common.h"
 #include "HALinterface.h"
 
-#define SIZE_BUFF_TIMESTAMP		13
+#define SIZE_BUFF_TIMESTAMP		9
 #define SIZE_BUFF_PRINTF		128
 #define SIZE_BUFF_PRINTF_EX		256
 #define SIZE_MAX_SENTENCE		(SIZE_BUFF_PRINTF - SIZE_BUFF_TIMESTAMP)
@@ -28,7 +28,7 @@ void PrintfUART(const char* str, ...)
 
 	// To make use of variable-length argument lists
     char buf[SIZE_BUFF_PRINTF] = {0,};
-    sprintf(buf, "%12ld ", tick);
+    sprintf(buf, "%8ld ", tick);
 
     va_list ap;
     va_start(ap, str);
@@ -53,7 +53,7 @@ void PrintfUARTEx(const char *file, int line, const char* str, ...)
 
 	// To make use of variable-length argument lists
 	char buf[SIZE_BUFF_PRINTF] = {0,};
-	sprintf(buf, "%12ld ", tick);
+	sprintf(buf, "%8ld ", tick);
 
     va_list ap;
     va_start(ap, str);
