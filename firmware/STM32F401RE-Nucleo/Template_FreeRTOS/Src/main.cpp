@@ -12,6 +12,7 @@
 #include "driver_motor_servo_hs311.h"
 #include "driver_motor_step_unipolar.h"
 #include "servo.h"
+#include "commPi.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -23,7 +24,9 @@
 /********************************* Types *********************************/
 
 /********************************* Macro *********************************/
-#define TASK_PRIORITY(x) (tskIDLE_PRIORITY + x)
+#define FW_VERSION			"V00.00.00"
+
+#define TASK_PRIORITY(x) 	(tskIDLE_PRIORITY + x)			// The bigger number the higher priority?
 #define TEST_SPI
 //#define TEST_PWM
 //#define TEST_SERVO
@@ -35,13 +38,12 @@ static CServo g_servo( 10.0, 1.0, 2.0, 90.0 );
 /**************************** Global Variable ****************************/
 
 /************************* Function Declaration **************************/
-void 	LEDTurnOnTask     	( void *pvParameters );
-void 	LEDTurnOffTask    	( void *pvParameters );
-void	TestTask			( void *pvparameters );
-
-void	TestPWM				( void );
-void	TestSPI				( void );
-void 	TestGPIO			( void );
+static void		Welcome				( void );
+static void 	LEDTurnOnTask     	( void *pvParameters );
+static void 	LEDTurnOffTask    	( void *pvParameters );
+static void		TestTask			( void *pvparameters );
+static void		TestPWM				( void );
+static void 	TestGPIO			( void );
 
 /************************* Function Definition ***************************/
 int main(void)
@@ -60,18 +62,30 @@ int main(void)
 
 	xSemaphoreGive( g_sem );
 
-	// The bigger number the higher priority?
+	xTaskCreate( COMM_PI_task, 		"CommPiTask",		configMINIMAL_STACK_SIZE, NULL, TASK_PRIORITY(1), NULL );
 	xTaskCreate( LEDTurnOnTask,  	"LEDTurnOnTask",  	configMINIMAL_STACK_SIZE, NULL, TASK_PRIORITY(2), NULL );
 	xTaskCreate( LEDTurnOffTask, 	"LEDTurnOffTask", 	configMINIMAL_STACK_SIZE, NULL, TASK_PRIORITY(1), NULL );
 	xTaskCreate( TestTask, 			"TestTask",			configMINIMAL_STACK_SIZE, NULL, TASK_PRIORITY(1), NULL );
 
+	Welcome();
+	_printf("Run scheduler...\r\n");
 	vTaskStartScheduler();
 }
 
-void LEDTurnOnTask( void *pvParameters )
+static void Welcome( void )
 {
-    TickType_t tickWait = portMAX_DELAY;
-    
+	_printf("---------------------------\r\n");
+	_printf("FreeRTOS_F401RE Project\r\n");
+	_printf("---------------------------\r\n");
+	_printf("  version=%s\r\n\r\n", FW_VERSION);
+}
+
+static void LEDTurnOnTask( void *pvParameters )
+{
+	_printf("%s runs...\r\n", __FUNCTION__ );
+
+	TickType_t tickWait = portMAX_DELAY;
+
     for(;;)
     {    
       xSemaphoreTake( g_sem, tickWait );
@@ -87,8 +101,10 @@ void LEDTurnOnTask( void *pvParameters )
     }
 }
 
-void LEDTurnOffTask( void *pvParameters )
+static void LEDTurnOffTask( void *pvParameters )
 {
+	_printf("%s runs...\r\n", __FUNCTION__ );
+
     TickType_t tickWait = portMAX_DELAY;
           
     for(;;)
@@ -106,8 +122,10 @@ void LEDTurnOffTask( void *pvParameters )
     }
 }
 
-void TestTask( void *pvparameters )
+static void TestTask( void *pvparameters )
 {
+	_printf("%s runs...\r\n", __FUNCTION__ );
+
 	for(;;)
 	{
 		vTaskDelay(1000);
@@ -129,7 +147,7 @@ void TestTask( void *pvparameters )
 	}
 }
 
-void TestPWM( void )
+static void TestPWM( void )
 {
 	static uint32_t duty = 0;
 	HALIF_ControlPWM( ePWM_CH1, duty );
@@ -143,7 +161,7 @@ void TestPWM( void )
 	return;
 }
 
-void TestGPIO( void )
+static void TestGPIO( void )
 {
 	static bool bOn = false;
 	bOn = bOn ? false : true;
