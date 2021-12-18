@@ -91,9 +91,6 @@ static void LEDTurnOnTask( void *pvParameters )
       xSemaphoreTake( g_sem, tickWait );
      
       HALIF_TurnOnLED1();
-
-      int test = 1;
-      _printf("LEDTurnOnTask, test=%d\r\n", test);
       vTaskDelay(100);
 
       xSemaphoreGive( g_sem );
@@ -110,14 +107,10 @@ static void LEDTurnOffTask( void *pvParameters )
     for(;;)
     {    
       xSemaphoreTake( g_sem, tickWait );
-     
+
       HALIF_TurnOffLED1();
-
-      int test = 1;
-      _printf("LEDTurnOffTask, test=%d\r\n", test);
-
       vTaskDelay(1000);
-      
+
       xSemaphoreGive( g_sem );
     }
 }
