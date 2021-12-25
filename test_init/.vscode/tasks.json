@@ -8,6 +8,11 @@
 			"args": [
 				"-fdiagnostics-color=always",
 				"-g",
+				"-Wall",
+				"-Wextra",
+				"-std=c++17",
+				"-ggdb",
+				"-pthread",
 				"${file}",
 				"-o",
 				"${workspaceFolder}/bin/test_init"
