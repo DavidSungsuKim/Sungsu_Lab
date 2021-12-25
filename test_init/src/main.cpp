@@ -12,6 +12,7 @@ static int lineGpio = -1;
 void* 	ThreadProc1			(void *arg);
 bool	GetLEDLevel			(int arg, char* args[]);
 void	ConfigureLED		(void);
+void	DeconfigureLED		(void);
 bool	ControlLED			(bool on);
 
 int main (int arg, char* args[])
@@ -27,6 +28,8 @@ int main (int arg, char* args[])
 
 	ret = pthread_join( thread1, NULL );
 	printf("task done...ret=%d\r\n", ret);
+
+	
 
 	return 0;
 }
@@ -58,8 +61,15 @@ bool GetLEDLevel(int arg, char* args[])
 
 void ConfigureLED(void)
 {
+	gpioInitialise();
+
 	lineGpio = 2;
 	gpioSetMode(lineGpio, PI_OUTPUT);
+}
+
+void DeconfigureLED(void)
+{
+	gpioTerminate();
 }
 
 bool ControlLED (bool on)
