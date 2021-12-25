@@ -24,9 +24,10 @@ void* ThreadProc1(void *arg)
 {
 	int sleep_us = 100000;
 	int i = 0;
+	printf("ThreadProc1 has started...\r\n");
 	while(1)
 	{
-		printf("Hello, i=%d\r\n",i++);
+	//	printf("Hello, i=%d\r\n",i++);
 		usleep(sleep_us);
 	}
 
