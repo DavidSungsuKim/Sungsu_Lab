@@ -5,15 +5,26 @@
 #include <sys/time.h>
 #include <pthread.h>
 
-void* ThreadProc1(void *arg);
+#include "pigpio.h"
 
-int main (void)
+static int lineGpio = -1;
+
+void* 	ThreadProc1			(void *arg);
+bool	GetLEDLevel			(int arg, char* args[]);
+void	ConfigureLED		(void);
+bool	ControlLED			(bool on);
+
+int main (int arg, char* args[])
 {
+	ConfigureLED();
+
 	int ret = 0;
 	pthread_t	thread1;
-
 	ret = pthread_create( &thread1, NULL, ThreadProc1, NULL );
 	
+	bool on = GetLEDLevel( arg, args );
+	ControlLED( true );
+
 	ret = pthread_join( thread1, NULL );
 	printf("task done...ret=%d\r\n", ret);
 
@@ -32,4 +43,32 @@ void* ThreadProc1(void *arg)
 	}
 
 	return NULL;
+}
+
+bool GetLEDLevel(int arg, char* args[])
+{
+	bool on = false;
+	if ( arg > 2 )
+	{
+		on = (args[1] == "on") ? true : false;
+	}
+
+	printf("%s on=%d\r\n", __FUNCTION__, on );
+}
+
+void ConfigureLED(void)
+{
+	lineGpio = 2;
+	gpioSetMode(lineGpio, PI_OUTPUT);
+}
+
+bool ControlLED (bool on)
+{
+	bool success = true;
+
+	if ( lineGpio < 0 )
+		return false;
+
+	gpioWrite( lineGpio, on == true ? 1 : 0 );
+	return success;
 }

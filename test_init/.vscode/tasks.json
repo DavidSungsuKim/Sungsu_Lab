@@ -13,6 +13,7 @@
 				"-std=c++17",
 				"-ggdb",
 				"-pthread",
+				"-lpigpio",
 				"${file}",
 				"-o",
 				"${workspaceFolder}/bin/test_init"
