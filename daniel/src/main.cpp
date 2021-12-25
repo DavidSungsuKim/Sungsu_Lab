@@ -7,7 +7,7 @@
 
 int main(int argc, char* argv[])
 {
-	printf("안녕하세요. 김다엘군!\n");
+	printf("Hello, Dael Kim!\n");
 
 	if (argc < 3 )
 	{
