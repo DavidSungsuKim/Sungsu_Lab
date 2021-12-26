@@ -56,7 +56,7 @@ bool GetLEDLevel(int arg, char* args[])
 		on = ( strcmp( args[1], "on") == 0 ) ? true : false;
 	}
 
-	printf("%s on=%d\r\n", __FUNCTION__, on );
+	printf("%s arg=%d on=%d\r\n", __FUNCTION__, arg, on );
 
 	return on;
 }
