@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/times.h>
 #include <sys/time.h>
@@ -24,7 +25,7 @@ int main (int arg, char* args[])
 	ret = pthread_create( &thread1, NULL, ThreadProc1, NULL );
 	
 	bool on = GetLEDLevel( arg, args );
-	ControlLED( true );
+	ControlLED( on );
 
 	ret = pthread_join( thread1, NULL );
 	printf("task done...ret=%d\r\n", ret);
@@ -37,11 +38,9 @@ int main (int arg, char* args[])
 void* ThreadProc1(void *arg)
 {
 	int sleep_us = 100000;
-	int i = 0;
 	printf("ThreadProc1 has started...\r\n");
 	while(1)
 	{
-	//	printf("Hello, i=%d\r\n",i++);
 		usleep(sleep_us);
 	}
 
@@ -53,10 +52,13 @@ bool GetLEDLevel(int arg, char* args[])
 	bool on = false;
 	if ( arg > 2 )
 	{
-		on = (args[1] == "on") ? true : false;
+		printf("arg=%s\r\n", args[1]);
+		on = ( strcmp( args[1], "on") == 0 ) ? true : false;
 	}
 
 	printf("%s on=%d\r\n", __FUNCTION__, on );
+
+	return on;
 }
 
 void ConfigureLED(void)
@@ -79,6 +81,7 @@ bool ControlLED (bool on)
 	if ( lineGpio < 0 )
 		return false;
 
-	gpioWrite( lineGpio, on == true ? 1 : 0 );
+	printf("%s, on=%d\r\n", __FUNCTION__, on );
+	gpioWrite( lineGpio, ( on == true) ? 1 : 0 );
 	return success;
 }
