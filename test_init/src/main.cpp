@@ -42,6 +42,7 @@ void* ThreadProc1(void *arg)
 		ControlLED( true );
 		usleep(sleep_us);
 		ControlLED( false );
+		usleep(sleep_us);
 	}
 
 	return NULL;
