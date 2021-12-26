@@ -50,7 +50,7 @@ void* ThreadProc1(void *arg)
 bool GetLEDLevel(int arg, char* args[])
 {
 	bool on = false;
-	if ( arg > 2 )
+	if ( arg >= 2 )
 	{
 		printf("arg=%s\r\n", args[1]);
 		on = ( strcmp( args[1], "on") == 0 ) ? true : false;
