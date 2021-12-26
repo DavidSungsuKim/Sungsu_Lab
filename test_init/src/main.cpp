@@ -11,7 +11,7 @@
 static int lineGpio = -1;
 
 void* 	ThreadProc1			(void *arg);
-bool	GetLEDLevel			(int arg, char* args[]);
+int		GetLEDTogglePeriod	(int arg, char* args[]);
 void	ConfigureLED		(void);
 void	DeconfigureLED		(void);
 bool	ControlLED			(bool on);
@@ -22,11 +22,9 @@ int main (int arg, char* args[])
 
 	int ret = 0;
 	pthread_t	thread1;
-	ret = pthread_create( &thread1, NULL, ThreadProc1, NULL );
-	
-	bool on = GetLEDLevel( arg, args );
-	ControlLED( on );
 
+	int period_ms = GetLEDTogglePeriod( arg, args );
+	ret = pthread_create( &thread1, NULL, ThreadProc1, &period_ms );
 	ret = pthread_join( thread1, NULL );
 	DeconfigureLED();
 
@@ -37,28 +35,30 @@ int main (int arg, char* args[])
 	
 void* ThreadProc1(void *arg)
 {
-	int sleep_us = 100000;
-	printf("ThreadProc1 has started...\r\n");
+	int sleep_us = *(int*)arg * 1000;
+	printf("ThreadProc1 has started...period=%dus\r\n",sleep_us);
 	while(1)
 	{
+		ControlLED( true );
 		usleep(sleep_us);
+		ControlLED( false );
 	}
 
 	return NULL;
 }
 
-bool GetLEDLevel(int arg, char* args[])
+int GetLEDTogglePeriod(int arg, char* args[])
 {
-	bool on = false;
+	int period_ms = 0;
 	if ( arg >= 2 )
 	{
-		printf("arg=%s\r\n", args[1]);
-		on = ( strcmp( args[1], "on") == 0 ) ? true : false;
+		period_ms = atol( args[1] );
+		printf("period=%d from arg=%s\r\n", period_ms, args[1]);
 	}
 
-	printf("%s arg=%d on=%d\r\n", __FUNCTION__, arg, on );
+	printf("%s arg=%d period=%dms\r\n", __FUNCTION__, arg, period_ms );
 
-	return on;
+	return period_ms;
 }
 
 void ConfigureLED(void)
