@@ -28,9 +28,9 @@ int main (int arg, char* args[])
 	ControlLED( on );
 
 	ret = pthread_join( thread1, NULL );
-	printf("task done...ret=%d\r\n", ret);
+	DeconfigureLED();
 
-	
+	printf("task done...ret=%d\r\n", ret);
 
 	return 0;
 }
@@ -71,6 +71,7 @@ void ConfigureLED(void)
 
 void DeconfigureLED(void)
 {
+	ControlLED( false );
 	gpioTerminate();
 }
 
