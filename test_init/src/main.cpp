@@ -83,7 +83,6 @@ bool ControlLED (bool on)
 	if ( lineGpio < 0 )
 		return false;
 
-//	printf("%s, on=%d\r\n", __FUNCTION__, on );
 	gpioWrite( lineGpio, ( on == true) ? 1 : 0 );
 	return success;
 }
