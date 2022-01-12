@@ -12,16 +12,18 @@ set(SOURCE
 		
 set(OUTPUT
 		${OUTPUT_DIR}/program)
-		
+
+# This is optional.
 #set(EXE_FILE program)
- 
+
 cmake_minimum_required(VERSION 2.8)
 message(${CMAKE_PROJECT_NAME})
 add_compile_options(-W -Wall)
  
 include_directories(${COMMON_DIR})
 add_executable(${OUTPUT} ${SOURCE})
- 
-install(TARGETS ${OUTPUT} ${LIB_NAME}
-        RUNTIME DESTINATION /home/bin
-        LIBRARY DESTINATION /home/lib)
+
+# These are optional. 
+#install(TARGETS ${OUTPUT} ${LIB_NAME}
+#        RUNTIME DESTINATION /home/bin
+#        LIBRARY DESTINATION /home/lib)
