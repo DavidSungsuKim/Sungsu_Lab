@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
-project(practice_googleTest)
+project(practice_googleTest2)
+
+get_filename_component(PARENT_DIR ${CMAKE_SOURCE_DIR} DIRECTORY)
 
 # GoogleTest requires at least C++11
 set(CMAKE_CXX_STANDARD 11)
@@ -13,11 +15,15 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+set(INCLUDE_DIR ${PARENT_DIR}/app/include)
+set(SOURCE_DIR ${PARENT_DIR}/app/source)
+
 enable_testing()
 
 add_executable(
 	hello_test
 	hello_test.cpp
+	${SOURCE_DIR}/app.cpp
 )
 
 target_link_libraries(
@@ -25,5 +31,7 @@ target_link_libraries(
 	gtest_main
 )
 
+include_directories(${INCLUDE_DIR})
 include(GoogleTest)
+		
 gtest_discover_tests(hello_test)

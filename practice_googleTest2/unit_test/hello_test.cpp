@@ -2,6 +2,8 @@
 #include <gtest/gtest.h>
 #include <math.h>
 
+#include "app.hpp"
+
 class MyFixture : public ::testing::Test
 {
 protected:
@@ -23,7 +25,7 @@ TEST_F(MyFixture, TestUsingFixture)
 {
 	int j = i;
 
-	int k = j;// returnOne();
+	int k = AppFunctionOne();
 
 	EXPECT_EQ(j, k);
 }
