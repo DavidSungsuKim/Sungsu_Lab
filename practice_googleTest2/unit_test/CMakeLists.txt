@@ -24,6 +24,7 @@ add_executable(
 	hello_test
 	hello_test.cpp
 	${SOURCE_DIR}/app.cpp
+	${SOURCE_DIR}/hardware.cpp	
 )
 
 target_link_libraries(
