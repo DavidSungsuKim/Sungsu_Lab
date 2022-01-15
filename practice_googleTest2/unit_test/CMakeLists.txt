@@ -17,22 +17,33 @@ FetchContent_MakeAvailable(googletest)
 
 set(INCLUDE_DIR ${PARENT_DIR}/app/include)
 set(SOURCE_DIR ${PARENT_DIR}/app/source)
+set(MOCK_DIR ${PARENT_DIR}/unit_test/mocks)
 
 enable_testing()
 
 add_executable(
+	# binary
 	hello_test
+	
+	# tests
 	hello_test.cpp
+	
+	# sources
 	${SOURCE_DIR}/app.cpp
-	${SOURCE_DIR}/hardware.cpp	
+	
+	# mocks
+	${MOCK_DIR}/mockHardware.cpp
 )
 
 target_link_libraries(
 	hello_test
 	gtest_main
+	gmock
 )
 
-include_directories(${INCLUDE_DIR})
+include_directories(${INCLUDE_DIR}
+					${MOCK_DIR})
+					
 include(GoogleTest)
 		
 gtest_discover_tests(hello_test)
