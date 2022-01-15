@@ -14,5 +14,5 @@ int AppFunctionOne(void)
 		printf("error=%d\r\n", ret);
 	}
 
-	return 1;
+	return ret;
 }

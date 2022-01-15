@@ -28,18 +28,23 @@ public:
 	MockHardware m_mockHardware;
 };
 
-TEST_F(MyFixture, TestUsingFixture)
-{
-	int j = i;
-
-	int k = AppFunctionOne();
-
-	EXPECT_EQ(j, k);
-}
-
 TEST(HelloTest, TestPow)
 {
 	double i = pow(2, 2);
 
 	EXPECT_EQ(i, 4);
+}
+
+TEST_F(MyFixture, TestUsingFixture)
+{
+	int j = 1;
+
+	EXPECT_EQ(j, i);
+}
+
+TEST_F(MyFixture, TestUsingMock)
+{
+	int ret = AppFunctionOne();
+
+	EXPECT_EQ(ret, 0);
 }
