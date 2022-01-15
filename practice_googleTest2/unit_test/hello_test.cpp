@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include <math.h>
 
-#include "app.hpp"
+#include "app.h"
 
 class MyFixture : public ::testing::Test
 {
