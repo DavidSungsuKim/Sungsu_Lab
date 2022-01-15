@@ -10,7 +10,7 @@ public:
 class MockHardware : public HardwareIF
 {
 public:
-	MOCK_METHOD1(WriteRegister, int(int));
+	MOCK_METHOD(int, WriteRegister, (int));
 };
 
 extern MockHardware *g_mockHardware;
