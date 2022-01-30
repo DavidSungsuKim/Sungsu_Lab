@@ -22,6 +22,18 @@ private:
 	std::list<long double> m_list;
 };
 
+class CBase
+{
+public:
+	virtual int func1(void) const { return 0; }
+};
+
+class CDerived : public CBase
+{
+public:
+	int func1(void) const override { return 1; } 
+};
+
 class CModernCpp
 {
 public:
@@ -45,6 +57,16 @@ public:
 	void Tuple();
 	void Delete();
 	void DeleteForNonMembers();
+	void Override();
+	void ConstIterator();
+	void NoExcept();
+	void ConstExpr();
+	
+	int  GetValue(int parameter) const { return parameter * 2; }
+	constexpr int  GetValue(int parameter) { value = 1; return parameter * 2; }
+
+protected:
+	int value;
 };
 
 template<typename T>

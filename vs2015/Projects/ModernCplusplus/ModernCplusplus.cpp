@@ -46,6 +46,10 @@ void TestModernCpp()
 	modern.Tuple();
 	modern.Delete();
 	modern.DeleteForNonMembers();
+	modern.Override();
+	modern.ConstIterator();
+	modern.NoExcept();
+	modern.ConstExpr();
 }
 
 void TestModernTemplate()

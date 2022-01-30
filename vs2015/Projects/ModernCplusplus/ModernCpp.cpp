@@ -284,7 +284,7 @@ void CModernCpp::Tuple()
 	MyTuple tuple1 = { 1,2,3.4 };
 
 	auto x = std::get<2>(tuple1);
-	std::cout << x;
+	std::cout << x << std::endl;
 }
 
 void funcNonMember(int a)  {};
@@ -314,3 +314,100 @@ void CModernCpp::Delete()
 //	x1.funcDoNotUse();
 }
 
+void CModernCpp::Override()
+{
+	CDerived derived;
+	CBase* base = &derived;
+
+	std::cout<<base->func1();
+}
+
+void CModernCpp::ConstIterator()
+{
+	std::cout << __FUNCTION__ << std::endl;
+
+	std::vector<int> myNumbers;
+	myNumbers.push_back(1);
+	myNumbers.push_back(2);
+	myNumbers.push_back(3);
+
+	std::vector<int>::const_iterator it = std::find(myNumbers.cbegin(), myNumbers.cend(), 2);
+	myNumbers.insert(it, 0);
+
+	for (it = myNumbers.begin(); it < myNumbers.end(); it++)
+	{
+		std::cout << *it;
+	}
+}
+
+class CExceptionSimple
+{
+public:
+	CExceptionSimple(int i) : causeType(i) {}
+	int RetrieveCause(void) { return causeType;  }
+
+private:
+	int causeType;
+};
+
+class ClassNoComplain 
+{
+public:
+
+#define NO_EXCEPTION
+#if defined (NO_EXCEPTION)
+	void Func1() noexcept {} 
+#else
+	void Func1() noexcept { throw CExceptionSimple(1); }
+#endif
+};
+
+void CModernCpp::NoExcept()
+{
+	std::cout << __FUNCTION__ << std::endl;
+	try
+	{
+		ClassNoComplain inst;
+		inst.Func1();
+	}
+	catch (CExceptionSimple &a)
+	{
+		std::cout << "Got an exception";
+		std::cout << a.RetrieveCause();
+	}
+
+	std::cout << "...end" << std::endl;
+}
+
+#include <array>
+
+void CModernCpp::ConstExpr()
+{
+	std::cout << __FUNCTION__ << std::endl;
+
+#if 1
+	constexpr int size = 10;
+	std::array<int, size> myArray;
+#endif 
+
+#if 0
+	const int x = 10;
+	constexpr int size = x;
+	std::array<int, size> myArray;
+#endif 
+
+#if 0
+	constexpr int x = 10;
+	constexpr int size = x;
+	std::array<int, size> myArray;
+#endif
+
+#if 0 // not working
+	int x = 10;
+	const int size = x;
+	std::array<int, size> myArray;
+#endif
+
+	int parameter = 1;
+	int value = GetValue(parameter);
+}
