@@ -411,3 +411,70 @@ void CModernCpp::ConstExpr()
 	int parameter = 1;
 	int value = GetValue(parameter);
 }
+
+#include <mutex>
+class CTestStdMutex
+{
+public:
+	struct Time
+	{
+		int hours;
+		int minutes;
+		int seconds;
+		Time() { hours = 0, minutes = 0, seconds = 0;  }
+	};
+
+	CTestStdMutex() : time() {}
+	Time GetCurrentTime(void) const
+	{
+		std::lock_guard<std::mutex> guard(m);		
+		if (time.seconds++ > 60)
+		{
+			time.seconds = 0;
+			if (time.minutes++ > 60)
+			{
+				time.minutes = 0;
+				time.hours++;
+			}
+		}
+		return time;
+	}
+
+protected:
+	mutable std::mutex m;
+	mutable struct Time	time;
+};
+
+void CModernCpp::StdMutex()
+{
+	CTestStdMutex instance;
+	instance.GetCurrentTime();
+}
+
+
+class CPerson
+{
+public:
+	CPerson() : height(0), weight(0) {}
+	CPerson(int aHeight, int aWeight) : height(aHeight), weight(aWeight) {}
+public:
+	int height;
+	int weight;
+};
+
+class CTestStdAtomic
+{
+public:
+	void GetCallCount(void) { count++; }
+
+protected:
+	std::atomic<int> count;
+	std::atomic<CPerson> myself;
+};
+
+#include <atomic>
+void CModernCpp::StdAtomic()
+{
+	CTestStdAtomic instance;
+	instance.GetCallCount();
+}

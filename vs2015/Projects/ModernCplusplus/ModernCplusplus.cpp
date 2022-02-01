@@ -50,6 +50,8 @@ void TestModernCpp()
 	modern.ConstIterator();
 	modern.NoExcept();
 	modern.ConstExpr();
+	modern.StdMutex();
+	modern.StdAtomic();
 }
 
 void TestModernTemplate()
