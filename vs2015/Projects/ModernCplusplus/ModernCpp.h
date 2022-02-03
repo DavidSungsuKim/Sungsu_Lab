@@ -63,6 +63,7 @@ public:
 	void ConstExpr();
 	void StdMutex();
 	void StdAtomic();
+	void UniquePointer();
 	
 	int  GetValue(int parameter) const { return parameter * 2; }
 	constexpr int  GetValue(int parameter) { value = 1; return parameter * 2; }

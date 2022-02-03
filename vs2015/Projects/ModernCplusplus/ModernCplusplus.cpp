@@ -52,6 +52,7 @@ void TestModernCpp()
 	modern.ConstExpr();
 	modern.StdMutex();
 	modern.StdAtomic();
+	modern.UniquePointer();
 }
 
 void TestModernTemplate()

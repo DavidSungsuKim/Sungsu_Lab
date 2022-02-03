@@ -478,3 +478,73 @@ void CModernCpp::StdAtomic()
 	CTestStdAtomic instance;
 	instance.GetCallCount();
 }
+
+class CTestUniquePtr
+{
+public:
+	CTestUniquePtr() : a(0) { }
+	~CTestUniquePtr() { }
+
+	int a;
+};
+
+void CModernCpp::UniquePointer()
+{
+#if 0 // not recommended
+	CTestUniquePtr* instancePtr = new CTestUniquePtr;
+	
+	std::unique_ptr<CTestUniquePtr> ptr(instancePtr);
+	ptr.get()->a++;
+
+	std::unique_ptr<CTestUniquePtr> ptrSame(instancePtr);
+	ptrSame.get()->a++;
+
+#endif
+
+#if 0 // should not! 
+
+	CTestUniquePtr instance;
+	std::unique_ptr<CTestUniquePtr> ptr(&instance);
+
+	ptr.get()->a = 1;
+#endif
+
+#if 0
+	std::unique_ptr<CTestUniquePtr> ptr(new CTestUniquePtr);
+
+	{
+		ptr.get()->a = 1;
+		ptr = std::unique_ptr<CTestUniquePtr>(new CTestUniquePtr);
+		ptr.get()->a = 2;
+	}
+#endif
+
+#if 0
+	{
+		ptr = std::unique_ptr<CTestUniquePtr>(new CTestUniquePtr);
+		ptr.get()->a = 1;
+	}
+#endif
+
+#if 1
+	auto deleter = [](CTestUniquePtr* p)
+	{
+		std::cout << "deleter called" << std::endl;
+		delete p;
+	};
+
+	auto deleter2 = [](CTestUniquePtr* p)
+	{
+		std::cout << "deleter called" << std::endl;
+		delete p;
+	};
+	
+	{
+		std::unique_ptr<CTestUniquePtr, decltype(deleter)> ptr(new CTestUniquePtr, deleter);
+		ptr.get()->a = 1;
+	}
+#endif
+
+
+	int x = 0;
+}
