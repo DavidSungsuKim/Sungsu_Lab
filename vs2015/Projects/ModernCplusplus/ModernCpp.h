@@ -45,6 +45,21 @@ public:
 	void Tuple();
 	void Delete();
 	void DeleteForNonMembers();
+	void Override();
+	void ConstIterator();
+	void NoExcept();
+	void ConstExpr();
+	void StdMutex();
+	void StdAtomic();
+	void UniquePointer();
+	void DesignatedInitializer();
+	void SharedPointer();
+	
+	int  GetValue(int parameter) const { return parameter * 2; }
+	constexpr int  GetValue(int parameter) { value = 1; return parameter * 2; }
+
+protected:
+	int value;
 };
 
 template<typename T>

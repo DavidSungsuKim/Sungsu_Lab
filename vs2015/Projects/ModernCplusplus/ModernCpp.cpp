@@ -4,8 +4,12 @@
 #include <vector>
 #include "ModernCpp.h"
 
+#define PRINTOUT_FUNC_NAME std::cout << __FUNCTION__ << std::endl; 
+
 void CModernCpp::TypeDeduction()
 {
+	PRINTOUT_FUNC_NAME;
+
 	int x = 0;
 
 	int* y = &x;
@@ -18,6 +22,8 @@ void func(int x) { /* don't do anything */ }
 
 void CModernCpp::Auto()
 {
+	PRINTOUT_FUNC_NAME;
+
 #if 0
 	auto a = 0;
 	auto b = 0.0;
@@ -57,6 +63,8 @@ void CModernCpp::Auto()
 
 void CModernCpp::UniversalReference()
 {
+	PRINTOUT_FUNC_NAME;
+
 	int i = 0;
 	auto& r = i;
 	r = 1;        
@@ -73,6 +81,8 @@ void CModernCpp::UniversalReference()
 
 void CModernCpp::Initialization()
 {
+	PRINTOUT_FUNC_NAME;
+
 	auto a = 0;
 	auto b = { 0 }; // std::initializer_list<int>
 	auto c = { 1, 2 };
@@ -83,12 +93,16 @@ void CModernCpp::Initialization()
 
 auto CModernCpp::ReturnAuto( int a )
 {	
+	PRINTOUT_FUNC_NAME;
+
 	auto ret = a;
 	return ret;
 }
 
 void CModernCpp::DeclType()
 {
+	PRINTOUT_FUNC_NAME;
+
 #if 0
 	int x = 0;
 	decltype(x)	y = 1;
@@ -138,6 +152,8 @@ void CModernCpp::StdFunction()
 
 void CModernCpp::LamdaExpression()
 {
+	PRINTOUT_FUNC_NAME;
+
 	int x1 = 1;
 	int x2 = 2;
 
@@ -166,6 +182,8 @@ void CModernCpp::LamdaExpression()
 
 void CModernCpp::LamdaExpressionForDisassembly()
 {
+	PRINTOUT_FUNC_NAME;
+
 	int x1 = 1;
 
 	auto lamdaTest1 = [&](int a)
@@ -179,6 +197,8 @@ void CModernCpp::LamdaExpressionForDisassembly()
 
 void CModernCpp::ParentheseBraces()
 {
+	PRINTOUT_FUNC_NAME;
+
 	int x{ 0 }; // braces, allowed only in modern C++
 	int y = 0; 
 	int z(0); // parentheses
@@ -201,6 +221,8 @@ void CModernCpp::ParentheseBraces()
 
 void CModernCpp::InitializerList()
 {
+	PRINTOUT_FUNC_NAME;
+
 	int num;
 	CTestClass a1{ 1,2 };
 	num = a1.getNumElement();
@@ -217,12 +239,16 @@ void CModernCpp::InitializerList()
 
 void CModernCpp::NullPtr()
 {
+	PRINTOUT_FUNC_NAME;
+
 	CTestClass  testNull;
 	testNull.func(0);
 }
 
 void CModernCpp::ScopedEnums()
 {
+	PRINTOUT_FUNC_NAME;
+
 #if 0 // not working
 	enum color
 	{
@@ -279,6 +305,8 @@ void CModernCpp::ScopedEnums()
 
 void CModernCpp::Tuple()
 {
+	PRINTOUT_FUNC_NAME;
+
 	using MyTuple = std::tuple<int, double, long>;
 
 	MyTuple tuple1 = { 1,2,3.4 };
@@ -293,6 +321,8 @@ void funcNonMember(bool a) = delete;
 
 void CModernCpp::DeleteForNonMembers()
 {
+	PRINTOUT_FUNC_NAME;
+
 	funcNonMember(1);
 }
 
@@ -309,8 +339,346 @@ void x::funcDoNotUse<void>(void*) = delete;
 
 void CModernCpp::Delete()
 {
+	PRINTOUT_FUNC_NAME;
+
 	x x1;
 	x1.func();
 //	x1.funcDoNotUse();
 }
 
+class CBase
+{
+public:
+	virtual int func1(void) const { return 0; }
+};
+
+class CDerived : public CBase
+{
+public:
+	int func1(void) const { return 1; } // CBase::func1 À» override
+};
+
+void CModernCpp::Override()
+{
+	PRINTOUT_FUNC_NAME;
+
+	CDerived derived;
+	CBase* base = &derived;
+
+	std::cout<<base->func1();
+}
+
+void CModernCpp::ConstIterator()
+{
+	PRINTOUT_FUNC_NAME;
+
+	std::vector<int> myNumbers;
+	myNumbers.push_back(1);
+	myNumbers.push_back(2);
+	myNumbers.push_back(3);
+
+	std::vector<int>::const_iterator it = std::find(myNumbers.cbegin(), myNumbers.cend(), 2);
+	myNumbers.insert(it, 0);
+
+	for (it = myNumbers.begin(); it < myNumbers.end(); it++)
+	{
+		std::cout << *it;
+	}
+}
+
+class CExceptionSimple
+{
+public:
+	CExceptionSimple(int i) : causeType(i) {}
+	int RetrieveCause(void) { return causeType;  }
+
+private:
+	int causeType;
+};
+
+class ClassNoComplain 
+{
+public:
+
+#define NO_EXCEPTION
+#if defined (NO_EXCEPTION)
+	void Func1() noexcept {} 
+#else
+	void Func1() noexcept { throw CExceptionSimple(1); }
+#endif
+};
+
+void CModernCpp::NoExcept()
+{
+	PRINTOUT_FUNC_NAME;
+
+	try
+	{
+		ClassNoComplain inst;
+		inst.Func1();
+	}
+	catch (CExceptionSimple &a)
+	{
+		std::cout << "Got an exception";
+		std::cout << a.RetrieveCause();
+	}
+
+	std::cout << "...end" << std::endl;
+}
+
+#include <array>
+
+void CModernCpp::ConstExpr()
+{
+	PRINTOUT_FUNC_NAME;
+#if 1
+	constexpr int size = 10;
+	std::array<int, size> myArray;
+#endif 
+
+#if 0
+	const int x = 10;
+	constexpr int size = x;
+	std::array<int, size> myArray;
+#endif 
+
+#if 0
+	constexpr int x = 10;
+	constexpr int size = x;
+	std::array<int, size> myArray;
+#endif
+
+#if 0 // not working
+	int x = 10;
+	const int size = x;
+	std::array<int, size> myArray;
+#endif
+
+	int parameter = 1;
+	int value = GetValue(parameter);
+}
+
+#include <mutex>
+class CTestStdMutex
+{
+public:
+	struct Time
+	{
+		int hours;
+		int minutes;
+		int seconds;
+		Time() { hours = 0, minutes = 0, seconds = 0;  }
+	};
+
+	CTestStdMutex() : time() {}
+	Time GetCurrentTime(void) const
+	{
+		std::lock_guard<std::mutex> guard(m);		
+		if (time.seconds++ > 60)
+		{
+			time.seconds = 0;
+			if (time.minutes++ > 60)
+			{
+				time.minutes = 0;
+				time.hours++;
+			}
+		}
+		return time;
+	}
+
+protected:
+	mutable std::mutex m;
+	mutable struct Time	time;
+};
+
+void CModernCpp::StdMutex()
+{
+	PRINTOUT_FUNC_NAME;
+	CTestStdMutex instance;
+	instance.GetCurrentTime();
+}
+
+
+class CPerson
+{
+public:
+	CPerson() : height(0), weight(0) {}
+	CPerson(int aHeight, int aWeight) : height(aHeight), weight(aWeight) {}
+public:
+	int height;
+	int weight;
+};
+
+class CTestStdAtomic
+{
+public:
+	void GetCallCount(void) { count++; }
+
+protected:
+	std::atomic<int> count;
+	std::atomic<CPerson> myself;
+};
+
+#include <atomic>
+void CModernCpp::StdAtomic()
+{
+	PRINTOUT_FUNC_NAME;
+	CTestStdAtomic instance;
+	instance.GetCallCount();
+}
+
+class CTestUniquePtr
+{
+public:
+	CTestUniquePtr() : a(0) { }
+	~CTestUniquePtr() { }
+
+	int a;
+};
+
+void CModernCpp::UniquePointer()
+{
+	PRINTOUT_FUNC_NAME;
+
+#if 0 // not recommended
+	CTestUniquePtr* instancePtr = new CTestUniquePtr;
+	
+	std::unique_ptr<CTestUniquePtr> ptr(instancePtr);
+	ptr.get()->a++;
+
+	std::unique_ptr<CTestUniquePtr> ptrSame(instancePtr);
+	ptrSame.get()->a++;
+
+#endif
+
+#if 0 // should not! 
+
+	CTestUniquePtr instance;
+	std::unique_ptr<CTestUniquePtr> ptr(&instance);
+
+	ptr.get()->a = 1;
+#endif
+
+#if 0
+	std::unique_ptr<CTestUniquePtr> ptr(new CTestUniquePtr);
+
+	{
+		ptr.get()->a = 1;
+		ptr = std::unique_ptr<CTestUniquePtr>(new CTestUniquePtr);
+		ptr.get()->a = 2;
+	}
+#endif
+
+#if 0
+	{
+		ptr = std::unique_ptr<CTestUniquePtr>(new CTestUniquePtr);
+		ptr.get()->a = 1;
+	}
+#endif
+
+#if 1
+	auto deleter = [](CTestUniquePtr* p)
+	{
+		std::cout << "deleter called" << std::endl;
+		delete p;
+	};
+
+	auto deleter2 = [](CTestUniquePtr* p)
+	{
+		std::cout << "deleter called" << std::endl;
+		delete p;
+	};
+	
+	{
+		std::unique_ptr<CTestUniquePtr, decltype(deleter)> ptr(new CTestUniquePtr, deleter);
+		ptr.get()->a = 1;
+	}
+#endif
+
+
+	int x = 0;
+}
+
+typedef struct
+{
+	uint32_t version;
+	union
+	{
+		struct
+		{
+			uint8_t bit1 : 1;
+			uint8_t reserved : 7;
+		}bit;
+		uint8_t byte;
+	}option;
+
+} VERSION;
+
+static VERSION myVersion =
+{
+	0x11223344,
+	0x01,
+	0xfe
+};
+
+static VERSION myVersion2 =
+{
+	.version = 0x11223344,
+	.option = 0xff
+};
+
+void CModernCpp::DesignatedInitializer()
+{
+	PRINTOUT_FUNC_NAME;
+	VERSION versionLocal = myVersion;
+}
+
+class ClassForSharedPtr
+{
+public:
+	~ClassForSharedPtr()
+	{
+		std::cout << __FUNCTION__ << ": data=" << data << std::endl;
+	}
+	void SetData(int value) { data = value; }
+
+private:
+	int data;
+
+};
+
+void CModernCpp::SharedPointer()
+{
+	PRINTOUT_FUNC_NAME;
+
+	{
+		std::shared_ptr<ClassForSharedPtr> ptr1(new ClassForSharedPtr);
+		{
+			ptr1.get()->SetData(1);
+			std::shared_ptr<ClassForSharedPtr> ptr2(ptr1);
+			ptr2.get()->SetData(2);
+		}
+	}
+
+#if 0 // unrecommented usgae
+	{
+		ClassForSharedPtr* instance = new ClassForSharedPtr;		
+		std::shared_ptr<ClassForSharedPtr> ptr1(instance);
+		{
+			std::shared_ptr<ClassForSharedPtr> ptr2(instance);
+		}
+	}
+#endif
+
+#if 0 // still unrecommented usgae
+	{
+		ClassForSharedPtr* instance = new ClassForSharedPtr;
+		std::shared_ptr<ClassForSharedPtr> ptr1(instance);
+		{
+			std::shared_ptr<ClassForSharedPtr> ptr2(ptr1);
+		}
+	}
+#endif
+
+	int x = 1;
+}
