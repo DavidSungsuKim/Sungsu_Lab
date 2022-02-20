@@ -243,6 +243,8 @@ void CModernCpp::NullPtr()
 
 	CTestClass  testNull;
 	testNull.func(0);
+
+	testNull.func(nullptr);
 }
 
 void CModernCpp::ScopedEnums()
@@ -681,4 +683,106 @@ void CModernCpp::SharedPointer()
 #endif
 
 	int x = 1;
+}
+
+class ClassForPtrs
+{
+public:
+	~ClassForPtrs()
+	{
+		std::cout << __FUNCTION__ << ": data=" << data << std::endl;
+	}
+	void SetData(int value) { data = value; }
+
+private:
+	int data;
+};
+
+void CModernCpp::WeakPointer()
+{
+#if 0 // not allowed
+	{
+		ClassForPtrs* instance = new ClassForPtrs;
+		std::weak_ptr<ClassForPtrs> ptrWeak(instance);
+	}
+#endif
+
+	{
+		std::shared_ptr<ClassForPtrs> ptr(new ClassForPtrs);
+		std::weak_ptr<ClassForPtrs> ptrWeak(ptr);
+		if (ptrWeak.expired())
+		{
+			printf("expired#1\r\n");
+		}
+
+		ptr = 0;// nullptr;
+
+		if (ptrWeak.expired())
+		{
+			printf("expired#2\r\n");
+		}
+	}
+
+	{
+		std::shared_ptr<ClassForPtrs> ptr1(new ClassForPtrs);		
+		std::weak_ptr<ClassForPtrs> ptrWeak(ptr1);
+		std::shared_ptr<ClassForPtrs> ptr2 = ptrWeak.lock();
+		ptr1 = nullptr;
+
+		if (ptrWeak.expired())
+		{
+			printf("expired#1\r\n");
+		}
+
+		ptr2 = nullptr;
+		
+		if (ptrWeak.expired())
+		{
+			printf("expired#2\r\n");
+		}
+	}
+
+	{
+		std::shared_ptr<ClassForPtrs> ptr1(new ClassForPtrs);
+		ptr1 = nullptr;
+		std::weak_ptr<ClassForPtrs> ptrWeak(ptr1);
+
+		if (ptrWeak.expired())
+		{
+			printf("expired\r\n");
+		}
+	}
+
+	{
+		std::shared_ptr<ClassForPtrs> ptr1(new ClassForPtrs);
+		if (!ptr1.get())
+		{
+			printf("dangling#1\r\n");
+		}
+
+		ptr1 = nullptr;
+
+		if (!ptr1.get())
+		{
+			printf("dangling#2\r\n");
+		}
+	}
+
+	{
+		ClassForPtrs* instance = new ClassForPtrs;
+		std::shared_ptr<ClassForPtrs> ptr1(instance);
+		std::weak_ptr<ClassForPtrs> ptrWeak(ptr1);
+
+		delete instance;
+
+		if (!ptr1.get())
+		{
+			printf("dangling#2\r\n");
+		}
+
+		if (ptrWeak.expired())
+		{
+			printf("expired#2\r\n");
+		}
+	}
 }

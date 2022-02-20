@@ -55,6 +55,7 @@ void TestModernCpp()
 	modern.UniquePointer();
 	modern.DesignatedInitializer();
 	modern.SharedPointer();
+	modern.WeakPointer();
 }
 
 void TestModernTemplate()

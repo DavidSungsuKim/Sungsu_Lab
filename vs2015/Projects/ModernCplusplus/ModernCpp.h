@@ -13,9 +13,9 @@ public:
 	int getValue()		{ return m_a; }
 	int getNumElement()	{ return m_list.size();  }
 
-	void func(int) { };
-	void func(bool) { };
-	void func(void*) { };
+	void func(int)		{ printf("func#1\r\n"); };
+	void func(bool)		{ printf("func#2\r\n"); };
+	void func(void*)	{ printf("func#3\r\n"); }
 
 private:
 	int m_a;
@@ -54,6 +54,7 @@ public:
 	void UniquePointer();
 	void DesignatedInitializer();
 	void SharedPointer();
+	void WeakPointer();
 	
 	int  GetValue(int parameter) const { return parameter * 2; }
 	constexpr int  GetValue(int parameter) { value = 1; return parameter * 2; }
