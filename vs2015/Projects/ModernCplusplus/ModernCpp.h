@@ -55,7 +55,9 @@ public:
 	void DesignatedInitializer();
 	void SharedPointer();
 	void WeakPointer();
-	
+	void MakeShared();
+	void MoveAndForward();
+
 	int  GetValue(int parameter) const { return parameter * 2; }
 	constexpr int  GetValue(int parameter) { value = 1; return parameter * 2; }
 

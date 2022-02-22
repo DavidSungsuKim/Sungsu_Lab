@@ -56,6 +56,8 @@ void TestModernCpp()
 	modern.DesignatedInitializer();
 	modern.SharedPointer();
 	modern.WeakPointer();
+	modern.MakeShared();
+	modern.MoveAndForward();
 }
 
 void TestModernTemplate()

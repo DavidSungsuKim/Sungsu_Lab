@@ -700,6 +700,8 @@ private:
 
 void CModernCpp::WeakPointer()
 {
+	PRINTOUT_FUNC_NAME;
+
 #if 0 // not allowed
 	{
 		ClassForPtrs* instance = new ClassForPtrs;
@@ -768,6 +770,7 @@ void CModernCpp::WeakPointer()
 		}
 	}
 
+#if 0 // test
 	{
 		ClassForPtrs* instance = new ClassForPtrs;
 		std::shared_ptr<ClassForPtrs> ptr1(instance);
@@ -784,5 +787,78 @@ void CModernCpp::WeakPointer()
 		{
 			printf("expired#2\r\n");
 		}
+	}
+#endif
+}
+
+void CModernCpp::MakeShared()
+{
+	PRINTOUT_FUNC_NAME;
+
+	// When using shared_ptr
+	{
+		std::shared_ptr<ClassForPtrs> ptr1(new ClassForPtrs);
+		ptr1.get()->SetData(1);
+
+		std::shared_ptr<ClassForPtrs> ptr2(ptr1);
+		ptr1 = nullptr;
+
+		ptr2.get()->SetData(2);
+	}
+
+	// When making it shared directly
+	{
+		auto ptr1 = std::make_shared<ClassForPtrs>();
+		ptr1.get()->SetData(1);
+
+		std::shared_ptr<ClassForPtrs> ptr2(ptr1);
+		ptr1 = nullptr;
+
+		ptr2.get()->SetData(2);
+	}
+}
+
+class ClassForMoveForward
+{
+public:
+	ClassForMoveForward(std::string str) : name(str) { printf("%s\r\n", __FUNCTION__); }
+	ClassForMoveForward(int value) : data(value) { printf("%s\r\n", __FUNCTION__); }
+	ClassForMoveForward(const ClassForMoveForward& rhs)	// copy ctor
+	{
+		printf("copy ctor\r\n");
+	}	
+
+	ClassForMoveForward(ClassForMoveForward&& rhs)		// move ctor
+	{
+		printf("move ctor\r\n");
+	}
+
+	std::string name;
+	int data;
+};
+
+void CModernCpp::MoveAndForward()
+{
+	// without std::move()
+	{
+		ClassForMoveForward a("Jesus Chist The Savior");		// copy ctor is called
+		ClassForMoveForward b = a;
+	}
+
+	// with std::move()
+	{
+		ClassForMoveForward a("Jesus Chist The Savior");
+		ClassForMoveForward b = std::move(a); // move ctor is called
+	}
+
+	{
+		ClassForMoveForward a("Jesus Chist The Savior");
+		ClassForMoveForward b = std::forward<ClassForMoveForward>(a);
+	}
+
+	{
+		int value = 1;
+		ClassForMoveForward a(value);
+		ClassForMoveForward b = std::forward<ClassForMoveForward>(a);
 	}
 }
