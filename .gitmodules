@@ -1,0 +1,3 @@
+[submodule "firmware/CanOpenSTM32/CANopenNode"]
+	path = firmware/CanOpenSTM32/CANopenNode
+	url = https://github.com/CANopenNode/CANopenNode
