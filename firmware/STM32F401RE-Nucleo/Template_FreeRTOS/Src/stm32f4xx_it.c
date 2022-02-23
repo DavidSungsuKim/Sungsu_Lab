@@ -38,7 +38,6 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
 #include "stm32f4xx_it.h"
 
 #define _DEFIEND_SVC_HANDLER_FREERTOS_

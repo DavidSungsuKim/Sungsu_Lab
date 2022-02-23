@@ -483,6 +483,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Inc/configSTM32.h</locationURI>
 		</link>
 		<link>
+			<name>Example/User/errorCode.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Inc/errorCode.h</locationURI>
+		</link>
+		<link>
 			<name>Example/User/main.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/main.cpp</locationURI>

@@ -1,0 +1,12 @@
+[submodule "firmware/CanOpenSTM32/CANopenNode"]
+	path = firmware/CanOpenSTM32/CANopenNode
+	url = https://github.com/CANopenNode/CANopenNode
+[submodule "firmware/CanOpenSTM32/libs/lwrb"]
+	path = firmware/CanOpenSTM32/libs/lwrb
+	url = https://github.com/MaJerle/lwrb
+[submodule "firmware/CanOpenSTM32/libs/lwprintf"]
+	path = firmware/CanOpenSTM32/libs/lwprintf
+	url = https://github.com/MaJerle/lwprintf
+[submodule "firmware/CanOpenSTM32/libs/lwmem"]
+	path = firmware/CanOpenSTM32/libs/lwmem
+	url = https://github.com/MaJerle/lwmem

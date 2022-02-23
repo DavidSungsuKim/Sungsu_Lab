@@ -1,19 +1,26 @@
-
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
+/**************************************************************************
+ * @file    common.c
+ * @author  Sungsu Kim
+ *
+ * @date	July, 2021
+ * @brief
+ */
 
 #include "common.h"
 #include "HALinterface.h"
 
-#define SIZE_BUFF_PRINTF		64
-#define SIZE_BUFF_PRINTF_EX		128
+#define SIZE_BUFF_TIMESTAMP		9
+#define SIZE_BUFF_PRINTF		128
+#define SIZE_BUFF_PRINTF_EX		256
+#define SIZE_MAX_SENTENCE		(SIZE_BUFF_PRINTF - SIZE_BUFF_TIMESTAMP)
 #define	PRINT_ONLY_FILENAME
 
 void PrintfUART(const char* str, ...)
 {
+    uint32_t tick = HALIF_GetSysTick();
+
 	int length = strlen(str);
-	if ( length >= SIZE_BUFF_PRINTF )
+	if ( length >= SIZE_MAX_SENTENCE )
 	{
 		HALIF_UART2SendSync("PrintfUART: 'str' exceeded the buffer.\r\n");
 		return;
@@ -21,11 +28,11 @@ void PrintfUART(const char* str, ...)
 
 	// To make use of variable-length argument lists
     char buf[SIZE_BUFF_PRINTF] = {0,};
+    sprintf(buf, "%8ld ", tick);
 
     va_list ap;
-
     va_start(ap, str);
-    vsprintf(buf, str, ap);
+    vsprintf(&buf[SIZE_BUFF_TIMESTAMP], str, ap);
     va_end(ap);
 
     puts(buf);
@@ -35,10 +42,10 @@ void PrintfUART(const char* str, ...)
 
 void PrintfUARTEx(const char *file, int line, const char* str, ...)
 {
-	int length;
+	uint32_t tick = HALIF_GetSysTick();
 
-	length = strlen(str);
-	if ( length >= SIZE_BUFF_PRINTF )
+	int length = strlen(str);
+	if ( length >= SIZE_MAX_SENTENCE )
 	{
 		HALIF_UART2SendSync("PrintfUARTEx: 'str' exceeded the buffer.\r\n");
 		return;
@@ -46,11 +53,11 @@ void PrintfUARTEx(const char *file, int line, const char* str, ...)
 
 	// To make use of variable-length argument lists
 	char buf[SIZE_BUFF_PRINTF] = {0,};
+	sprintf(buf, "%8ld ", tick);
 
-	va_list ap;
-
+    va_list ap;
     va_start(ap, str);
-    vsprintf(buf, str, ap);
+    vsprintf(&buf[SIZE_BUFF_TIMESTAMP], str, ap);
     va_end(ap);
 
     puts(buf);

@@ -46,7 +46,7 @@ int				HALIF_UART2SendSync		(const char* aStr);
 extern TIM_HandleTypeDef 	g_TimHandle;
 
 // Inline funciton definitions
-inline int HALIF_IsTimerExpired()
+static inline int HALIF_IsTimerExpired()
 {
 	if (__HAL_TIM_GET_FLAG(&g_TimHandle, TIM_FLAG_UPDATE) != RESET)
 	{
@@ -56,13 +56,13 @@ inline int HALIF_IsTimerExpired()
 	return 0;
 }
 
-inline void HALIF_ResetTickTimer()
+static inline void HALIF_ResetTickTimer()
 {
 //	g_TimHandle.Instance->CNT = 0;
 	__HAL_TIM_CLEAR_IT(&g_TimHandle, TIM_IT_UPDATE);
 }
 
-inline unsigned int HALIF_GetTimerTick()
+static inline unsigned int HALIF_GetTimerTick()
 {
 	return (unsigned int)g_TimHandle.Instance->CNT;
 }

@@ -1,0 +1,2 @@
+
+int WriteRegister(int value);

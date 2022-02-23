@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DataStructure", "Projects\DataStructure\DataStructure.vcxproj", "{58323B47-5D71-4BE3-BF6E-3B3B7F0959DC}"
 EndProject
@@ -25,7 +25,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SungsuTCPServer", "Projects
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SungsuTCPClient", "Projects\SungsuTCPClient\SungsuTCPClient.vcxproj", "{71678514-DC9F-42E1-AE8B-3B08F75EC409}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DesignPattern", "Projects\DesignPattern\DesignPattern.vcxproj", "{E893BD66-8E5B-4172-BD43-EC49C0B326E3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModernCplusplus", "Projects\ModernCplusplus\ModernCplusplus.vcxproj", "{B90F95E8-8864-4744-89FE-CF0948922E3E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCVTest", "Projects\OpenCVTest\OpenCVTest.vcxproj", "{F230716C-8CDF-4C2F-8D19-64788F766C48}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -156,20 +158,35 @@ Global
 		{71678514-DC9F-42E1-AE8B-3B08F75EC409}.Template|x64.ActiveCfg = Template|Win32
 		{71678514-DC9F-42E1-AE8B-3B08F75EC409}.Template|x86.ActiveCfg = Template|Win32
 		{71678514-DC9F-42E1-AE8B-3B08F75EC409}.Template|x86.Build.0 = Template|Win32
-		{E893BD66-8E5B-4172-BD43-EC49C0B326E3}.Debug|x64.ActiveCfg = Debug|x64
-		{E893BD66-8E5B-4172-BD43-EC49C0B326E3}.Debug|x64.Build.0 = Debug|x64
-		{E893BD66-8E5B-4172-BD43-EC49C0B326E3}.Debug|x86.ActiveCfg = Debug|Win32
-		{E893BD66-8E5B-4172-BD43-EC49C0B326E3}.Debug|x86.Build.0 = Debug|Win32
-		{E893BD66-8E5B-4172-BD43-EC49C0B326E3}.Release|x64.ActiveCfg = Release|x64
-		{E893BD66-8E5B-4172-BD43-EC49C0B326E3}.Release|x64.Build.0 = Release|x64
-		{E893BD66-8E5B-4172-BD43-EC49C0B326E3}.Release|x86.ActiveCfg = Release|Win32
-		{E893BD66-8E5B-4172-BD43-EC49C0B326E3}.Release|x86.Build.0 = Release|Win32
-		{E893BD66-8E5B-4172-BD43-EC49C0B326E3}.Template|x64.ActiveCfg = Release|x64
-		{E893BD66-8E5B-4172-BD43-EC49C0B326E3}.Template|x64.Build.0 = Release|x64
-		{E893BD66-8E5B-4172-BD43-EC49C0B326E3}.Template|x86.ActiveCfg = Release|Win32
-		{E893BD66-8E5B-4172-BD43-EC49C0B326E3}.Template|x86.Build.0 = Release|Win32
+		{B90F95E8-8864-4744-89FE-CF0948922E3E}.Debug|x64.ActiveCfg = Debug|x64
+		{B90F95E8-8864-4744-89FE-CF0948922E3E}.Debug|x64.Build.0 = Debug|x64
+		{B90F95E8-8864-4744-89FE-CF0948922E3E}.Debug|x86.ActiveCfg = Debug|Win32
+		{B90F95E8-8864-4744-89FE-CF0948922E3E}.Debug|x86.Build.0 = Debug|Win32
+		{B90F95E8-8864-4744-89FE-CF0948922E3E}.Release|x64.ActiveCfg = Release|x64
+		{B90F95E8-8864-4744-89FE-CF0948922E3E}.Release|x64.Build.0 = Release|x64
+		{B90F95E8-8864-4744-89FE-CF0948922E3E}.Release|x86.ActiveCfg = Release|Win32
+		{B90F95E8-8864-4744-89FE-CF0948922E3E}.Release|x86.Build.0 = Release|Win32
+		{B90F95E8-8864-4744-89FE-CF0948922E3E}.Template|x64.ActiveCfg = Debug|x64
+		{B90F95E8-8864-4744-89FE-CF0948922E3E}.Template|x64.Build.0 = Debug|x64
+		{B90F95E8-8864-4744-89FE-CF0948922E3E}.Template|x86.ActiveCfg = Debug|Win32
+		{B90F95E8-8864-4744-89FE-CF0948922E3E}.Template|x86.Build.0 = Debug|Win32
+		{F230716C-8CDF-4C2F-8D19-64788F766C48}.Debug|x64.ActiveCfg = Debug|x64
+		{F230716C-8CDF-4C2F-8D19-64788F766C48}.Debug|x64.Build.0 = Debug|x64
+		{F230716C-8CDF-4C2F-8D19-64788F766C48}.Debug|x86.ActiveCfg = Debug|Win32
+		{F230716C-8CDF-4C2F-8D19-64788F766C48}.Debug|x86.Build.0 = Debug|Win32
+		{F230716C-8CDF-4C2F-8D19-64788F766C48}.Release|x64.ActiveCfg = Release|x64
+		{F230716C-8CDF-4C2F-8D19-64788F766C48}.Release|x64.Build.0 = Release|x64
+		{F230716C-8CDF-4C2F-8D19-64788F766C48}.Release|x86.ActiveCfg = Release|Win32
+		{F230716C-8CDF-4C2F-8D19-64788F766C48}.Release|x86.Build.0 = Release|Win32
+		{F230716C-8CDF-4C2F-8D19-64788F766C48}.Template|x64.ActiveCfg = Debug|x64
+		{F230716C-8CDF-4C2F-8D19-64788F766C48}.Template|x64.Build.0 = Debug|x64
+		{F230716C-8CDF-4C2F-8D19-64788F766C48}.Template|x86.ActiveCfg = Debug|Win32
+		{F230716C-8CDF-4C2F-8D19-64788F766C48}.Template|x86.Build.0 = Debug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FA110EFE-253E-4523-8B29-9206A1AA0B5C}
 	EndGlobalSection
 EndGlobal

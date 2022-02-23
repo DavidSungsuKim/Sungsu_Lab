@@ -46,6 +46,7 @@
 									<listOptionValue builtIn="false" value="../../../../../STM32Cube_FW_F4_V1.9.0/Drivers/STM32F4xx_HAL_Driver/Inc"/>
 									<listOptionValue builtIn="false" value="../../../../../STM32Cube_FW_F4_V1.9.0/Drivers/BSP/STM32F4xx-Nucleo"/>
 									<listOptionValue builtIn="false" value="../../../../../STM32Cube_FW_F4_V1.9.0/Drivers/CMSIS/Include"/>
+									<listOptionValue builtIn="false" value="../../../Inc/drivers"/>
 								</option>
 								<option id="com.atollic.truestudio.gcc.symbols.defined.1670122205" name="Defined symbols" superClass="com.atollic.truestudio.gcc.symbols.defined" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
@@ -105,6 +106,7 @@
 									<listOptionValue builtIn="false" value="../../../../../STM32Cube_FW_F4_V1.9.0/Drivers/STM32F4xx_HAL_Driver/Inc"/>
 									<listOptionValue builtIn="false" value="../../../../../STM32Cube_FW_F4_V1.9.0/Drivers/BSP/STM32F4xx-Nucleo"/>
 									<listOptionValue builtIn="false" value="../../../../../STM32Cube_FW_F4_V1.9.0/Drivers/CMSIS/Include"/>
+									<listOptionValue builtIn="false" value="../../../Inc/drivers"/>
 								</option>
 								<inputType id="com.atollic.truestudio.gpp.input.829102000" superClass="com.atollic.truestudio.gpp.input"/>
 							</tool>
@@ -132,7 +134,8 @@
 						</tool>
 					</fileInfo>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="Drivers" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
