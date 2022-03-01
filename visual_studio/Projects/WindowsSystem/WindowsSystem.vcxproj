@@ -19,8 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{0AF19213-BC49-4204-8A25-F6371E435DD0}</ProjectGuid>
-    <RootNamespace>SerialComm</RootNamespace>
+    <ProjectGuid>{BB17C5A4-8910-4E8E-A65D-B168C6C511C0}</ProjectGuid>
+    <RootNamespace>WindowsSystem</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <Keyword>MFCProj</Keyword>
   </PropertyGroup>
@@ -28,14 +28,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
@@ -43,14 +43,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
     <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
@@ -186,42 +186,38 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="ShinbongRober.h" />
-    <ClInclude Include="SerialComm.h" />
-    <ClInclude Include="SerialCommDlg.h" />
-    <ClInclude Include="SerialInterface.h" />
-    <ClInclude Include="ShinbongRoverCommmand.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="WindowsSys.h" />
+    <ClInclude Include="WindowsSystem.h" />
+    <ClInclude Include="WindowsSystemDlg.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ShinbongRober.cpp" />
-    <ClCompile Include="SerialComm.cpp" />
-    <ClCompile Include="SerialCommDlg.cpp" />
-    <ClCompile Include="SerialInterface.cpp" />
-    <ClCompile Include="ShinbongRoverCommand.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="WindowsSys.cpp" />
+    <ClCompile Include="WindowsSystem.cpp" />
+    <ClCompile Include="WindowsSystemDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="SerialComm.rc" />
+    <ResourceCompile Include="WindowsSystem.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\SerialComm.rc2" />
+    <None Include="res\WindowsSystem.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\SerialComm.ico" />
+    <Image Include="res\WindowsSystem.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties RESOURCE_FILE="SerialComm.rc" />
+      <UserProperties RESOURCE_FILE="WindowsSystem.rc" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
