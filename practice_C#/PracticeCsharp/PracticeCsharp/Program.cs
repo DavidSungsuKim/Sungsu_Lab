@@ -9,15 +9,6 @@ namespace PracticeCsharp
     class Program
     {
         //Mine instance;
-        static int Main(string[] args)
-        {
-            int ret = 0;
-            Console.Write($"ret={ret}\r\n");
-
-            return ret;
-        }
-
-/*
         static async Task Main(string[] args)
         {
             Mine instance = new Mine();
@@ -53,7 +44,6 @@ namespace PracticeCsharp
 
             Console.Write("Done...");
         }
-*/
 
         private static async Task<Bread> ToastBreadAsync(int slices)
         {
