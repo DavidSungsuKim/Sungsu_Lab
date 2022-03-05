@@ -120,6 +120,8 @@ comm_start_transfer(void) {
     uint32_t primask;
     uint8_t started = 0;
 
+#if defined (CODES_FOR_STM32F7)
+
     primask = __get_PRIMASK();
     __disable_irq();
     if (tx_len == 0 && (tx_len = lwrb_get_linear_block_read_length(&rb_tx)) > 0) {
@@ -156,6 +158,9 @@ comm_start_transfer(void) {
         started = 1;
     }
     __set_PRIMASK(primask);
+#else
+    started = 0; // check the value
+#endif
     return started;
 }
 
@@ -165,6 +170,8 @@ comm_start_transfer(void) {
  */
 uint8_t
 comm_init(void) {
+
+#if defined (CODES_FOR_STM32F7)
     LL_USART_InitTypeDef USART_InitStruct = {0};
     LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
 
@@ -270,7 +277,7 @@ comm_init(void) {
 
     /* Start TX operation */
     comm_start_transfer();
-
+#endif
     return 1;
 }
 
@@ -281,6 +288,7 @@ comm_init(void) {
 /**
  * \brief           This function handles DMA1 channel7 global interrupt.
  */
+#if defined (CODES_FOR_STM32F7)
 void
 DMA1_Stream7_IRQHandler(void) {
     /* Handle TX complete */
@@ -307,10 +315,12 @@ DMA1_Stream6_IRQHandler(void) {
         prv_check_rx();
     }
 }
+#endif
 
 /**
  * \brief           This function handles USART3 global interrupt.
  */
+#if defined (CODES_FOR_STM32F7)
 void
 USART3_IRQHandler(void) {
     /* Handle IDLE line interrupt */
@@ -319,3 +329,4 @@ USART3_IRQHandler(void) {
         prv_check_rx();
     }
 }
+#endif

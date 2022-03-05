@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+#if defined (CODES_FOR_STM32F7)
 /* Includes */
 #include "stm32h7xx_hal.h"
 #include "stm32h7xx_ll_dma.h"
@@ -18,6 +19,7 @@ extern "C" {
 #include "stm32h7xx_ll_pwr.h"
 #include "stm32h7xx_ll_usart.h"
 #include "stm32h7xx_ll_gpio.h"
+#endif
 
 /* Exported functions prototypes */
 void Error_Handler(void);

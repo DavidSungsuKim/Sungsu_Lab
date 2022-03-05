@@ -45,7 +45,9 @@ main(void) {
     uint32_t time_old, time_current;
 
     /* Setup MPU to prevent any Cortex-M speculative access */
+#if defined (CODES_FOR_STM32F7)
     mpu_config();
+#endif
     __HAL_RCC_SYSCFG_CLK_ENABLE();
 
     /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
@@ -56,7 +58,10 @@ main(void) {
 
     /* Initialize all peripherals */
     lwmem_assignmem(lwmem_default_regions);
+
+#if defined (CODES_FOR_STM32F7)
     led_btn_init();
+#endif
     comm_init();
     comm_printf("CANopenNode application running on STM32H735G-DK\r\n");
 
@@ -180,6 +185,7 @@ main(void) {
             /* CANopen process */
             reset = CO_process(CO, false, timeDifference_us, NULL);
 
+#if defined (CODES_FOR_STM32F7)
             /* Process LEDs and react only on change */
             LED_red_status = CO_LED_RED(CO->LEDs, CO_LED_CANopen);
             LED_green_status = CO_LED_GREEN(CO->LEDs, CO_LED_CANopen);
@@ -193,7 +199,7 @@ main(void) {
             } else if (!LED_green_status && LL_GPIO_IsOutputPinSet(LED_GREEN_GPIO_Port, LED_GREEN_Pin)) {
                 LL_GPIO_ResetOutputPin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
             }
-
+#endif
             /*
              * Timer periodic actions
              *
@@ -232,6 +238,8 @@ main(void) {
  */
 void
 SystemClock_Config(void) {
+
+#if defined (CODES_FOR_STM32F7)
     LL_FLASH_SetLatency(LL_FLASH_LATENCY_3);
     while (LL_FLASH_GetLatency() != LL_FLASH_LATENCY_3) {}
 
@@ -276,10 +284,13 @@ SystemClock_Config(void) {
     if (HAL_InitTick(TICK_INT_PRIORITY) != HAL_OK) {
         Error_Handler();
     }
+#endif
 }
+
 /**
  * \brief           MPU configuration
  */
+#if defined (CODES_FOR_STM32F7)
 static void
 mpu_config(void) {
     MPU_Region_InitTypeDef MPU_InitStruct = {0};
@@ -301,10 +312,12 @@ mpu_config(void) {
     /* Enable the MPU, use default memory access for regions not defined here */
     HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
 }
+#endif
 
 /**
  * \brief GPIO Initialization Function
  */
+#if defined (CODES_FOR_STM32F7)
 void
 led_btn_init(void) {
     LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -331,6 +344,7 @@ led_btn_init(void) {
     GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
     LL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 }
+#endif
 
 /**
  * \brief           This function is executed in case of error occurrence

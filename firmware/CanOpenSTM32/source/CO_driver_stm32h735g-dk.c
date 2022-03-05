@@ -27,8 +27,11 @@
  * Implementation Author:               Tilen Majerle <tilen@majerle.eu>
  */
 #include "301/CO_driver.h"
+
+#if defined (CODES_FOR_STM32F7)
 #include "stm32h7xx_hal.h"
 #include "stm32h7xx_ll_rcc.h"
+#endif
 
 /**
  * \brief           Configuration structure for FDCAN
@@ -93,10 +96,13 @@ fdcan_br_cfg = {
 /******************************************************************************/
 void
 CO_CANsetConfigurationMode(void *CANptr) {
+
+#if defined (CODES_FOR_STM32F7)
     /* Put CAN module in configuration mode */
     if (CANptr != NULL) {
         HAL_FDCAN_Stop(CANptr);
     }
+#endif
 }
 
 /******************************************************************************/
@@ -162,6 +168,7 @@ CO_CANmodule_init(
         txArray[i].bufferFull = false;
     }
 
+#if defined (CODES_FOR_STM32F7)
     /***************************************/
     /* STM32H7 FDCAN related configuration */
     /***************************************/
@@ -267,6 +274,8 @@ CO_CANmodule_init(
             | FDCAN_IT_ERROR_PASSIVE | FDCAN_IT_ERROR_WARNING, 0xFFFFFFFF) != HAL_OK) {
         return CO_ERROR_ILLEGAL_ARGUMENT;
     }
+
+#endif
     return CO_ERROR_NO;
 }
 
@@ -329,9 +338,12 @@ co_drv_mutex_unlock(void) {
 /******************************************************************************/
 void
 CO_CANmodule_disable(CO_CANmodule_t *CANmodule) {
+
+#if defined (CODES_FOR_STM32F7)
     if (CANmodule != NULL && CANmodule->CANptr != NULL) {
         HAL_FDCAN_Stop(CANmodule->CANptr);
     }
+#endif
 }
 
 /******************************************************************************/
@@ -409,6 +421,8 @@ CO_CANtxBufferInit(
  */
 static uint8_t
 prv_send_can_message(CO_CANmodule_t* CANmodule, CO_CANtx_t *buffer) {
+
+#if defined (CODES_FOR_STM32F7)
     static FDCAN_TxHeaderTypeDef tx_hdr;
     uint8_t success = 0;
 
@@ -443,7 +457,11 @@ prv_send_can_message(CO_CANmodule_t* CANmodule, CO_CANtx_t *buffer) {
         /* Now add message to FIFO. Should not fail */
         success = HAL_FDCAN_AddMessageToTxFifoQ(CANmodule->CANptr, &tx_hdr, buffer->data) == HAL_OK;
     }
+
     return success;
+#else
+    return 1;
+#endif
 }
 
 /******************************************************************************/
@@ -574,6 +592,8 @@ CO_CANmodule_process(CO_CANmodule_t *CANmodule) {
  */
 static void
 prv_read_can_received_msg(FDCAN_HandleTypeDef* hfdcan, uint32_t fifo, uint32_t fifo_isrs) {
+
+#if defined (CODES_FOR_STM32F7)
     static FDCAN_RxHeaderTypeDef rx_hdr;
     CO_CANrxMsg_t rcvMsg;
     CO_CANrx_t *buffer = NULL;              /* receive message buffer from CO_CANmodule_t object. */
@@ -626,8 +646,10 @@ prv_read_can_received_msg(FDCAN_HandleTypeDef* hfdcan, uint32_t fifo, uint32_t f
     if (messageFound && buffer != NULL && buffer->CANrx_callback != NULL) {
         buffer->CANrx_callback(buffer->object, (void*) &rcvMsg);
     }
+#endif
 }
 
+#if defined (CODES_FOR_STM32F7)
 /**
  * \brief           Rx FIFO 0 callback.
  * \param[in]       hfdcan: pointer to an FDCAN_HandleTypeDef structure that contains
@@ -781,3 +803,5 @@ FDCAN1_IT1_IRQHandler(void) {
     /* Wake-up application thread */
     CO_WAKEUP_APP_THREAD();
 }
+
+#endif
