@@ -72,7 +72,10 @@ main(void) {
         Error_Handler();
     }
     comm_printf("CO allocated, uses %u bytes of heap memory\r\n", (unsigned)co_heap_used);
+
+#if defined (CODES_FOR_STM32F7)
     CO->CANmodule->CANptr = &hfdcan1;
+#endif
 
     /* Application main while loop */
 #if defined (CODES_FOR_STM32F7)
