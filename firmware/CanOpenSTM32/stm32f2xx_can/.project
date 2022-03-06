@@ -146,6 +146,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/source/comm_stm32h735g-dk.c</locationURI>
 		</link>
 		<link>
+			<name>Startup/startup_stm32f207xx.s</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/stm32h7xx_fdcan/Startup/startup_stm32f207xx.s</locationURI>
+		</link>
+		<link>
 			<name>lwmem/lwmem.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/libs/lwmem/lwmem/src/lwmem/lwmem.c</locationURI>
