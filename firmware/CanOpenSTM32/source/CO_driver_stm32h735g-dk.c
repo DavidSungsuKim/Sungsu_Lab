@@ -109,9 +109,11 @@ CO_CANsetConfigurationMode(void *CANptr) {
 void
 CO_CANsetNormalMode(CO_CANmodule_t *CANmodule) {
     /* Put CAN module in normal mode */
+#if defined (CODES_FOR_STM32F7)
     if (CANmodule->CANptr != NULL && HAL_FDCAN_Start(CANmodule->CANptr) == HAL_OK) {
         CANmodule->CANnormal = true;
     }
+#endif
 }
 
 /******************************************************************************/

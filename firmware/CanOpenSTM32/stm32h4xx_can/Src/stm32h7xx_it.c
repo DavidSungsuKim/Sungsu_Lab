@@ -104,7 +104,9 @@ PendSV_Handler(void) {
  */
 void
 SysTick_Handler(void) {
+#if defined (CODES_FOR_STM32F7)
     HAL_IncTick();
+#endif
 }
 
 /******************************************************************************/

@@ -51,8 +51,9 @@ main(void) {
     __HAL_RCC_SYSCFG_CLK_ENABLE();
 
     /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+#if defined (CODES_FOR_STM32F7)
     HAL_Init();
-
+#endif
     /* Configure the system clock */
     SystemClock_Config();
 
@@ -74,7 +75,9 @@ main(void) {
     CO->CANmodule->CANptr = &hfdcan1;
 
     /* Application main while loop */
+#if defined (CODES_FOR_STM32F7)
     time_old = time_current = HAL_GetTick();
+#endif
     while (1) {
         /* Process CANopen tasks */
         if (reset == CO_RESET_COMM) {
@@ -177,10 +180,17 @@ main(void) {
          * could be configured on STM32 (TIM6 for example) with
          * 1MHz tick
          */
+#if defined (CODES_FOR_STM32F7)
         if (reset == CO_RESET_NOT
                 && (time_current = HAL_GetTick()) - time_old > 0) {
             uint32_t timeDifference_us = (time_current - time_old) * 1000;
             time_old = time_current;
+#else
+            if (reset == CO_RESET_NOT
+                    && (time_current = 0) - time_old > 0) {
+                uint32_t timeDifference_us = (time_current - time_old) * 1000;
+                time_old = time_current;
+#endif
 
             /* CANopen process */
             reset = CO_process(CO, false, timeDifference_us, NULL);

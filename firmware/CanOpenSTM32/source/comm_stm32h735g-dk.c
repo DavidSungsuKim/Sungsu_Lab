@@ -36,12 +36,14 @@
 #include "comm.h"
 #include "lwrb/lwrb.h"
 
+#if defined (CODES_FOR_STM32F7)
 #include "stm32h7xx.h"
 #include "stm32h7xx_ll_usart.h"
 #include "stm32h7xx_ll_bus.h"
 #include "stm32h7xx_ll_dma.h"
 #include "stm32h7xx_ll_gpio.h"
 #include "stm32h7xx_ll_rcc.h"
+#endif
 
 /* Baudrate setup */
 #define DEBUG_BAUDRATE                              115200
@@ -80,6 +82,7 @@ prv_check_rx(void) {
     static size_t old_pos;
     size_t pos;
 
+#if defined (CODES_FOR_STM32F7)
     /* Calculate current position in buffer and check for new data available */
     pos = ARRAY_LEN(usart_rx_dma_buffer) - LL_DMA_GetDataLength(DMA1, LL_DMA_STREAM_6);
     if (pos != old_pos) {
@@ -91,6 +94,7 @@ prv_check_rx(void) {
         }
         old_pos = pos;
     }
+#endif
 }
 
 /**
