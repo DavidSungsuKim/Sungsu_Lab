@@ -32,8 +32,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/* Include STM32H7 HAL driver */
+#if defined (CODES_FOR_STM32F7)
 #include "stm32h7xx_hal.h"
+#else
+#include "stm32f2xx_hal.h"
+#endif
 
 #ifdef CO_DRIVER_CUSTOM
 #include "CO_driver_custom.h"
