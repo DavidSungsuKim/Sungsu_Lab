@@ -15,6 +15,7 @@
 void SystemClock_Config(void);
 static void led_btn_init(void);
 static void mpu_config(void);
+static void process_leds(void);
 
 /* Lwmem buffer for allocation */
 static uint8_t lwmem_buffer[0x4000];
@@ -45,24 +46,20 @@ main(void) {
     uint32_t time_old, time_current;
 
     /* Setup MPU to prevent any Cortex-M speculative access */
-#if defined (CODES_FOR_STM32F7)
     mpu_config();
-#endif
+
     __HAL_RCC_SYSCFG_CLK_ENABLE();
 
     /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-#if defined (CODES_FOR_STM32F7)
     HAL_Init();
-#endif
     /* Configure the system clock */
     SystemClock_Config();
 
     /* Initialize all peripherals */
     lwmem_assignmem(lwmem_default_regions);
 
-#if defined (CODES_FOR_STM32F7)
     led_btn_init();
-#endif
+
     comm_init();
     comm_printf("CANopenNode application running on STM32H735G-DK\r\n");
 
@@ -78,9 +75,7 @@ main(void) {
 #endif
 
     /* Application main while loop */
-#if defined (CODES_FOR_STM32F7)
     time_old = time_current = HAL_GetTick();
-#endif
     while (1) {
         /* Process CANopen tasks */
         if (reset == CO_RESET_COMM) {
@@ -183,36 +178,15 @@ main(void) {
          * could be configured on STM32 (TIM6 for example) with
          * 1MHz tick
          */
-#if defined (CODES_FOR_STM32F7)
         if (reset == CO_RESET_NOT
                 && (time_current = HAL_GetTick()) - time_old > 0) {
             uint32_t timeDifference_us = (time_current - time_old) * 1000;
             time_old = time_current;
-#else
-            if (reset == CO_RESET_NOT
-                    && (time_current = 0) - time_old > 0) {
-                uint32_t timeDifference_us = (time_current - time_old) * 1000;
-                time_old = time_current;
-#endif
 
             /* CANopen process */
             reset = CO_process(CO, false, timeDifference_us, NULL);
 
-#if defined (CODES_FOR_STM32F7)
-            /* Process LEDs and react only on change */
-            LED_red_status = CO_LED_RED(CO->LEDs, CO_LED_CANopen);
-            LED_green_status = CO_LED_GREEN(CO->LEDs, CO_LED_CANopen);
-            if (LED_red_status && !LL_GPIO_IsOutputPinSet(LED_RED_GPIO_Port, LED_RED_Pin)) {
-                LL_GPIO_SetOutputPin(LED_RED_GPIO_Port, LED_RED_Pin);
-            } else if (!LED_red_status && LL_GPIO_IsOutputPinSet(LED_RED_GPIO_Port, LED_RED_Pin)) {
-                LL_GPIO_ResetOutputPin(LED_RED_GPIO_Port, LED_RED_Pin);
-            }
-            if (LED_green_status && !LL_GPIO_IsOutputPinSet(LED_GREEN_GPIO_Port, LED_GREEN_Pin)) {
-                LL_GPIO_SetOutputPin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
-            } else if (!LED_green_status && LL_GPIO_IsOutputPinSet(LED_GREEN_GPIO_Port, LED_GREEN_Pin)) {
-                LL_GPIO_ResetOutputPin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
-            }
-#endif
+            process_leds();
             /*
              * Timer periodic actions
              *
@@ -303,10 +277,10 @@ SystemClock_Config(void) {
 /**
  * \brief           MPU configuration
  */
-#if defined (CODES_FOR_STM32F7)
 static void
 mpu_config(void) {
-    MPU_Region_InitTypeDef MPU_InitStruct = {0};
+#if defined (CODES_FOR_STM32F7)
+	MPU_Region_InitTypeDef MPU_InitStruct = {0};
 
     /* Setup background region, no access to normal memory to prevent any speculative access */
     MPU_InitStruct.Enable = MPU_REGION_ENABLE;
@@ -324,16 +298,34 @@ mpu_config(void) {
 
     /* Enable the MPU, use default memory access for regions not defined here */
     HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
-}
 #endif
+}
+
+static void process_leds(void)	{
+#if defined (CODES_FOR_STM32F7)
+            /* Process LEDs and react only on change */
+            LED_red_status = CO_LED_RED(CO->LEDs, CO_LED_CANopen);
+            LED_green_status = CO_LED_GREEN(CO->LEDs, CO_LED_CANopen);
+            if (LED_red_status && !LL_GPIO_IsOutputPinSet(LED_RED_GPIO_Port, LED_RED_Pin)) {
+                LL_GPIO_SetOutputPin(LED_RED_GPIO_Port, LED_RED_Pin);
+            } else if (!LED_red_status && LL_GPIO_IsOutputPinSet(LED_RED_GPIO_Port, LED_RED_Pin)) {
+                LL_GPIO_ResetOutputPin(LED_RED_GPIO_Port, LED_RED_Pin);
+            }
+            if (LED_green_status && !LL_GPIO_IsOutputPinSet(LED_GREEN_GPIO_Port, LED_GREEN_Pin)) {
+                LL_GPIO_SetOutputPin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+            } else if (!LED_green_status && LL_GPIO_IsOutputPinSet(LED_GREEN_GPIO_Port, LED_GREEN_Pin)) {
+                LL_GPIO_ResetOutputPin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+            }
+#endif
+}
 
 /**
  * \brief GPIO Initialization Function
  */
-#if defined (CODES_FOR_STM32F7)
 void
 led_btn_init(void) {
-    LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
+#if defined (CODES_FOR_STM32F7)
+	LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
 
     /* GPIO Ports Clock Enable */
     LL_AHB4_GRP1_EnableClock(LL_AHB4_GRP1_PERIPH_GPIOH);
@@ -356,8 +348,8 @@ led_btn_init(void) {
     GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
     GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
     LL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-}
 #endif
+}
 
 /**
  * \brief           This function is executed in case of error occurrence
