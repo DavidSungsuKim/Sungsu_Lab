@@ -131,9 +131,9 @@
 			<locationURI>PARENT-1-PROJECT_LOC/CANopenNode/301/crc16-ccitt.c</locationURI>
 		</link>
 		<link>
-			<name>Src/CO_driver_stm32h735g-dk.c</name>
+			<name>Src/CO_driver_stm32f207gz.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/source/CO_driver_stm32h735g-dk.c</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/source/CO_driver_stm32f207gz.c</locationURI>
 		</link>
 		<link>
 			<name>Src/OD.c</name>
@@ -141,14 +141,14 @@
 			<locationURI>PARENT-1-PROJECT_LOC/source/OD.c</locationURI>
 		</link>
 		<link>
-			<name>Src/comm_stm32h735g-dk.c</name>
+			<name>Src/comm_stm32f207zg.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/source/comm_stm32h735g-dk.c</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/source/comm_stm32f207zg.c</locationURI>
 		</link>
 		<link>
 			<name>Startup/startup_stm32f207xx.s</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/stm32h7xx_fdcan/Startup/startup_stm32f207xx.s</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/stm32f2xx_can/Startup/startup_stm32f207xx.s</locationURI>
 		</link>
 		<link>
 			<name>lwmem/lwmem.c</name>
