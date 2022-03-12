@@ -70,9 +70,7 @@ main(void) {
     }
     comm_printf("CO allocated, uses %u bytes of heap memory\r\n", (unsigned)co_heap_used);
 
-#if defined (CODES_FOR_STM32F7)
-    CO->CANmodule->CANptr = &hfdcan1;
-#endif
+    CO_CANgetDriverHandler();
 
     /* Application main while loop */
     time_old = time_current = HAL_GetTick();

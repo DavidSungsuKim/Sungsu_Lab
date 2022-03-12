@@ -99,6 +99,13 @@ fdcan_br_cfg = {
 
 /******************************************************************************/
 void
+CO_CANgetDriverHandler(void) {
+#if defined (CODES_FOR_STM32F7)
+    CO->CANmodule->CANptr = &hfdcan1;
+#endif
+}
+
+void
 CO_CANsetConfigurationMode(void *CANptr) {
 
 #if defined (CODES_FOR_STM32F7)
