@@ -45,7 +45,6 @@
 									<listOptionValue builtIn="false" value="DEBUG"/>
 									<listOptionValue builtIn="false" value="LWPRINTF_IGNORE_USER_OPTS"/>
 									<listOptionValue builtIn="false" value="LWMEM_IGNORE_USER_OPTS"/>
-									<listOptionValue builtIn="false" value="HSE_VALUE=25000000"/>
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
 									<listOptionValue builtIn="false" value="STM32F207xx"/>
 								</option>
