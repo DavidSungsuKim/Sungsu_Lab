@@ -61,6 +61,16 @@ void CModernCpp::Auto()
 #endif
 }
 
+template <typename T>
+class CClassForUR
+{
+public:
+	T Test(T&& a)
+	{
+		return a + 1;
+	}
+};
+
 void CModernCpp::UniversalReference()
 {
 	PRINTOUT_FUNC_NAME;
@@ -75,8 +85,13 @@ void CModernCpp::UniversalReference()
 	auto&& r3 = r;
 	r3 = 2;         
 
-//	auto& r4 = 1;   // Compile Error!!! 
+#if 0
+	auto& r4 = 1;
+#endif
 	auto&& rr2 = 1;
+
+	CClassForUR<int> my;
+	int ret = my.Test(1);
 }
 
 void CModernCpp::Initialization()
