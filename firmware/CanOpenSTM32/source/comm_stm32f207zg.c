@@ -45,6 +45,10 @@
 #include "stm32h7xx_ll_rcc.h"
 #endif
 
+#include "stm32f2xx.h"
+#include "stm32f2xx_hal.h"
+#include "hwm.h"
+
 /* Baudrate setup */
 #define DEBUG_BAUDRATE                              115200
 
@@ -73,6 +77,9 @@ static uint8_t rb_rx_data[0x1000];
 
 /* Receive buffer for raw data received with DMA */
 static DMA_BUFFER uint8_t usart_rx_dma_buffer[128];
+
+/* UART */
+static UART_HandleTypeDef 	g_UartHandle;
 
 /**
  * \brief           Process received data to user buffer
@@ -281,7 +288,45 @@ comm_init(void) {
 
     /* Start TX operation */
     comm_start_transfer();
+#else
+
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+	__HAL_RCC_GPIOD_CLK_ENABLE();
+	__HAL_RCC_UART5_CLK_ENABLE();
+
+	GPIO_InitTypeDef GPIO_InitStruct;
+
+	GPIO_InitStruct.Pin       	= PIN_UART_TX;
+	GPIO_InitStruct.Mode      	= GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Pull      	= GPIO_PULLUP;
+	GPIO_InitStruct.Speed     	= GPIO_SPEED_FREQ_VERY_HIGH;
+	GPIO_InitStruct.Alternate 	= GPIO_AF8_UART5;
+	HAL_GPIO_Init(GPIO_PORT_UART_TX, &GPIO_InitStruct);
+
+	/* UART RX GPIO pin configuration  */
+	GPIO_InitStruct.Pin 		= PIN_UART_RX;
+	GPIO_InitStruct.Alternate 	= GPIO_AF8_UART5;
+	HAL_GPIO_Init(GPIO_PORT_UART_RX, &GPIO_InitStruct);
+
+	UART_HandleTypeDef* pHandle = &g_UartHandle;
+	pHandle->Instance        = UART5;
+	pHandle->Init.BaudRate   = DEBUG_BAUDRATE;
+	pHandle->Init.WordLength = UART_WORDLENGTH_8B;
+	pHandle->Init.StopBits   = UART_STOPBITS_1;
+	pHandle->Init.Parity     = UART_PARITY_NONE;
+	pHandle->Init.HwFlowCtl  = UART_HWCONTROL_NONE;
+	pHandle->Init.Mode       = UART_MODE_TX_RX;
+
+	HAL_UART_Init(pHandle);
+
+#if defined (TEST)
+	const char testString[] = "Hello\r\n";
+	uint16_t size = strlen( testString );
+	HAL_StatusTypeDef ret = HAL_UART_Transmit(pHandle, (uint8_t*)testString, size, 1000 );
+#endif /* TEST */
+
 #endif
+
     return 1;
 }
 

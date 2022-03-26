@@ -63,6 +63,15 @@ main(void) {
     comm_init();
     comm_printf("CANopenNode application running on STM32H735G-DK\r\n");
 
+#if defined (TEST)
+    int i = 0;
+    while(1)
+    {
+    	i++;
+    }
+    return 0;
+#endif
+
     /* Initialize new instance of CANopen */
     if ((CO = CO_new(NULL, &co_heap_used)) == NULL) {
         comm_printf("Error: Could not allocate CO instance\r\n");
