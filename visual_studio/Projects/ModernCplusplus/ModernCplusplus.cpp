@@ -58,6 +58,8 @@ void TestModernCpp()
 	modern.WeakPointer();
 	modern.MakeShared();
 	modern.MoveAndForward();
+	modern.PerfectForwarding();
+	modern.UtilizeTemplate();
 }
 
 void TestModernTemplate()

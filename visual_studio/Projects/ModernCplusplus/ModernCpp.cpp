@@ -153,6 +153,14 @@ void CModernCpp::DeclType()
 
 	const int x = 0;
 	printf("x's name=%s\r\n", typeid(x).name());
+
+	decltype(x) y = 0;
+
+	double d = 1.1;
+
+	decltype(1) z = d;
+
+	int size = sizeof(z);
 }
 
 #include <functional>
@@ -844,12 +852,55 @@ public:
 	}	
 
 	ClassForMoveForward(ClassForMoveForward&& rhs)		// move ctor
+		: name(),
+		data(0)
 	{
 		printf("move ctor\r\n");
+
+		name = std::move(rhs.name);
+		rhs.name.empty();
+		data = rhs.data;
 	}
 
 	std::string name;
 	int data;
+};
+
+#include <string>
+class CTest
+{
+public:
+	CTest(const std::string& name)
+		: name(name) { test = 0; }
+	CTest(const CTest& lhs) { test = 1; name = lhs.name; }
+	CTest& operator =(const CTest& lhs) { test = 2; }
+	CTest(CTest&&) { test = 3; }
+
+private:
+	std::string name;
+	int test;
+};
+
+std::list<CTest> testList;
+void Function1(const CTest& inst)
+{
+	testList.push_back(inst);
+}
+
+template<typename T>
+void Function2(T&& inst)
+{
+	testList.push_back(std::forward<T>(inst));
+}
+
+class Person
+{
+public:
+	template<typename T>
+	explicit Person(T&& n)
+	{
+		T x = n;
+	}
 };
 
 void CModernCpp::MoveAndForward()
@@ -864,6 +915,8 @@ void CModernCpp::MoveAndForward()
 	{
 		ClassForMoveForward a("Jesus Chist The Savior");
 		ClassForMoveForward b = std::move(a); // move ctor is called
+		b.name = "lll";
+		int x = 0;
 	}
 
 	{
@@ -876,4 +929,83 @@ void CModernCpp::MoveAndForward()
 		ClassForMoveForward a(value);
 		ClassForMoveForward b = std::forward<ClassForMoveForward>(a);
 	}
+
+	{
+		std::string str1("ABCDEF");
+		std::string str3;
+		str3 = std::move(str1);
+	}
+
+	CTest x("David");
+	Function1(x);
+	Function2(CTest("Solomon"));
+
+	Person a(0);
+
+	int y = 0;
+}
+
+void f(int a, float b)
+{
+	printf("%d %f", a, b);
+}
+
+void f(float a, int b)
+{
+	printf("%f %d", a, b);
+}
+
+template<typename... Ts>
+void forwardThis(Ts&&... params)
+{
+	f(std::forward<Ts>(params)...);
+}
+
+void CModernCpp::PerfectForwarding()
+{
+	forwardThis(int(1), float(0.0));
+	forwardThis(float(1), int(0));
+}
+
+template<int size>
+struct myStruct
+{
+	static constexpr int m_size = size;
+};
+
+template<typename T>
+struct myTemplate
+{
+	T x;
+	
+	virtual void Func()
+	{
+		std::cout << "Hey!" << std::endl;
+	}
+};
+
+struct myChild : public myTemplate<int>
+{
+	void Func()
+	{
+		x = 1;
+		std::cout << "Hoy!" << std::endl;
+	}
+};
+
+void CModernCpp::UtilizeTemplate()
+{
+	myStruct<2> mine;
+	int array[mine.m_size];
+
+	constexpr auto size = mine.m_size;
+	int array2[size];
+
+	myChild mc;
+
+	myTemplate<int>& ref = mc;
+	ref.Func();
+
+
+
 }

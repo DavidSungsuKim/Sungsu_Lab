@@ -14,6 +14,10 @@ namespace PracticeCsharp
             Mine instance = new Mine();
             instance.x = 3;
 
+            Fundamental funda = new Fundamental();
+            funda.Test();
+            funda.TestString();
+
             int x = 0;
             int y = 1;
 
@@ -78,7 +82,6 @@ namespace PracticeCsharp
             string name = "Egg";
         }
     }
-
     class Mine
     {
         public int x = 0;

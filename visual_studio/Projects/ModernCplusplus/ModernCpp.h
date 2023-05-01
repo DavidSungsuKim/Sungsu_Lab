@@ -57,6 +57,8 @@ public:
 	void WeakPointer();
 	void MakeShared();
 	void MoveAndForward();
+	void PerfectForwarding();
+	void UtilizeTemplate();
 
 	int  GetValue(int parameter) const { return parameter * 2; }
 	constexpr int  GetValue(int parameter) { value = 1; return parameter * 2; }
