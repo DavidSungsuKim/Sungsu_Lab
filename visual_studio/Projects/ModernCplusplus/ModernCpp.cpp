@@ -114,6 +114,16 @@ auto CModernCpp::ReturnAuto( int a )
 	return ret;
 }
 
+class Base
+{
+	;
+};
+
+class Child : public Base
+{
+	;
+};
+
 void CModernCpp::DeclType()
 {
 	PRINTOUT_FUNC_NAME;
@@ -161,6 +171,19 @@ void CModernCpp::DeclType()
 	decltype(1) z = d;
 
 	int size = sizeof(z);
+
+	Child mine;
+	Base *p = &mine;
+
+	bool result;
+	result = std::is_same<decltype(mine), Child>::value;	// true
+	result = std::is_same<decltype(p), Base*>::value;	// true
+	result = std::is_same<decltype(*p), Child&>::value;	// false
+
+	auto pp = &mine;
+	result = std::is_same<decltype(pp), Child*>::value;	// true
+
+	std::string name = typeid(*p).name();
 }
 
 #include <functional>
@@ -1005,7 +1028,70 @@ void CModernCpp::UtilizeTemplate()
 
 	myTemplate<int>& ref = mc;
 	ref.Func();
+}
 
+uint8_t funcDefault(void)
+{
+	printf("%s, ", __FUNCTION__);
+	return 0;
+}
 
+uint8_t funcDifferent()
+{
+	printf("%s, ", __FUNCTION__);
+	return 1;
+}
 
+std::function<uint8_t(void)> test;
+
+void TestMyFunctionObj(std::function<uint8_t(void)> my = funcDefault)
+{
+	printf("ret=%d\r\n", my());
+}
+
+struct linkedList
+{
+	int value;
+	linkedList* next;
+
+	linkedList(int value) { value = value; }
+};
+
+void CModernCpp::FunctionObj()
+{
+	TestMyFunctionObj();
+	TestMyFunctionObj(funcDifferent);
+
+	linkedList x(1);
+	linkedList y(2);
+
+	x.next = &y;
+	y.next = nullptr;
+
+	linkedList* pX = &x;
+	linkedList** ppX = &pX;
+
+	linkedList**** ppppX;
+
+#if 0
+	*ppX = pX->next;
+#else	
+	ppX = &pX->next;
+#endif
+
+	{
+		int buf[2] = { 1,2 };
+
+		int* pX = &buf[0];
+		int* pY = &buf[1];
+
+		int** pp = &pX;
+
+		pp = &pY;
+
+		*pp = pY;
+
+		int value = *pX;
+		value = 0;
+	}
 }

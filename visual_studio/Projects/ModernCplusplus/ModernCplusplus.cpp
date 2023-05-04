@@ -60,6 +60,7 @@ void TestModernCpp()
 	modern.MoveAndForward();
 	modern.PerfectForwarding();
 	modern.UtilizeTemplate();
+	modern.FunctionObj();
 }
 
 void TestModernTemplate()
