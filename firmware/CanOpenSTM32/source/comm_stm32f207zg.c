@@ -43,11 +43,19 @@
 #include "stm32h7xx_ll_dma.h"
 #include "stm32h7xx_ll_gpio.h"
 #include "stm32h7xx_ll_rcc.h"
-#endif
+#else
 
 #include "stm32f2xx.h"
 #include "stm32f2xx_hal.h"
+
+#include "stm32f2xx_ll_usart.h"
+#include "stm32f2xx_ll_dma.h"
+#include "stm32f2xx_ll_gpio.h"
+#include "stm32f2xx_ll_rcc.h"
+
 #include "hwm.h"
+
+#endif
 
 /* Baudrate setup */
 #define DEBUG_BAUDRATE                              115200
@@ -101,6 +109,18 @@ prv_check_rx(void) {
         }
         old_pos = pos;
     }
+#else
+    /* Calculate current position in buffer and check for new data available */
+    pos = ARRAY_LEN(usart_rx_dma_buffer) - LL_DMA_GetDataLength(DMA1, LL_DMA_STREAM_6);
+    if (pos != old_pos) {
+        if (pos > old_pos) {
+            lwrb_write(&comm_rb_rx, &usart_rx_dma_buffer[old_pos], pos - old_pos);
+        } else {
+            lwrb_write(&comm_rb_rx, &usart_rx_dma_buffer[old_pos], ARRAY_LEN(usart_rx_dma_buffer) - old_pos);
+            lwrb_write(&comm_rb_rx, &usart_rx_dma_buffer[0], pos);
+        }
+        old_pos = pos;
+    }
 #endif
 }
 
@@ -131,8 +151,6 @@ comm_start_transfer(void) {
     uint32_t primask;
     uint8_t started = 0;
 
-#if defined (CODES_FOR_STM32F7)
-
     primask = __get_PRIMASK();
     __disable_irq();
     if (tx_len == 0 && (tx_len = lwrb_get_linear_block_read_length(&rb_tx)) > 0) {
@@ -143,6 +161,7 @@ comm_start_transfer(void) {
             tx_len = TX_MAX_LEN;
         }
 
+#if defined (CODES_FOR_STM32F7)
         /*
          * Cleanup cache to ensure latest data are in target memory
          * Address and length have be 32-bytes aligned
@@ -167,11 +186,33 @@ comm_start_transfer(void) {
         LL_USART_Enable(USART3);
         LL_USART_EnableDMAReq_TX(USART3);
         started = 1;
-    }
-    __set_PRIMASK(primask);
 #else
-    started = 0; // check the value
+        /*
+         * Cleanup cache to ensure latest data are in target memory
+         * Address and length have be 32-bytes aligned
+         */
+        //SCB_CleanDCache_by_Addr((uint32_t *)(((uint32_t)d) & ~(uint32_t)0x1F), (tx_len + 32) & 0x1F);
+
+        /* Disable channel if enabled */
+        LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_7);
+        LL_USART_DisableDMAReq_TX(USART3);
+
+        /* Configure DMA */
+        LL_DMA_SetMemoryAddress(DMA1, LL_DMA_STREAM_7, (uint32_t)d);
+        LL_DMA_SetDataLength(DMA1, LL_DMA_STREAM_7, tx_len);
+
+        /* Clean flags */
+        LL_DMA_ClearFlag_TC7(DMA1);
+        LL_DMA_ClearFlag_HT7(DMA1);
+        LL_DMA_ClearFlag_TE7(DMA1);
+
+        /* Enable instances */
+        LL_DMA_EnableStream(DMA1, LL_DMA_STREAM_7);
+        LL_USART_Enable(UART_DEBUG);
+        LL_USART_EnableDMAReq_TX(UART_DEBUG);
+        started = 1;
 #endif
+    }
     return started;
 }
 
@@ -290,6 +331,13 @@ comm_init(void) {
     comm_start_transfer();
 #else
 
+    /* Initialize LwRB prior any further actions */
+    lwrb_init(&comm_rb_rx, rb_rx_data, sizeof(rb_rx_data));
+    lwrb_init(&rb_tx, rb_tx_data, sizeof(rb_tx_data));
+
+    /* Initialize printf lib */
+    lwprintf_init(prv_printf_out);
+
     __HAL_RCC_GPIOC_CLK_ENABLE();
 	__HAL_RCC_GPIOD_CLK_ENABLE();
 	__HAL_RCC_UART5_CLK_ENABLE();
@@ -325,7 +373,7 @@ comm_init(void) {
 	HAL_StatusTypeDef ret = HAL_UART_Transmit(pHandle, (uint8_t*)testString, size, 1000 );
 #endif /* TEST */
 
-#endif
+#endif /* CODES_FOR_STM32F7 */
 
     return 1;
 }
