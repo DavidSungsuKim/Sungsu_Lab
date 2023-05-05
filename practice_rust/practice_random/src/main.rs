@@ -17,6 +17,9 @@ fn main()
     func_show_loops();
     func_show_ref();
     func_show_slice_type();
+    func_show_a_struct();
+    func_show_method();
+    func_show_enum_example();
 }
 
 fn func_hello_world()
@@ -170,5 +173,126 @@ fn func_show_ref()
 
 fn func_show_slice_type()
 {
+    let mut s = String::from("hello world");
+    let word  = first_word( &s );
 
+    println!("word={}", word);
+    let byte = s.as_bytes()[word];
+    println!("s[{}]={}", word, byte );
+
+    s.clear();
+
+    let ss = String::from("hello world");
+    let hello = &ss[0..5];
+    let world = &ss[6..11];
+    println!("{} {}", hello, world);
+
+    /* This causes a panic since index 12 is out of bound.
+    let world = &ss[6..12]; 
+    */
+}
+
+fn first_word(s: &String) -> usize 
+{
+    let bytes = s.as_bytes();
+
+    for (i, &item) in bytes.iter().enumerate() 
+    {
+        if item == b'w' 
+        {
+            return i;
+        }
+    }
+
+    s.len()
+}
+
+struct User
+{
+    active: bool,
+    username: String,
+    email: String,
+    sign_in_count: u64,
+}
+
+fn func_show_a_struct()
+{
+    let user1 = User{ active: true, 
+                            username: String::from("JohnDoe"), 
+                            email: String::from("me@com.com"), 
+                            sign_in_count: 1 };
+
+    let user2 = User{ active: user1.active, 
+                            username: user1.username,
+                            email: user1.email,
+                            sign_in_count: user1.sign_in_count };
+
+    struct Color(i32, i32, i32);
+    let black = Color(0,0,0);
+    
+}
+
+fn build_user( email: String, username: String) -> User 
+{
+    User 
+    {
+        active: true,
+        username,
+        email,
+        sign_in_count:1
+    }
+}
+
+struct Rectangle 
+{
+    width: u32,
+    height: u32
+}
+
+impl Rectangle 
+{
+    fn area(&self) -> u32
+    {
+        self.width * self.height
+    }
+
+    fn half_area(&self) -> u32
+    {
+        ( self.area() / (2 as u32) ) as u32
+    }
+}
+
+impl Rectangle
+{
+    fn aux( &self ) -> bool
+    {
+        true
+    }
+}
+
+fn func_show_method( )
+{
+    let rec1 = Rectangle
+    {
+        width: 10,
+        height: 5
+    };
+
+    println!( "height={}, width={}", rec1.height, rec1.width );
+    println!( "area={}", rec1.area() );
+    println!( "half area={}", rec1.half_area() );
+    println!( "aux={}", rec1.aux() );
+}
+
+enum IpAddr 
+{
+    V4(u8, u8, u8, u8),
+    V6(String),
+}
+
+fn func_show_enum_example( )
+{
+    let home = IpAddr::V4(127, 0, 0, 1);
+
+    let i = home[0];
 }
