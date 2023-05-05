@@ -20,6 +20,7 @@ fn main()
     func_show_a_struct();
     func_show_method();
     func_show_enum_example();
+    func_show_match_enum_example();
 }
 
 fn func_hello_world()
@@ -290,9 +291,48 @@ enum IpAddr
     V6(String),
 }
 
+enum Message
+{
+    Quit,
+    Move { x: i32, y: i32 },
+    Write ( String ),
+    ChangeColor( i32, i32, i32 ),
+}
+
+enum Option<T>
+{
+    None,
+    Some(T),
+}
+
 fn func_show_enum_example( )
 {
     let home = IpAddr::V4(127, 0, 0, 1);
+}
 
-    let i = home[0];
+fn func_show_match_enum_example( )
+{
+    let dice_roll = 9;
+    match dice_roll 
+    {
+        3 => println!("3"),
+        7 => println!("7"),
+        _other => println!("other"),    // _other can be replaced with '_'
+    }
+
+    let m1 = Message::Quit;
+    let m2 = Message::Move{ x:1, y:2 };
+    let m3 = Message::Write(String::from("Hello"));
+    let m4 = Message::ChangeColor(1,2,3);
+
+    match m4
+    {
+        Message::Quit => println!("Quit"),
+        Message::Move{ x, y } => println!("x={}, y={}", x, y),
+        Message::Write(string) => println!("string={}", string),
+        Message::ChangeColor( a, b, c) => println!("a={}, b={}, c={}", a,b,c)
+    }
+
+    let option1 = Some(5);
+    let option2 = Some("Hello");
 }
