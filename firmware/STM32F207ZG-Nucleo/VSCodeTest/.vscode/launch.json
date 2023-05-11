@@ -7,11 +7,17 @@
         {
             "name": "Cortex Debug",
             "cwd": "${workspaceFolder}",
-            "executable": "./bin/executable.elf",
+            "executable": "./build/VSCodeTest.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
-            "servertype": "jlink"
+            "servertype": "openocd",
+            "device": "STM32F207ZG",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f2x.cfg"
+            ],
+            "svdFile": "./STM32F217.svd"
         }
     ]
 }
