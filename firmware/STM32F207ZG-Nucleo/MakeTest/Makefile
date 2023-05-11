@@ -187,6 +187,12 @@ clean:
 	-rm -fR $(BUILD_DIR)
   
 #######################################
+# openocd
+#######################################  
+flash: all
+	openocd -f interface/stlink.cfg -f target/stm32f2x.cfg -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
+  
+#######################################
 # dependencies
 #######################################
 -include $(wildcard $(BUILD_DIR)/*.d)
