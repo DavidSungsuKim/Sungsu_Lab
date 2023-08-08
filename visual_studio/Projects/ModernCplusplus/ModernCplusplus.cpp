@@ -31,6 +31,7 @@ void TestModernCpp()
 	printf("test modern C++\r\n");
 
 	CModernCpp	modern;
+	modern.TestRandom();
 	modern.TypeDeduction();
 	modern.UniversalReference();
 	modern.Auto();
@@ -61,6 +62,7 @@ void TestModernCpp()
 	modern.PerfectForwarding();
 	modern.UtilizeTemplate();
 	modern.FunctionObj();
+	modern.ConstIterator2();
 }
 
 void TestModernTemplate()

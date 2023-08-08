@@ -1,10 +1,35 @@
-
+ï»¿
 #include <stdio.h>
 #include <iostream>
 #include <vector>
+#include <span>
 #include "ModernCpp.h"
 
 #define PRINTOUT_FUNC_NAME std::cout << __FUNCTION__ << std::endl; 
+
+void CModernCpp::TestRandom()
+{
+	std::cout<<__FUNCTION__<<std::endl;
+
+	int array[10] = {0};
+	auto span1 = std::span<int>( array, 0 );
+
+	for( auto i : span1 )
+	{
+		std::cout<<i<<std::endl;
+	}
+	
+	std::cout<<"size="<<span1.size()<<std::endl;
+
+	auto span2 = span1;
+
+	for (auto i : span1)
+	{
+		std::cout << i << std::endl;
+	}
+
+	std::cout << "size=" << span1.size() << std::endl;
+}
 
 void CModernCpp::TypeDeduction()
 {
@@ -403,7 +428,7 @@ public:
 class CDerived : public CBase
 {
 public:
-	int func1(void) const { return 1; } // CBase::func1 À» override
+	int func1(void) const { return 1; } // CBase::func1 Ã€Â» override
 };
 
 void CModernCpp::Override()
@@ -1094,4 +1119,98 @@ void CModernCpp::FunctionObj()
 		int value = *pX;
 		value = 0;
 	}
+}
+
+#if 1
+#include <vector>
+class TestConstIter
+{
+public:
+	explicit TestConstIter()
+	{
+		Setup();
+		PrintElements();
+	}
+	
+	void Iterate(void)
+	{
+		std::cout << __FUNCTION__ <<std::endl;
+		for (auto &i : numbers)
+		{
+			i = i * 2;
+		}
+
+		PrintElements();
+	}
+
+	void IterateConst(void) const
+	{
+		std::cout << __FUNCTION__ << std::endl;
+		for (const auto& i : numbers)
+		{
+			auto temp = i * 2;
+		}
+
+		PrintElements();
+	}
+
+	void PrintElements() const
+	{
+		for (const auto& num : numbers)
+		{
+			std::cout << num << std::endl;
+		}
+	}
+
+	void Setup()
+	{
+		std::cout << __FUNCTION__ << std::endl;
+		int i = 10;
+		while (i--)
+		{
+			numbers.push_back(10 - i);
+		}
+	}
+
+	std::vector<int> numbers;
+};
+#endif
+
+void CModernCpp::ConstIterator2()
+{
+	std::cout<< __FUNCTION__ <<std::endl;
+	TestConstIter mytest;
+	mytest.Iterate();
+	mytest.IterateConst();
+
+#if 0
+	std::vector<int> numbers = { 1, 2, 3, 4, 5 };
+
+	#if 1 // works as intended
+	for ( auto it = numbers.begin(); it != numbers.end(); ++it ) 
+	{
+		*it = *it * 2;
+	}
+	#endif
+
+	#if 1 // works as intended
+	for ( std::vector<int>::iterator it = numbers.begin(); it != numbers.end(); ++it )
+	{
+		*it = *it * 2;
+	}
+	#endif
+
+	#if 0 // not allowed
+	for (std::vector<int>::const_iterator it = numbers.begin(); it != numbers.end(); ++it )
+	{
+		*it = *it * 2;
+	}
+	#endif
+
+	for (int num : numbers) 
+	{
+		std::cout << num << std::endl;
+	}
+	std::cout << std::endl;
+#endif
 }

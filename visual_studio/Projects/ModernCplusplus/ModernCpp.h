@@ -29,6 +29,7 @@ public:
 	~CModernCpp() {}
 
 public:
+	void TestRandom();
 	void TypeDeduction();
 	void Auto();
 	void UniversalReference();
@@ -60,6 +61,7 @@ public:
 	void PerfectForwarding();
 	void UtilizeTemplate();
 	void FunctionObj();
+	void ConstIterator2();
 
 	int  GetValue(int parameter) const { return parameter * 2; }
 	constexpr int  GetValue(int parameter) { value = 1; return parameter * 2; }
