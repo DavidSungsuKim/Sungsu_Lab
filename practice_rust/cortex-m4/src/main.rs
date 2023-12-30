@@ -1,12 +1,12 @@
 #![no_main]
 #![no_std]
+
 extern crate cortex_m;
 extern crate cortex_m_rt as runtime;
 extern crate stm32f4;
 
 use core::panic::PanicInfo;
 use stm32f4::stm32f401::Peripherals;
-
 use cortex_m::asm;
 
 #[no_mangle]
