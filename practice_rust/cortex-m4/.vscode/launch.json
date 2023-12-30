@@ -17,8 +17,15 @@
                 "interface/stlink.cfg",
                 "target/stm32f4x.cfg"
             ],
-            "svdFile": "${workspaceFolder}/STM32F7x6.svd"
+            "svdFile": "${workspaceFolder}/STM32F401.svd",
+            "preLaunchTask": "Build binary",
+            "preLaunchCommands": [
+                "monitor init",
+                "monitor reset init",
+                "monitor halt",
+                "monitor flash write_image erase ./target/thumbv7em-none-eabi/debug/cortex-m 0x08000000"
+            ],
+            "postLaunchCommands": ["continue"]
         }
     ],
-    "postLaunchCommands": ["continue"] 
 }
