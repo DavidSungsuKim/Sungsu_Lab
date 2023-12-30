@@ -12,15 +12,26 @@ fn main()
     func_show_ref_argument(&mut z);
     println!("z={}",z);
 
+    println!("func_show_data_types");
     func_show_data_types();
+    println!("func_show_if_expressions"); 
     func_show_if_expressions();
+    println!("func_show_loops"); 
     func_show_loops();
+    println!("func_show_ref"); 
     func_show_ref();
+    println!("func_show_slice_type"); 
     func_show_slice_type();
+    println!("func_show_a_struct"); 
     func_show_a_struct();
+    println!("func_show_method"); 
     func_show_method();
+    println!("func_show_enum_example"); 
     func_show_enum_example();
+    println!("func_show_match_enum_example"); 
     func_show_match_enum_example();
+    println!("func_show_vector_example"); 
+    func_show_vector_example(); 
 }
 
 fn func_hello_world()
@@ -64,7 +75,7 @@ fn func_show_data_types()
     println!("u_byte={}", u_byte);
 
     // floating-point type
-    let x = 2.1;
+    let x: f64 = 2.1;
     let y: f32 = 2.1;
     println!("x={}",x);
     println!("y={}",y);
@@ -144,7 +155,7 @@ fn func_show_ref()
     *ref_b = 3;  
     println!("ref_b={}", ref_b);
 
-    let mut s = String::from("hello");
+    let mut s: String = String::from("hello");
     let ref_s = &mut s;
     let ref_s = "hallo";
     println!("ref_s={}", ref_s);
@@ -168,8 +179,7 @@ fn func_show_ref()
         let s = String::from("hello");
         &s
     }
-}
-     */
+    */
 }
 
 fn func_show_slice_type()
@@ -305,12 +315,17 @@ enum Option<T>
     Some(T),
 }
 
-fn func_show_enum_example( )
+fn func_show_enum_example()
 {
     let home = IpAddr::V4(127, 0, 0, 1);
+    let msg = Message::Move { x: 1, y: 2 };
+    let optNone: Option<u32> = Option::None;
+    let optSome1 = Some(1);
+    let optSome2 = Some(5);
+    let optSome3 = Some("Hello");    
 }
 
-fn func_show_match_enum_example( )
+fn func_show_match_enum_example()
 {
     let dice_roll = 9;
     match dice_roll 
@@ -320,19 +335,36 @@ fn func_show_match_enum_example( )
         _other => println!("other"),    // _other can be replaced with '_'
     }
 
-    let m1 = Message::Quit;
-    let m2 = Message::Move{ x:1, y:2 };
-    let m3 = Message::Write(String::from("Hello"));
-    let m4 = Message::ChangeColor(1,2,3);
+    //let m = Message::Quit;
+    //let m = Message::Move{ x:1, y:2 };
+    //let m = Message::Write(String::from("Hello"));
+    let m = Message::ChangeColor(1,2,3);
 
-    match m4
+    match m
     {
         Message::Quit => println!("Quit"),
         Message::Move{ x, y } => println!("x={}, y={}", x, y),
         Message::Write(string) => println!("string={}", string),
         Message::ChangeColor( a, b, c) => println!("a={}, b={}, c={}", a,b,c)
     }
+}
 
-    let option1 = Some(5);
-    let option2 = Some("Hello");
+fn func_show_vector_example()
+{
+    let v: Vec<i32> = Vec::new();
+
+    let v2 = vec![1,2,3];
+
+    let mut v3: Vec<i32> = Vec::new();
+    v3.push(1);
+    v3.push(2);
+
+    let v3First : &i32 = &v3[0];
+
+    let v3Third : std::option::Option<&i32> = v3.get(0);
+    match v3Third
+    {
+        Some(v3Third) => println!("some"),
+        None => println!("none"),
+    }
 }
