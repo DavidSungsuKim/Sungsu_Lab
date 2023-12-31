@@ -13,20 +13,29 @@ use cortex_m::asm;
 fn main() -> ! {
     let per = Peripherals::take().unwrap();
 
+    setup_led( &per );
+
+    loop {      
+        toggle_led( &per );
+        wait_tick( 10000 );
+    }
+}
+
+fn setup_led( per : &Peripherals ) {
     // Enable the clock for GPIOA
     per.RCC.ahb1enr.write(|w| w.gpioaen().bit(true));
     
     // Configure pin as output
     per.GPIOA.moder.write(|w| w.moder5().bits(0b01));
+}
 
-    // can't return so we go into an infinite loop here
-    loop {
-        // Toggle the LED output
-        per.GPIOA.odr.modify(|r,w| w.odr5().bit(r.odr5().bit_is_clear()));     
+fn toggle_led( per : &Peripherals ) {   
+    per.GPIOA.odr.modify(|r,w| w.odr5().bit(r.odr5().bit_is_clear()));     
+}
 
-        for _i in 0..5000 {
-             asm::nop()
-        }
+fn wait_tick( count : u32 ) {
+    for _i in 0..count {
+        asm::nop()
     }
 }
 
