@@ -3,34 +3,28 @@
 
 extern crate cortex_m;
 extern crate cortex_m_rt as runtime;
-extern crate stm32f4;
+extern crate stm32f4xx_hal;
 
 use core::panic::PanicInfo;
-use stm32f4::stm32f401::Peripherals;
 use cortex_m::asm;
+use stm32f4xx_hal as hal;
+use crate::hal::{pac, prelude::*};
+use cortex_m_rt::entry;
 
-#[no_mangle]
+#[entry]
 fn main() -> ! {
-    let per = Peripherals::take().unwrap();
+    let p = pac::Peripherals::take().unwrap();
 
-    setup_led( &per );
+    let gpioa = p.GPIOA.split();
+    let mut led = gpioa.pa5.into_push_pull_output();
 
-    loop {      
-        toggle_led( &per );
-        wait_tick( 10000 );
+    loop {
+        wait_tick( 100000 );
+        led.set_high();
+        
+        wait_tick( 1000 ); 
+        led.set_low();
     }
-}
-
-fn setup_led( per : &Peripherals ) {
-    // Enable the clock for GPIOA
-    per.RCC.ahb1enr.write(|w| w.gpioaen().bit(true));
-    
-    // Configure pin as output
-    per.GPIOA.moder.write(|w| w.moder5().bits(0b01));
-}
-
-fn toggle_led( per : &Peripherals ) {   
-    per.GPIOA.odr.modify(|r,w| w.odr5().bit(r.odr5().bit_is_clear()));     
 }
 
 fn wait_tick( count : u32 ) {
