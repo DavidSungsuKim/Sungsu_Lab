@@ -7,7 +7,7 @@
         {
             "name": "Cortex Debug",
             "cwd": "${workspaceFolder}",
-            "executable": "${workspaceFolder}/target/thumbv7em-none-eabi/debug/cortex-m",
+            "executable": "${workspaceFolder}/target/thumbv7em-none-eabi/debug/nucleo-f401",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
@@ -23,7 +23,7 @@
                 "monitor init",
                 "monitor reset init",
                 "monitor halt",
-                "monitor flash write_image erase ./target/thumbv7em-none-eabi/debug/cortex-m 0x08000000"
+                "monitor flash write_image erase ./target/thumbv7em-none-eabi/debug/nucleo-f401 0x08000000"
             ],
             "postLaunchCommands": ["continue"]
         }
