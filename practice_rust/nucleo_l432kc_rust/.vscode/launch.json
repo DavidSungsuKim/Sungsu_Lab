@@ -1,0 +1,31 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Cortex Debug",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/target/thumbv7em-none-eabi/debug/nucleo-l432-rust",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "servertype": "openocd",
+            "device": "STM32L432KC",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32l4x.cfg"
+            ],
+            "svdFile": "${workspaceFolder}/STM32L4x2.svd",
+            "preLaunchTask": "Build binary",
+            "preLaunchCommands": [
+                "monitor init",
+                "monitor reset init",
+                "monitor halt",
+                "monitor flash write_image erase ./target/thumbv7em-none-eabi/debug/nucleo-l432-rust 0x08000000"
+            ],
+            "postLaunchCommands": ["continue"]
+        }
+    ],
+}
