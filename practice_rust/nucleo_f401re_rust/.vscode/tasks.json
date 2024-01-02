@@ -19,8 +19,8 @@
             "command": "arm-none-eabi-objcopy",
             "args": [
                 "--output-target", "binary",
-                "./target/thumbv7em-none-eabi/release/nucleo-f401",
-                "./target/thumbv7em-none-eabi/release/nucleo-f401.bin"],
+                "./target/thumbv7em-none-eabi/release/nucleo-f401-rust",
+                "./target/thumbv7em-none-eabi/release/nucleo-f401-rust.bin"],
             "problemMatcher": [
                 "$rustc"
             ],

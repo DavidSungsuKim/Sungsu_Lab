@@ -1,5 +1,5 @@
 [package]
-name = "nucleo-f401"
+name = "nucleo-f401-rust"
 version = "0.1.0"
 edition = "2021"
 
