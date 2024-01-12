@@ -5,26 +5,72 @@ extern crate cortex_m;
 extern crate cortex_m_rt as runtime;
 extern crate stm32l4xx_hal;
 
+#[macro_use(block)]
+extern crate nb;
+
 use core::panic::PanicInfo;
 use cortex_m::asm;
 use stm32l4xx_hal as hal;
 use crate::hal::prelude::*;
+use crate::hal::serial::Serial;
 use cortex_m_rt::entry;
 
 #[entry]
 fn main() -> ! {
+    // common setup for the H/W
     let p = hal::stm32::Peripherals::take().unwrap(); 
+    let mut rcc = p.RCC.constrain();
 
-    let mut rcc = p.RCC.constrain(); 
-    let mut gpiob: hal::gpio::gpiob::Parts = p.GPIOB.split( &mut rcc.ahb2 );
-    let mut led= gpiob.pb3.into_push_pull_output( &mut gpiob.moder, &mut gpiob.otyper );
+    // setup for the led toggling
+    let mut gpiob = p.GPIOB.split( &mut rcc.ahb2 );
+    let mut led = gpiob.pb3.into_push_pull_output( &mut gpiob.moder, &mut gpiob.otyper );
+
+    // setup for the serial
+    let mut flash = p.FLASH.constrain();
+    let mut pwr = p.PWR.constrain(&mut rcc.apb1r1);
+    let mut gpioa = p.GPIOA.split( &mut rcc.ahb2 );
+
+    let clocks = rcc
+    .cfgr
+    .sysclk( 80.MHz() )
+    .pclk1( 80.MHz() )
+    .pclk2( 80.MHz() )
+    .freeze( &mut flash.acr, &mut pwr );
+
+    let tx = gpioa
+    .pa2
+    .into_alternate( &mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl );
+
+    let rx = gpioa
+    .pa3
+    .into_alternate( &mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl );
+
+    let serial = Serial::usart2( p.USART2, (tx, rx), 115_200.bps(), clocks, &mut rcc.apb1r1 );
+    let ( mut tx, mut _rx ) = serial.split();
+
+    // let received = block!(rx.read()).unwrap();  
+    // assert_eq!(received, sent);
+
+    let mut num = b'1';
 
     loop {
-        wait_tick( 10000 );
+      
+        // for led toggling test
+        wait_tick( 100000 );
         led.set_high();
         
-        wait_tick( 10000 ); 
+        wait_tick( 100000 ); 
         led.set_low();
+
+        // for serial test
+        block!(tx.write( num )).ok();
+        block!(tx.write( b'\r' )).ok();
+        block!(tx.write( b'\n' )).ok();
+
+        num += 1;
+        if num == b'9' {
+            num = b'0';
+        }
     }
 }
 
