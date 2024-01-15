@@ -14,6 +14,9 @@ use stm32l4xx_hal as hal;
 use crate::hal::prelude::*;
 use crate::hal::serial::Serial;
 use cortex_m_rt::entry;
+use crate::hal::serial;
+use crate::hal::pac::USART2;
+use crate::serial::Tx;
 
 #[entry]
 fn main() -> ! {
@@ -63,9 +66,9 @@ fn main() -> ! {
         led.set_low();
 
         // for serial test
-        block!(tx.write( num )).ok();
-        block!(tx.write( b'\r' )).ok();
-        block!(tx.write( b'\n' )).ok();
+        send_bytes( &mut tx, "hello=" );
+        send_byte( &mut tx, num );
+        send_bytes( &mut tx, "\r\n" );
 
         num += 1;
         if num == b'9' {
@@ -74,10 +77,37 @@ fn main() -> ! {
     }
 }
 
-fn wait_tick( count : u32 ) {
+fn wait_tick(count: u32) {
     for _i in 0..count {
         asm::nop()
     }
+}
+
+trait SendByte {
+    fn send_byte(&mut self, byte: u8);
+    fn send_bytes(&mut self, bytes: &str);    
+}
+
+impl SendByte for Tx<USART2> {
+    fn send_byte(&mut self, byte: u8) {
+        // here we have concrete Self: Tx<USART1>
+        // so we can do whatever the type supports
+        block!(self.write(byte)).ok();
+    }   
+
+    fn send_bytes(&mut self, bytes: &str) {
+        for byte in bytes.bytes() {
+            block!(self.write(byte)).ok();
+        }       
+    }      
+}
+
+fn send_byte<Tx: SendByte>(tx: &mut Tx, byte: u8) {
+    tx.send_byte(byte);
+}
+
+fn send_bytes<Tx: SendByte>(tx: &mut Tx, bytes: &str) {
+    tx.send_bytes(bytes);
 }
 
 #[panic_handler]
