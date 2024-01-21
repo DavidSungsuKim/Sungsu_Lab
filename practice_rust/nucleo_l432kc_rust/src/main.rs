@@ -18,6 +18,9 @@ use crate::hal::serial;
 use crate::hal::pac::USART2;
 use crate::serial::Tx;
 
+use heapless::String;
+use core::fmt;
+
 #[entry]
 fn main() -> ! {
     // common setup for the H/W
@@ -54,10 +57,8 @@ fn main() -> ! {
     // let received = block!(rx.read()).unwrap();  
     // assert_eq!(received, sent);
 
-    let mut num = b'1';
-
+    let mut num = 1;
     loop {
-      
         // for led toggling test
         wait_tick( 100000 );
         led.set_high();
@@ -66,14 +67,17 @@ fn main() -> ! {
         led.set_low();
 
         // for serial test
-        send_bytes( &mut tx, "hello=" );
-        send_byte( &mut tx, num );
-        send_bytes( &mut tx, "\r\n" );
-
-        num += 1;
-        if num == b'9' {
-            num = b'0';
+        let received = _rx.read().ok();
+        if let Some(ch) = received {
+            let mut my_str: String<10> = String::new();
+            fmt::write( &mut my_str, format_args!( "rx: {}\r\n", ch as char) ).expect("err");
+            send_bytes( &mut tx, &my_str );
         }
+
+        let mut my_str2: String<20> = String::new();
+        fmt::write( &mut my_str2, format_args!( "tx: {}\r\n", num ) ).expect("err");
+        send_bytes( &mut tx, &my_str2 );
+        num += 1;
     }
 }
 
