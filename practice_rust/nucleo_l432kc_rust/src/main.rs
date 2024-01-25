@@ -20,6 +20,8 @@ use crate::serial::Tx;
 
 use heapless::String;
 use core::fmt;
+use crate::hal::time;
+use hal::time::MonoTimer;
 
 #[entry]
 fn main() -> ! {
@@ -54,30 +56,47 @@ fn main() -> ! {
     let serial = Serial::usart2( p.USART2, (tx, rx), 115_200.bps(), clocks, &mut rcc.apb1r1 );
     let ( mut tx, mut _rx ) = serial.split();
 
-    // let received = block!(rx.read()).unwrap();  
-    // assert_eq!(received, sent);
+    // setup for the monotonic timer (under construction now...)
+    //let mut mono_timer = MonoTimer::new( &mut p, clocks );
+
+    // variables
+    let mut str_rx_buffer: String<32> = String::new();
+    str_rx_buffer.clear();
 
     let mut num = 1;
+    let mut tick = 0;
+
     loop {
-        // for led toggling test
-        wait_tick( 100000 );
-        led.set_high();
-        
-        wait_tick( 100000 ); 
-        led.set_low();
+
+        // for led test
+        tick += 1;
+        if tick > 100000 {
+            led.toggle();
+            tick = 0;
+        }
 
         // for serial test
         let received = _rx.read().ok();
         if let Some(ch) = received {
-            let mut my_str: String<10> = String::new();
-            fmt::write( &mut my_str, format_args!( "rx: {}\r\n", ch as char) ).expect("err");
-            send_bytes( &mut tx, &my_str );
+
+            // push byte into the string buffer
+            str_rx_buffer.push( ch as char ).unwrap();
+            if ch == b'\r' {
+                // print out what's been received if it receives CR
+                str_rx_buffer.push( b'\n' as char ).unwrap();
+                send_bytes( &mut tx, &str_rx_buffer );
+                str_rx_buffer.clear(); 
+            }
+
+            // let mut my_str: String<10> = String::new();
+            // fmt::write( &mut my_str, format_args!( "rx: {}\r\n", ch as char) ).expect("err");
+            // send_bytes( &mut tx, &my_str );
         }
 
-        let mut my_str2: String<20> = String::new();
-        fmt::write( &mut my_str2, format_args!( "tx: {}\r\n", num ) ).expect("err");
-        send_bytes( &mut tx, &my_str2 );
-        num += 1;
+        // let mut my_str2: String<20> = String::new();
+        // fmt::write( &mut my_str2, format_args!( "tx: {}\r\n", num ) ).expect("err");
+        // send_bytes( &mut tx, &my_str2 );
+        // num += 1;
     }
 }
 
