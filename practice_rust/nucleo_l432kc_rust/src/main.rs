@@ -60,30 +60,33 @@ fn main() -> ! {
     cp.DCB.enable_trace();
     cp.DWT.enable_cycle_counter();
     let timer: MonoTimer = MonoTimer::new( cp.DWT, clocks );
-    let freq = timer.frequency();
-    let mut time = timer.now();
+    let time_global = timer.now();
+    let mut time_tick = time_global;
 
     // other variables
     let mut str_rx_buffer: String<32> = String::new();
     str_rx_buffer.clear();
-    let mut num = 1;
+
+    let get_tick_ms = |ms: u32| -> u32 { 
+        timer.frequency().to_Hz() / 1000 * ms
+    };
+
+    let tick_cnt_for_action = get_tick_ms( 1000 );
     
     // main loop
     loop {
 
-        // do something every 1sec
-        let time_elapsed = time.elapsed();
-        if time_elapsed > freq.to_Hz() {
-            time = timer.now();
+        // take some actions
+        if time_tick.elapsed() > tick_cnt_for_action {
+            time_tick = timer.now();
 
             // toggle led
             led.toggle();
 
             // send time string 
             let mut my_str2: String<48> = String::new();
-            fmt::write( &mut my_str2, format_args!( "tx: elapsed: {} [sec]\r\n", num ) ).expect("err");
-            send_bytes( &mut tx, &my_str2 );
-            num += 1;            
+            fmt::write( &mut my_str2, format_args!( "tx: elapsed: {} [tick]\r\n", time_global.elapsed() ) ).expect("err");
+            send_bytes( &mut tx, &my_str2 );          
         }
 
         // for serial test
