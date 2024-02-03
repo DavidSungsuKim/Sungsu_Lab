@@ -9,19 +9,18 @@ extern crate stm32l4xx_hal;
 extern crate nb;
 
 use core::panic::PanicInfo;
-use cortex_m::asm;
-use stm32l4xx_hal as hal;
-use crate::hal::prelude::*;
-use crate::hal::serial::Serial;
-use cortex_m_rt::entry;
-use crate::hal::serial;
-use crate::hal::pac::USART2;
-use crate::serial::Tx;
-
-use heapless::String;
 use core::fmt;
-use crate::hal::time;
+use cortex_m::asm;
+use cortex_m_rt::entry;
+use stm32l4xx_hal as hal;
+use hal::prelude::*;
+use hal::serial::Serial;
+use hal::serial;
+use hal::pac::{USART2, Peripherals};
 use hal::time::MonoTimer;
+use hal::serial::Tx;
+use heapless::String;
+use embedded_time::{duration::*, Clock as _, Instant};
 
 #[entry]
 fn main() -> ! {
@@ -57,22 +56,34 @@ fn main() -> ! {
     let ( mut tx, mut _rx ) = serial.split();
 
     // setup for the monotonic timer (under construction now...)
-    //let mut mono_timer = MonoTimer::new( &mut p, clocks );
+    let mut cp = cortex_m::Peripherals::take().unwrap();
+    cp.DCB.enable_trace();
+    cp.DWT.enable_cycle_counter();
+    let timer: MonoTimer = MonoTimer::new( cp.DWT, clocks );
+    let freq = timer.frequency();
+    let mut time = timer.now();
 
-    // variables
+    // other variables
     let mut str_rx_buffer: String<32> = String::new();
     str_rx_buffer.clear();
-
     let mut num = 1;
-    let mut tick = 0;
-
+    
+    // main loop
     loop {
 
-        // for led test
-        tick += 1;
-        if tick > 100000 {
+        // do something every 1sec
+        let time_elapsed = time.elapsed();
+        if time_elapsed > freq.to_Hz() {
+            time = timer.now();
+
+            // toggle led
             led.toggle();
-            tick = 0;
+
+            // send time string 
+            let mut my_str2: String<48> = String::new();
+            fmt::write( &mut my_str2, format_args!( "tx: elapsed: {} [sec]\r\n", num ) ).expect("err");
+            send_bytes( &mut tx, &my_str2 );
+            num += 1;            
         }
 
         // for serial test
