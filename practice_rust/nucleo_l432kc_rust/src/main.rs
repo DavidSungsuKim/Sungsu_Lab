@@ -10,17 +10,14 @@ extern crate nb;
 
 use core::panic::PanicInfo;
 use core::fmt;
-use cortex_m::asm;
 use cortex_m_rt::entry;
 use stm32l4xx_hal as hal;
 use hal::prelude::*;
 use hal::serial::Serial;
-use hal::serial;
-use hal::pac::{USART2, Peripherals};
+use hal::pac::{USART2};
 use hal::time::MonoTimer;
 use hal::serial::Tx;
 use heapless::String;
-use embedded_time::{duration::*, Clock as _, Instant};
 
 #[entry]
 fn main() -> ! {
@@ -114,12 +111,6 @@ fn main() -> ! {
     }
 }
 
-fn wait_tick(count: u32) {
-    for _i in 0..count {
-        asm::nop()
-    }
-}
-
 trait SendByte {
     fn send_byte(&mut self, byte: u8);
     fn send_bytes(&mut self, bytes: &str);    
@@ -137,10 +128,6 @@ impl SendByte for Tx<USART2> {
             block!(self.write(byte)).ok();
         }       
     }      
-}
-
-fn send_byte<Tx: SendByte>(tx: &mut Tx, byte: u8) {
-    tx.send_byte(byte);
 }
 
 fn send_bytes<Tx: SendByte>(tx: &mut Tx, bytes: &str) {
