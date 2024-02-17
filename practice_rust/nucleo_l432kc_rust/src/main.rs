@@ -89,12 +89,14 @@ fn main() -> ! {
         // for serial test
         let received = _rx.read().ok();
         if let Some(ch) = received {
-
-            // push byte into the string buffer
-            str_rx_buffer.push( ch as char ).unwrap();
-            if ch == b'\r' {
-                // print out what's been received if it receives CR
-                str_rx_buffer.push( b'\n' as char ).unwrap();
+            if ch != b'\n' {
+                // push byte into the string buffer
+                str_rx_buffer.push( ch as char ).unwrap();
+            }
+            else {
+                // echo what it has received
+                send_bytes( &mut tx, "echo:");
+                str_rx_buffer.push_str("\r\n").unwrap();
                 send_bytes( &mut tx, &str_rx_buffer );
                 str_rx_buffer.clear(); 
             }
