@@ -1,4 +1,6 @@
 
+use clap::{Arg, Command, ArgAction};
+
 fn main() 
 {
     func_hello_world();
@@ -32,6 +34,32 @@ fn main()
     func_show_match_enum_example();
     println!("func_show_vector_example"); 
     func_show_vector_example(); 
+
+    func_test_clap_parser();
+}
+
+fn func_test_clap_parser()
+{
+    let matches = Command::new("MyApp")
+    .arg(Arg::new("out")
+        .long("output")
+        .required(true)
+        .action(ArgAction::Set)
+        .default_value("-"))
+    .arg(Arg::new("cfg")
+        .short('c')
+        .action(ArgAction::Set))
+    .get_matches(); // builds the instance of ArgMatches
+
+    if let Some(output) = matches.get_one::<String>("out") {
+        println!("Value for --output: {output}");
+    }
+
+    // to get information about the "cfg" argument we created, such as the value supplied we use
+    // various ArgMatches methods, such as [ArgMatches::get_one]
+    if let Some(c) = matches.get_one::<String>("cfg") {
+        println!("Value for -c: {c}");
+    }    
 }
 
 fn func_hello_world()
@@ -128,7 +156,7 @@ fn func_show_loops()
     }
 
     let mut count = 10;
-    while( count != 0 )
+    while count != 0 
     {
         println!("count={}", count);
         count -= 1;
