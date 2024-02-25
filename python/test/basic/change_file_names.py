@@ -3,7 +3,6 @@
 # detail
 #  A .mp3 file name for it is basicallly like this: "입트영 24년 2월 1일.mp3"
 #  And title looks like this: "1 Thu. Car Door Dings / 차량 문콕 테러"
-#  Note that in the titles.txt, anything for 'Weekly Review' must be removed manually beforehand.
 #  And if one of these formats is changed, the code should be changed accordingly to correctly parse
 #  and change file names.
 #######################################################################################################
@@ -12,7 +11,7 @@ import os
 
 dir_path = os.getcwd()
 
-# get only files names ending .mp3
+# get only files names ending with .mp3
 file_names = os.listdir(dir_path)
 mp3_file_names = [file for file in file_names if file.endswith(".mp3")]
 
@@ -27,9 +26,17 @@ lines = f_title_file.readlines()
 for line in lines:
     #print(line)
     
+    if "Weekly Review" in line:
+        continue
+    if "week" in line:
+        continue
+    if len(line) < 5: 
+        continue
+    
     # create a new file name
-    line = line.replace("\n","")
-    line = line.replace(" / ","_")
+    line = line.replace("\n","")    # remove if it exists
+    line = line.replace("?", "")    # remove if it exists
+    line = line.replace(" / ","_")  # replace with it
     index_slicing = line.find('.') + 2
     new_title = line[index_slicing:]
     
