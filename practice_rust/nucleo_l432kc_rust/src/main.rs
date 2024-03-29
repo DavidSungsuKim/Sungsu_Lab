@@ -18,6 +18,7 @@ use hal::pac::{USART2};
 use hal::time::MonoTimer;
 use hal::serial::Tx;
 use heapless::String;
+use heapless::Vec;
 
 #[entry]
 fn main() -> ! {
@@ -100,16 +101,32 @@ fn main() -> ! {
                 send_bytes( &mut tx, &str_rx_buffer );
                 str_rx_buffer.clear(); 
             }
-
-            // let mut my_str: String<10> = String::new();
-            // fmt::write( &mut my_str, format_args!( "rx: {}\r\n", ch as char) ).expect("err");
-            // send_bytes( &mut tx, &my_str );
         }
+    }
+}
 
-        // let mut my_str2: String<20> = String::new();
-        // fmt::write( &mut my_str2, format_args!( "tx: {}\r\n", num ) ).expect("err");
-        // send_bytes( &mut tx, &my_str2 );
-        // num += 1;
+fn parse_command(input: &str) -> (&str, Option<&str>) {
+    let mut parts: Vec<&str, 2> = Vec::new();
+    
+    let mut start = 0;
+    
+    for (index, character) in input.char_indices() {
+        if character == ' ' {
+            if start != index {
+                parts.push(&input[start..index]).ok();
+            }
+            start = index + 1;
+        }
+    }
+    
+    if start < input.len() {
+        parts.push(&input[start..]).ok();
+    }
+    
+    match parts.as_slice() {
+        [command, option] => (*command, Some(*option)),
+        [command] => (*command, None),
+        _ => ("", None),
     }
 }
 
