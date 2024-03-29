@@ -82,9 +82,9 @@ fn main() -> ! {
             led.toggle();
 
             // send time string 
-            let mut my_str2: String<48> = String::new();
-            fmt::write( &mut my_str2, format_args!( "tx: elapsed: {} [tick]\r\n", time_global.elapsed() ) ).expect("err");
-            send_bytes( &mut tx, &my_str2 );          
+            // let mut my_str2: String<48> = String::new();
+            // fmt::write( &mut my_str2, format_args!( "tx: elapsed: {} [tick]\r\n", time_global.elapsed() ) ).expect("err");
+            // send_bytes( &mut tx, &my_str2 );          
         }
 
         // for serial test
@@ -95,11 +95,17 @@ fn main() -> ! {
                 str_rx_buffer.push( ch as char ).unwrap();
             }
             else {
-                // echo what it has received
-                send_bytes( &mut tx, "echo:");
-                str_rx_buffer.push_str("\r\n").unwrap();
-                send_bytes( &mut tx, &str_rx_buffer );
-                str_rx_buffer.clear(); 
+
+                let( command, option ) = parse_command( &str_rx_buffer );
+
+                send_bytes( &mut tx, command);
+                send_bytes( &mut tx, option.unwrap_or(""));
+
+                // // echo what it has received
+                // send_bytes( &mut tx, "echo:");
+                // str_rx_buffer.push_str("\r\n").unwrap();
+                // send_bytes( &mut tx, &str_rx_buffer );
+                // str_rx_buffer.clear(); 
             }
         }
     }
