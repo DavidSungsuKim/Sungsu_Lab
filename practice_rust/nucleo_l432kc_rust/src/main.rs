@@ -13,53 +13,18 @@ use core::fmt;
 use cortex_m_rt::entry;
 use stm32l4xx_hal as hal;
 use hal::prelude::*;
-use hal::serial::Serial;
-use hal::pac::{USART2};
+use hal::serial::{Serial, Tx};
+use hal::pac::USART2;
 use hal::time::MonoTimer;
-use hal::serial::Tx;
+use hal::gpio::gpiob::PB3;
+use hal::gpio::Output;
+use hal::gpio::PushPull;
 use heapless::String;
 use heapless::Vec;
 
 #[entry]
 fn main() -> ! {
-    // common setup for the H/W
-    let p = hal::stm32::Peripherals::take().unwrap(); 
-    let mut rcc = p.RCC.constrain();
-
-    // setup for the led toggling
-    let mut gpiob = p.GPIOB.split( &mut rcc.ahb2 );
-    let mut led = gpiob.pb3.into_push_pull_output( &mut gpiob.moder, &mut gpiob.otyper );
-
-    // setup for the serial
-    let mut flash = p.FLASH.constrain();
-    let mut pwr = p.PWR.constrain(&mut rcc.apb1r1);
-    let mut gpioa = p.GPIOA.split( &mut rcc.ahb2 );
-
-    let clocks = rcc
-    .cfgr
-    .sysclk( 80.MHz() )
-    .pclk1( 80.MHz() )
-    .pclk2( 80.MHz() )
-    .freeze( &mut flash.acr, &mut pwr );
-
-    let tx = gpioa
-    .pa2
-    .into_alternate( &mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl );
-
-    let rx = gpioa
-    .pa3
-    .into_alternate( &mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl );
-
-    let serial = Serial::usart2( p.USART2, (tx, rx), 115_200.bps(), clocks, &mut rcc.apb1r1 );
-    let ( mut tx, mut _rx ) = serial.split();
-
-    // setup for the monotonic timer (under construction now...)
-    let mut cp = cortex_m::Peripherals::take().unwrap();
-    cp.DCB.enable_trace();
-    cp.DWT.enable_cycle_counter();
-    let timer: MonoTimer = MonoTimer::new( cp.DWT, clocks );
-    let time_global = timer.now();
-    let mut time_tick = time_global;
+    let (mut led, mut tx, mut _rx, timer) = init_hardware();
 
     // other variables
     let mut str_rx_buffer: String<32> = String::new();
@@ -69,12 +34,11 @@ fn main() -> ! {
         timer.frequency().to_Hz() / 1000 * ms
     };
 
-    let tick_cnt_for_action = get_tick_ms( 1000 );
+    let tick_cnt_for_action = get_tick_ms(1000);
+    let mut time_tick = timer.now();
     
     // main loop
     loop {
-
-        // take some actions
         if time_tick.elapsed() > tick_cnt_for_action {
             time_tick = timer.now();
 
@@ -97,18 +61,42 @@ fn main() -> ! {
             else {
 
                 let( command, option ) = parse_command( &str_rx_buffer );
-
+                
+                // echo what it has received
+                send_bytes( &mut tx, "echo:");
                 send_bytes( &mut tx, command);
                 send_bytes( &mut tx, option.unwrap_or(""));
-
-                // // echo what it has received
-                // send_bytes( &mut tx, "echo:");
-                // str_rx_buffer.push_str("\r\n").unwrap();
-                // send_bytes( &mut tx, &str_rx_buffer );
-                // str_rx_buffer.clear(); 
+                send_bytes( &mut tx, "\r\n");
             }
         }
     }
+}
+
+fn init_hardware() -> (PB3<Output<PushPull>>, Tx<USART2>, hal::serial::Rx<USART2>, MonoTimer) {
+    let p = hal::stm32::Peripherals::take().unwrap();
+    let mut rcc = p.RCC.constrain();
+
+    let mut gpiob = p.GPIOB.split(&mut rcc.ahb2);
+    let led = gpiob.pb3.into_push_pull_output(&mut gpiob.moder, &mut gpiob.otyper);
+
+    let mut flash = p.FLASH.constrain();
+    let mut pwr = p.PWR.constrain(&mut rcc.apb1r1);
+    let mut gpioa = p.GPIOA.split(&mut rcc.ahb2);
+
+    let clocks = rcc.cfgr.sysclk(80.MHz()).pclk1(80.MHz()).pclk2(80.MHz()).freeze(&mut flash.acr, &mut pwr);
+
+    let tx = gpioa.pa2.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
+    let rx = gpioa.pa3.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
+
+    let serial = Serial::usart2(p.USART2, (tx, rx), 115_200.bps(), clocks, &mut rcc.apb1r1);
+    let (mut tx, mut rx) = serial.split();
+
+    let mut cp = cortex_m::Peripherals::take().unwrap();
+    cp.DCB.enable_trace();
+    cp.DWT.enable_cycle_counter();
+    let timer: MonoTimer = MonoTimer::new(cp.DWT, clocks);
+
+    (led, tx, rx, timer)
 }
 
 fn parse_command(input: &str) -> (&str, Option<&str>) {
