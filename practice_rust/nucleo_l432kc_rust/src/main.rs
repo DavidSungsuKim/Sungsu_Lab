@@ -9,7 +9,6 @@ extern crate stm32l4xx_hal;
 extern crate nb;
 
 use core::panic::PanicInfo;
-use core::fmt;
 use cortex_m_rt::entry;
 use stm32l4xx_hal as hal;
 use hal::prelude::*;
@@ -21,10 +20,13 @@ use hal::gpio::Output;
 use hal::gpio::PushPull;
 use heapless::String;
 use heapless::Vec;
+use core::fmt::Write;
 
 #[entry]
 fn main() -> ! {
-    let (mut led, mut tx, mut _rx, timer) = init_hardware();
+    let (mut led, tx, mut _rx, timer) = init_hardware();
+
+    let mut formatter = SerialFormatter::new(tx);
 
     // other variables
     let mut str_rx_buffer: String<32> = String::new();
@@ -36,6 +38,8 @@ fn main() -> ! {
 
     let tick_cnt_for_action = get_tick_ms(1000);
     let mut time_tick = timer.now();
+
+    send!(formatter, "Welcome to STM32L431 Rust Project\r\n");
     
     // main loop
     loop {
@@ -44,11 +48,6 @@ fn main() -> ! {
 
             // toggle led
             led.toggle();
-
-            // send time string 
-            // let mut my_str2: String<48> = String::new();
-            // fmt::write( &mut my_str2, format_args!( "tx: elapsed: {} [tick]\r\n", time_global.elapsed() ) ).expect("err");
-            // send_bytes( &mut tx, &my_str2 );          
         }
 
         // for serial test
@@ -63,10 +62,7 @@ fn main() -> ! {
                 let( command, option ) = parse_command( &str_rx_buffer );
                 
                 // echo what it has received
-                send_bytes( &mut tx, "echo:");
-                send_bytes( &mut tx, command);
-                send_bytes( &mut tx, option.unwrap_or(""));
-                send_bytes( &mut tx, "\r\n");
+                send!(formatter, "Command:{} option:{}\r\n", command, option.unwrap_or("")); 
             }
         }
     }
@@ -89,7 +85,7 @@ fn init_hardware() -> (PB3<Output<PushPull>>, Tx<USART2>, hal::serial::Rx<USART2
     let rx = gpioa.pa3.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
 
     let serial = Serial::usart2(p.USART2, (tx, rx), 115_200.bps(), clocks, &mut rcc.apb1r1);
-    let (mut tx, mut rx) = serial.split();
+    let (tx, rx) = serial.split();
 
     let mut cp = cortex_m::Peripherals::take().unwrap();
     cp.DCB.enable_trace();
@@ -131,20 +127,38 @@ trait SendByte {
 
 impl SendByte for Tx<USART2> {
     fn send_byte(&mut self, byte: u8) {
-        // here we have concrete Self: Tx<USART1>
-        // so we can do whatever the type supports
         block!(self.write(byte)).ok();
     }   
 
     fn send_bytes(&mut self, bytes: &str) {
         for byte in bytes.bytes() {
-            block!(self.write(byte)).ok();
+            self.send_byte(byte);
         }       
     }      
 }
 
-fn send_bytes<Tx: SendByte>(tx: &mut Tx, bytes: &str) {
-    tx.send_bytes(bytes);
+struct SerialFormatter<T: SendByte> {
+    tx: T,
+}
+
+impl<T: SendByte> SerialFormatter<T> {
+    fn new(tx: T) -> Self {
+        SerialFormatter { tx }
+    }
+
+    fn send_formatted(&mut self, format: core::fmt::Arguments) {
+        let mut buffer = heapless::String::<64>::new(); // Adjust buffer size as needed
+        write!(buffer, "{}", format).unwrap();
+        self.tx.send_bytes(&buffer);
+    }
+}
+
+// Macro to simplify sending formatted strings
+#[macro_export]
+macro_rules! send {
+    ($formatter:expr, $($arg:tt)*) => {{
+        $formatter.send_formatted(format_args!($($arg)*));
+    }};
 }
 
 #[panic_handler]
