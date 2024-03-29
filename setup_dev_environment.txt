@@ -50,4 +50,6 @@
          . rust-analyzer inlay --> enable/disable "Type Hints"
    - restore *.exe in .cargo
       . [Users] - [SungsuKim] - [.cargo]
+   - Python 
+      . pip install numpy scipy matplotlib ipython scikit-learn pandas pillow imageio 
       
