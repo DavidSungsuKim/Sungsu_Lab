@@ -28,9 +28,9 @@ const MAX_ARGS: usize = 20;
 
 #[entry]
 fn main() -> ! {
-    let (mut led, tx, mut _rx, timer) = init_hardware();
+    let (mut led, serial_tx, mut serial_rx, timer) = init_hardware();
 
-    let mut formatter = SerialFormatter::new(tx);
+    let mut sender = SerialSender::new(serial_tx);
 
     let mut str_rx_buffer: String<SIZE_RX_BUFFER> = String::new();
     str_rx_buffer.clear();
@@ -42,11 +42,11 @@ fn main() -> ! {
     let tick_cnt_for_action = get_tick_ms(1000);
     let mut time_tick = timer.now();
 
-    send!(formatter, "************************************\r\n");
-    send!(formatter, "* Welcome to STM32L431 Rust Project\r\n");
-    send!(formatter, "* Version: 0.0.0\r\n");
-    send!(formatter, "* Author: sskim \r\n");
-    send!(formatter, "************************************\r\n");
+    print!(sender, "************************************\r\n");
+    print!(sender, "* Welcome to STM32L431 Rust Project\r\n");
+    print!(sender, "* Version: 0.0.0\r\n");
+    print!(sender, "* Author: sskim \r\n");
+    print!(sender, "************************************\r\n");
 
     loop {
         if time_tick.elapsed() > tick_cnt_for_action {
@@ -57,7 +57,7 @@ fn main() -> ! {
         }
 
         // for serial test
-        let received = _rx.read().ok();
+        let received = serial_rx.read().ok();
         if let Some(ch) = received {
             if ch != b'\n' {
                 // push byte into the string buffer
@@ -66,7 +66,7 @@ fn main() -> ! {
             else {
                 let args = split_string( &mut str_rx_buffer );
                 for arg in args {
-                    send!(formatter, "arg: {}\r\n", arg);
+                    print!(sender, "arg: {}\r\n", arg);
                 }
                 str_rx_buffer.clear();
             }
@@ -111,13 +111,13 @@ impl SendByte for Tx<USART2> {
     }   
 }
 
-struct SerialFormatter<T: SendByte> {
+struct SerialSender<T: SendByte> {
     tx: T,
 }
 
-impl<T: SendByte> SerialFormatter<T> {
+impl<T: SendByte> SerialSender<T> {
     fn new(tx: T) -> Self {
-        SerialFormatter { tx }
+        SerialSender { tx }
     }
 
     fn send_formatted(&mut self, format: core::fmt::Arguments) {
@@ -157,9 +157,9 @@ fn init_hardware() -> (PB3<Output<PushPull>>, Tx<USART2>, hal::serial::Rx<USART2
 
 // Macro to simplify sending formatted strings
 #[macro_export]
-macro_rules! send {
-    ($formatter:expr, $($arg:tt)*) => {{
-        $formatter.send_formatted(format_args!($($arg)*));
+macro_rules! print {
+    ($sender:expr, $($arg:tt)*) => {{
+        $sender.send_formatted(format_args!($($arg)*));
     }};
 }
 
