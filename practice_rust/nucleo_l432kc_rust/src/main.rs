@@ -84,6 +84,13 @@ fn main() -> ! {
 
 fn split_into_slices(string: &mut str) -> Vec<&str, MAX_ARGS> {
     //TODO: This function has a problem with the last slice; when parsed, the last one is always done as string not an integer. 
+    // ex)
+    // hi my name is 100
+    // arg(str): hi
+    // arg(str): my
+    // arg(str): name
+    // arg(str): is
+    // arg(str): 100
 
     let mut slices: Vec<&str, MAX_ARGS> = Vec::new();
     let mut start = 0;
