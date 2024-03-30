@@ -32,8 +32,8 @@ fn main() -> ! {
 
     let mut sender = SerialSender::new(serial_tx);
 
-    let mut str_rx_buffer: String<SIZE_RX_BUFFER> = String::new();
-    str_rx_buffer.clear();
+    let mut str_buffer: String<SIZE_RX_BUFFER> = String::new();
+    str_buffer.clear();
 
     let get_tick_ms = |ms: u32| -> u32 { 
         timer.frequency().to_Hz() / 1000 * ms
@@ -61,37 +61,37 @@ fn main() -> ! {
         if let Some(ch) = received {
             if ch != b'\n' {
                 // push byte into the string buffer
-                str_rx_buffer.push( ch as char ).unwrap();
+                str_buffer.push( ch as char ).unwrap();
             }
             else {
-                let args = split_string( &mut str_rx_buffer );
-                for arg in args {
-                    print!(sender, "arg: {}\r\n", arg);
+                let slices = split_into_slices( &mut str_buffer );
+                for slice in slices {
+                    print!(sender, "slice: {}\r\n", slice);
                 }
-                str_rx_buffer.clear();
+                str_buffer.clear();
             }
         }
     }
 }
 
-fn split_string(input: &mut str) -> Vec<&str, MAX_ARGS> {
-    let mut parts: Vec<&str, MAX_ARGS> = Vec::new();
+fn split_into_slices(string: &mut str) -> Vec<&str, MAX_ARGS> {
+    let mut slices: Vec<&str, MAX_ARGS> = Vec::new();
     let mut start = 0;
 
-    for (index, character) in input.char_indices() {
-        if character == ' ' {
+    for (index, char) in string.char_indices() {
+        if char == ' ' {
             if start != index {
-                let _ = parts.push(&input[start..index]);
+                let _ = slices.push(&string[start..index]);
             }
             start = index + 1;
         }
     }
 
-    if start < input.len() {
-        let _ = parts.push(&input[start..]);
+    if start < string.len() {
+        let _ = slices.push(&string[start..]);
     }
 
-    parts
+    slices
 }
 
 trait SendByte {
