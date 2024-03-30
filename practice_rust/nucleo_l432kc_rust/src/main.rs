@@ -28,8 +28,7 @@ fn main() -> ! {
 
     let mut formatter = SerialFormatter::new(tx);
 
-    // other variables
-    let mut str_rx_buffer: String<32> = String::new();
+    let mut str_rx_buffer: String<64> = String::new();
     str_rx_buffer.clear();
 
     let get_tick_ms = |ms: u32| -> u32 { 
@@ -39,9 +38,12 @@ fn main() -> ! {
     let tick_cnt_for_action = get_tick_ms(1000);
     let mut time_tick = timer.now();
 
-    send!(formatter, "Welcome to STM32L431 Rust Project\r\n");
-    
-    // main loop
+    send!(formatter, "************************************\r\n");
+    send!(formatter, "* Welcome to STM32L431 Rust Project\r\n");
+    send!(formatter, "* Version: 0.0.0\r\n");
+    send!(formatter, "* Author: sskim \r\n");
+    send!(formatter, "************************************\r\n");
+
     loop {
         if time_tick.elapsed() > tick_cnt_for_action {
             time_tick = timer.now();
@@ -58,13 +60,67 @@ fn main() -> ! {
                 str_rx_buffer.push( ch as char ).unwrap();
             }
             else {
-
-                let( command, option ) = parse_command( &str_rx_buffer );
-                
-                // echo what it has received
-                send!(formatter, "Command:{} option:{}\r\n", command, option.unwrap_or("")); 
+                let args = split_string( &mut str_rx_buffer );
+                for arg in args {
+                    send!(formatter, "arg: {}\r\n", arg);
+                }
+                str_rx_buffer.clear();
             }
         }
+    }
+}
+
+fn split_string(input: &mut str) -> Vec<&str, 20> {
+    let mut parts: Vec<&str, 20> = Vec::new();
+    let mut start = 0;
+
+    for (index, character) in input.char_indices() {
+        if character == ' ' {
+            if start != index {
+                let _ = parts.push(&input[start..index]);
+            }
+            start = index + 1;
+        }
+    }
+
+    if start < input.len() {
+        let _ = parts.push(&input[start..]);
+    }
+
+    parts
+}
+
+trait SendByte {
+    fn send_bytes(&mut self, bytes: &str);  
+    fn send_byte(&mut self, byte: u8);
+}
+
+impl SendByte for Tx<USART2> {
+    fn send_bytes(&mut self, bytes: &str) {
+        for byte in bytes.bytes() {
+            self.send_byte(byte);
+        }       
+    }   
+       
+    fn send_byte(&mut self, byte: u8) {
+        block!(self.write(byte)).ok();
+    }   
+}
+
+struct SerialFormatter<T: SendByte> {
+    tx: T,
+}
+
+impl<T: SendByte> SerialFormatter<T> {
+    fn new(tx: T) -> Self {
+        SerialFormatter { tx }
+    }
+
+    fn send_formatted(&mut self, format: core::fmt::Arguments) {
+        let mut buffer = heapless::String::<64>::new(); // Adjust buffer size as needed
+        write!(buffer, "{}", format).unwrap();
+        self.tx.send_bytes(&buffer);
+        buffer.clear();
     }
 }
 
@@ -93,64 +149,6 @@ fn init_hardware() -> (PB3<Output<PushPull>>, Tx<USART2>, hal::serial::Rx<USART2
     let timer: MonoTimer = MonoTimer::new(cp.DWT, clocks);
 
     (led, tx, rx, timer)
-}
-
-fn parse_command(input: &str) -> (&str, Option<&str>) {
-    let mut parts: Vec<&str, 2> = Vec::new();
-    
-    let mut start = 0;
-    
-    for (index, character) in input.char_indices() {
-        if character == ' ' {
-            if start != index {
-                parts.push(&input[start..index]).ok();
-            }
-            start = index + 1;
-        }
-    }
-    
-    if start < input.len() {
-        parts.push(&input[start..]).ok();
-    }
-    
-    match parts.as_slice() {
-        [command, option] => (*command, Some(*option)),
-        [command] => (*command, None),
-        _ => ("", None),
-    }
-}
-
-trait SendByte {
-    fn send_byte(&mut self, byte: u8);
-    fn send_bytes(&mut self, bytes: &str);    
-}
-
-impl SendByte for Tx<USART2> {
-    fn send_byte(&mut self, byte: u8) {
-        block!(self.write(byte)).ok();
-    }   
-
-    fn send_bytes(&mut self, bytes: &str) {
-        for byte in bytes.bytes() {
-            self.send_byte(byte);
-        }       
-    }      
-}
-
-struct SerialFormatter<T: SendByte> {
-    tx: T,
-}
-
-impl<T: SendByte> SerialFormatter<T> {
-    fn new(tx: T) -> Self {
-        SerialFormatter { tx }
-    }
-
-    fn send_formatted(&mut self, format: core::fmt::Arguments) {
-        let mut buffer = heapless::String::<64>::new(); // Adjust buffer size as needed
-        write!(buffer, "{}", format).unwrap();
-        self.tx.send_bytes(&buffer);
-    }
 }
 
 // Macro to simplify sending formatted strings
