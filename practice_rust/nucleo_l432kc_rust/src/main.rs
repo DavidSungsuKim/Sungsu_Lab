@@ -22,13 +22,17 @@ use heapless::String;
 use heapless::Vec;
 use core::fmt::Write;
 
+const SIZE_TX_BUFFER: usize = 128;
+const SIZE_RX_BUFFER: usize = 64;
+const MAX_ARGS: usize = 20;
+
 #[entry]
 fn main() -> ! {
     let (mut led, tx, mut _rx, timer) = init_hardware();
 
     let mut formatter = SerialFormatter::new(tx);
 
-    let mut str_rx_buffer: String<64> = String::new();
+    let mut str_rx_buffer: String<SIZE_RX_BUFFER> = String::new();
     str_rx_buffer.clear();
 
     let get_tick_ms = |ms: u32| -> u32 { 
@@ -70,8 +74,8 @@ fn main() -> ! {
     }
 }
 
-fn split_string(input: &mut str) -> Vec<&str, 20> {
-    let mut parts: Vec<&str, 20> = Vec::new();
+fn split_string(input: &mut str) -> Vec<&str, MAX_ARGS> {
+    let mut parts: Vec<&str, MAX_ARGS> = Vec::new();
     let mut start = 0;
 
     for (index, character) in input.char_indices() {
@@ -101,7 +105,7 @@ impl SendByte for Tx<USART2> {
             self.send_byte(byte);
         }       
     }   
-       
+
     fn send_byte(&mut self, byte: u8) {
         block!(self.write(byte)).ok();
     }   
@@ -117,7 +121,7 @@ impl<T: SendByte> SerialFormatter<T> {
     }
 
     fn send_formatted(&mut self, format: core::fmt::Arguments) {
-        let mut buffer = heapless::String::<64>::new(); // Adjust buffer size as needed
+        let mut buffer = heapless::String::<SIZE_TX_BUFFER>::new(); // Adjust buffer size as needed
         write!(buffer, "{}", format).unwrap();
         self.tx.send_bytes(&buffer);
         buffer.clear();
