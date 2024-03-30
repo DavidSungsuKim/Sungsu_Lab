@@ -66,7 +66,15 @@ fn main() -> ! {
             else {
                 let slices = split_into_slices( &mut str_buffer );
                 for slice in slices {
-                    print!(sender, "slice: {}\r\n", slice);
+                    let maybe_num : Result<i32, _> = slice.parse();
+                    match maybe_num { 
+                        Ok(num) => {
+                            print!(sender, "arg(num): {}\r\n", num);
+                        }
+                        _ => {
+                            print!(sender, "arg(str): {}\r\n", slice);
+                        }
+                    }
                 }
                 str_buffer.clear();
             }
@@ -75,6 +83,8 @@ fn main() -> ! {
 }
 
 fn split_into_slices(string: &mut str) -> Vec<&str, MAX_ARGS> {
+    //TODO: This function has a problem with the last slice; when parsed, the last one is always done as string not an integer. 
+
     let mut slices: Vec<&str, MAX_ARGS> = Vec::new();
     let mut start = 0;
 
