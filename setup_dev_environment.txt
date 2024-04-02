@@ -48,6 +48,8 @@
          . Go to Definiion --> Alt + G
          . Increase Font size --> Ctrl + +
          . Decrease Font size --> Ctrl + -
+      . rust-analyzer
+         . rust-analyzer inlay --> enable/disable "Type Hints"
    - restore *.exe in .cargo
       . [Users] - [SungsuKim] - [.cargo]
    - Python 

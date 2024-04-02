@@ -9,131 +9,175 @@ extern crate stm32l4xx_hal;
 extern crate nb;
 
 use core::panic::PanicInfo;
-use core::fmt;
 use cortex_m_rt::entry;
 use stm32l4xx_hal as hal;
 use hal::prelude::*;
-use hal::serial::Serial;
-use hal::pac::{USART2};
+use hal::serial::{Serial, Tx};
+use hal::pac::USART2;
 use hal::time::MonoTimer;
-use hal::serial::Tx;
+use hal::gpio::gpiob::PB3;
+use hal::gpio::Output;
+use hal::gpio::PushPull;
 use heapless::String;
+use heapless::Vec;
+use core::fmt::Write;
+
+const SIZE_TX_BUFFER: usize = 128;
+const SIZE_RX_BUFFER: usize = 64;
+const MAX_ARGS: usize = 20;
 
 #[entry]
 fn main() -> ! {
-    // common setup for the H/W
-    let p = hal::stm32::Peripherals::take().unwrap(); 
-    let mut rcc = p.RCC.constrain();
+    let (mut led, serial_tx, mut serial_rx, timer) = init_hardware();
 
-    // setup for the led toggling
-    let mut gpiob = p.GPIOB.split( &mut rcc.ahb2 );
-    let mut led = gpiob.pb3.into_push_pull_output( &mut gpiob.moder, &mut gpiob.otyper );
+    let mut sender = SerialSender::new(serial_tx);
 
-    // setup for the serial
-    let mut flash = p.FLASH.constrain();
-    let mut pwr = p.PWR.constrain(&mut rcc.apb1r1);
-    let mut gpioa = p.GPIOA.split( &mut rcc.ahb2 );
-
-    let clocks = rcc
-    .cfgr
-    .sysclk( 80.MHz() )
-    .pclk1( 80.MHz() )
-    .pclk2( 80.MHz() )
-    .freeze( &mut flash.acr, &mut pwr );
-
-    let tx = gpioa
-    .pa2
-    .into_alternate( &mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl );
-
-    let rx = gpioa
-    .pa3
-    .into_alternate( &mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl );
-
-    let serial = Serial::usart2( p.USART2, (tx, rx), 115_200.bps(), clocks, &mut rcc.apb1r1 );
-    let ( mut tx, mut _rx ) = serial.split();
-
-    // setup for the monotonic timer (under construction now...)
-    let mut cp = cortex_m::Peripherals::take().unwrap();
-    cp.DCB.enable_trace();
-    cp.DWT.enable_cycle_counter();
-    let timer: MonoTimer = MonoTimer::new( cp.DWT, clocks );
-    let time_global = timer.now();
-    let mut time_tick = time_global;
-
-    // other variables
-    let mut str_rx_buffer: String<32> = String::new();
-    str_rx_buffer.clear();
+    let mut str_buffer: String<SIZE_RX_BUFFER> = String::new();
+    str_buffer.clear();
 
     let get_tick_ms = |ms: u32| -> u32 { 
         timer.frequency().to_Hz() / 1000 * ms
     };
 
-    let tick_cnt_for_action = get_tick_ms( 1000 );
-    
-    // main loop
-    loop {
+    let tick_cnt_for_action = get_tick_ms(1000);
+    let mut time_tick = timer.now();
 
-        // take some actions
+    print!(sender, "************************************\r\n");
+    print!(sender, "* Welcome to STM32L431 Rust Project\r\n");
+    print!(sender, "* Version: 0.0.0\r\n");
+    print!(sender, "* Author: sskim \r\n");
+    print!(sender, "************************************\r\n");
+
+    loop {
         if time_tick.elapsed() > tick_cnt_for_action {
             time_tick = timer.now();
 
             // toggle led
             led.toggle();
-
-            // send time string 
-            let mut my_str2: String<48> = String::new();
-            fmt::write( &mut my_str2, format_args!( "tx: elapsed: {} [tick]\r\n", time_global.elapsed() ) ).expect("err");
-            send_bytes( &mut tx, &my_str2 );          
         }
 
         // for serial test
-        let received = _rx.read().ok();
+        let received = serial_rx.read().ok();
         if let Some(ch) = received {
             if ch != b'\n' {
                 // push byte into the string buffer
-                str_rx_buffer.push( ch as char ).unwrap();
+                str_buffer.push( ch as char ).unwrap();
             }
             else {
-                // echo what it has received
-                send_bytes( &mut tx, "echo:");
-                str_rx_buffer.push_str("\r\n").unwrap();
-                send_bytes( &mut tx, &str_rx_buffer );
-                str_rx_buffer.clear(); 
+                let slices = split_into_slices( &mut str_buffer );
+                for slice in slices {
+                    let maybe_num : Result<i32, _> = slice.parse();
+                    match maybe_num { 
+                        Ok(num) => {
+                            print!(sender, "arg(num): {}\r\n", num);
+                        }
+                        _ => {
+                            print!(sender, "arg(str): {}\r\n", slice);
+                        }
+                    }
+                }
+                str_buffer.clear();
             }
-
-            // let mut my_str: String<10> = String::new();
-            // fmt::write( &mut my_str, format_args!( "rx: {}\r\n", ch as char) ).expect("err");
-            // send_bytes( &mut tx, &my_str );
         }
-
-        // let mut my_str2: String<20> = String::new();
-        // fmt::write( &mut my_str2, format_args!( "tx: {}\r\n", num ) ).expect("err");
-        // send_bytes( &mut tx, &my_str2 );
-        // num += 1;
     }
 }
 
+fn split_into_slices(string: &mut str) -> Vec<&str, MAX_ARGS> {
+    //TODO: This function has a problem with the last slice; when parsed, the last one is always done as string not an integer. 
+    // ex)
+    // hi my name is 100
+    // arg(str): hi
+    // arg(str): my
+    // arg(str): name
+    // arg(str): is
+    // arg(str): 100
+
+    let mut slices: Vec<&str, MAX_ARGS> = Vec::new();
+    let mut start = 0;
+
+    for (index, char) in string.char_indices() {
+        if char == ' ' {
+            if start != index {
+                let _ = slices.push(&string[start..index]);
+            }
+            start = index + 1;
+        }
+    }
+
+    if start < string.len() {
+        let _ = slices.push(&string[start..]);
+    }
+
+    slices
+}
+
 trait SendByte {
+    fn send_bytes(&mut self, bytes: &str);  
     fn send_byte(&mut self, byte: u8);
-    fn send_bytes(&mut self, bytes: &str);    
 }
 
 impl SendByte for Tx<USART2> {
-    fn send_byte(&mut self, byte: u8) {
-        // here we have concrete Self: Tx<USART1>
-        // so we can do whatever the type supports
-        block!(self.write(byte)).ok();
-    }   
-
     fn send_bytes(&mut self, bytes: &str) {
         for byte in bytes.bytes() {
-            block!(self.write(byte)).ok();
+            self.send_byte(byte);
         }       
-    }      
+    }   
+
+    fn send_byte(&mut self, byte: u8) {
+        block!(self.write(byte)).ok();
+    }   
 }
 
-fn send_bytes<Tx: SendByte>(tx: &mut Tx, bytes: &str) {
-    tx.send_bytes(bytes);
+struct SerialSender<T: SendByte> {
+    tx: T,
+}
+
+impl<T: SendByte> SerialSender<T> {
+    fn new(tx: T) -> Self {
+        SerialSender { tx }
+    }
+
+    fn send_formatted(&mut self, format: core::fmt::Arguments) {
+        let mut buffer = heapless::String::<SIZE_TX_BUFFER>::new(); // Adjust buffer size as needed
+        write!(buffer, "{}", format).unwrap();
+        self.tx.send_bytes(&buffer);
+        buffer.clear();
+    }
+}
+
+fn init_hardware() -> (PB3<Output<PushPull>>, Tx<USART2>, hal::serial::Rx<USART2>, MonoTimer) {
+    let p = hal::stm32::Peripherals::take().unwrap();
+    let mut rcc = p.RCC.constrain();
+
+    let mut gpiob = p.GPIOB.split(&mut rcc.ahb2);
+    let led = gpiob.pb3.into_push_pull_output(&mut gpiob.moder, &mut gpiob.otyper);
+
+    let mut flash = p.FLASH.constrain();
+    let mut pwr = p.PWR.constrain(&mut rcc.apb1r1);
+    let mut gpioa = p.GPIOA.split(&mut rcc.ahb2);
+
+    let clocks = rcc.cfgr.sysclk(80.MHz()).pclk1(80.MHz()).pclk2(80.MHz()).freeze(&mut flash.acr, &mut pwr);
+
+    let tx = gpioa.pa2.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
+    let rx = gpioa.pa3.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
+
+    let serial = Serial::usart2(p.USART2, (tx, rx), 115_200.bps(), clocks, &mut rcc.apb1r1);
+    let (tx, rx) = serial.split();
+
+    let mut cp = cortex_m::Peripherals::take().unwrap();
+    cp.DCB.enable_trace();
+    cp.DWT.enable_cycle_counter();
+    let timer: MonoTimer = MonoTimer::new(cp.DWT, clocks);
+
+    (led, tx, rx, timer)
+}
+
+// Macro to simplify sending formatted strings
+#[macro_export]
+macro_rules! print {
+    ($sender:expr, $($arg:tt)*) => {{
+        $sender.send_formatted(format_args!($($arg)*));
+    }};
 }
 
 #[panic_handler]
