@@ -26,6 +26,8 @@
    - setup the environment variables
       . paths
       . aliases
+      . System variables (variable/value)   
+       crossbuild/C:\Program Files\Rowley Associates Limited\CrossWorks for ARM 4.8\bin\crossbuild
    - TortoiseGit      
       . change the credential
          . add new one as 'global' with 'wincred'.
