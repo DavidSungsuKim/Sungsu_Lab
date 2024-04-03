@@ -1,0 +1,11 @@
+{
+    "files.exclude": {
+        "**/*.bak": true,
+        "**/*rs.bak": true,
+    },
+    "search.exclude": {
+        "**/*.bak": true,
+        "**/*rs.bak": true,
+    }
+}
+
