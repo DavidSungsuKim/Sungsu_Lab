@@ -61,35 +61,61 @@ fn main() -> ! {
             led.toggle();
         }
 
-        // for serial test
-        let received = serial_rx.read().ok();
-        if let Some(ch) = received {
-            if ch != b'\n' {
-                // push byte into the string buffer
-                str_buffer.push( ch as char ).unwrap();
-            }
-            else {
-                
-                // NOTE: This is in order to fix a problem with the last number to be treated as a string when parsed.
-                str_buffer.pop();
-                str_buffer.push(' ').unwrap();
-
-                let slices = split_into_slices( &mut str_buffer );
-                for slice in slices {
-                    let maybe_num : Result<i32, _> = slice.parse();
-                    match maybe_num { 
-                        Ok(num) => {
-                            print!(sender, "arg(num): {}\r\n", num);
-                        }
-                        Err(_) => {
-
-                            print!(sender, "arg(str): {}\r\n", slice);
-                        }
+        if let Some(slices) = get_command_slices(&mut serial_rx, &mut str_buffer) {
+            for slice in slices {
+                let maybe_num: Result<i32, _> = slice.parse();
+                match maybe_num {
+                    Ok(num) => {
+                        print!(sender, "arg(num): {}\r\n", num);
+                    }
+                    Err(_) => {
+                        print!(sender, "arg(str): {}\r\n", slice);
                     }
                 }
-                str_buffer.clear();
             }
         }
+    }
+}
+
+fn get_command_slices(serial_rx: &mut hal::serial::Rx<USART2>, str_buffer: &mut String<SIZE_RX_BUFFER>) -> Option<Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>> {
+    let received = serial_rx.read().ok();
+    if let Some(ch) = received {
+        if ch != b'\n' {
+            // push byte into the string buffer
+            str_buffer.push(ch as char).unwrap();
+            None
+        } else {
+            // NOTE: This is in order to fix a problem with the last number to be treated as a string when parsed.
+            str_buffer.pop();
+            str_buffer.push(' ').unwrap();
+
+            let mut slices: Vec<String<SIZE_RX_BUFFER>, MAX_ARGS> = Vec::new();
+            let mut start = 0;
+
+            for (index, char) in str_buffer.char_indices() {
+                if char == ' ' {
+                    if start != index {
+                        let slice_str = &str_buffer[start..index];
+                        let mut slice_string: String<SIZE_RX_BUFFER> = String::new();
+                        slice_string.push_str(slice_str).unwrap();
+                        let _ = slices.push(slice_string);
+                    }
+                    start = index + 1;
+                }
+            }
+
+            if start < str_buffer.len() {
+                let slice_str = &str_buffer[start..];
+                let mut slice_string: String<SIZE_RX_BUFFER> = String::new();
+                slice_string.push_str(slice_str).unwrap();
+                let _ = slices.push(slice_string);
+            }
+
+            str_buffer.clear();
+            Some(slices)
+        }
+    } else {
+        None
     }
 }
 
