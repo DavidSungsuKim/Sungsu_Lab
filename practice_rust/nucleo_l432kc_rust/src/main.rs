@@ -51,6 +51,8 @@ fn main() -> ! {
     print!(sender, "* Author: sskim \r\n");
     print!(sender, "************************************\r\n");
 
+    print!(sender, "Enter a command...\r\n");
+
     loop {
         if time_tick.elapsed() > tick_cnt_for_action {
             time_tick = timer.now();
@@ -67,6 +69,11 @@ fn main() -> ! {
                 str_buffer.push( ch as char ).unwrap();
             }
             else {
+                
+                // NOTE: This is in order to fix a problem with the last number to be treated as a string when parsed.
+                str_buffer.pop();
+                str_buffer.push(' ').unwrap();
+
                 let slices = split_into_slices( &mut str_buffer );
                 for slice in slices {
                     let maybe_num : Result<i32, _> = slice.parse();
@@ -74,7 +81,8 @@ fn main() -> ! {
                         Ok(num) => {
                             print!(sender, "arg(num): {}\r\n", num);
                         }
-                        _ => {
+                        Err(_) => {
+
                             print!(sender, "arg(str): {}\r\n", slice);
                         }
                     }
@@ -93,15 +101,6 @@ fn main() -> ! {
  * @return The slices of the string.
  */
 fn split_into_slices(string: &mut str) -> Vec<&str, MAX_ARGS> {
-    //TODO: This function has a problem with the last slice; when parsed, the last one is always done as string not an integer. 
-    // ex)
-    // hi my name is 100
-    // arg(str): hi
-    // arg(str): my
-    // arg(str): name
-    // arg(str): is
-    // arg(str): 100
-
     let mut slices: Vec<&str, MAX_ARGS> = Vec::new();
     let mut start = 0;
 
