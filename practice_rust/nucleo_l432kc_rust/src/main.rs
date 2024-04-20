@@ -27,6 +27,9 @@ const SIZE_RX_BUFFER: usize = 64;
 const MAX_ARGS: usize = 20;
 
 #[entry]
+/**
+ * Main function.
+ */
 fn main() -> ! {
     let (mut led, serial_tx, mut serial_rx, timer) = init_hardware();
 
@@ -82,6 +85,13 @@ fn main() -> ! {
     }
 }
 
+/**
+ * Split the string into slices by whitespace.
+ * The last slice is always done as string not an integer.
+ * 
+ * @param string The string to split.
+ * @return The slices of the string.
+ */
 fn split_into_slices(string: &mut str) -> Vec<&str, MAX_ARGS> {
     //TODO: This function has a problem with the last slice; when parsed, the last one is always done as string not an integer. 
     // ex)
@@ -111,11 +121,17 @@ fn split_into_slices(string: &mut str) -> Vec<&str, MAX_ARGS> {
     slices
 }
 
+/**
+ * Trait for sending bytes.
+ */
 trait SendByte {
     fn send_bytes(&mut self, bytes: &str);  
     fn send_byte(&mut self, byte: u8);
 }
 
+/**
+ * Implementation of the SendByte trait for the USART2.
+ */
 impl SendByte for Tx<USART2> {
     fn send_bytes(&mut self, bytes: &str) {
         for byte in bytes.bytes() {
@@ -128,10 +144,16 @@ impl SendByte for Tx<USART2> {
     }   
 }
 
+/**
+ * Struct for sending formatted strings.
+ */
 struct SerialSender<T: SendByte> {
     tx: T,
 }
 
+/**
+ * Implementation of the SerialSender trait.
+ */
 impl<T: SendByte> SerialSender<T> {
     fn new(tx: T) -> Self {
         SerialSender { tx }
@@ -145,6 +167,11 @@ impl<T: SendByte> SerialSender<T> {
     }
 }
 
+/**
+ * Initialize the hardware.
+ * 
+ * @return The LED, TX, RX, and timer.
+ */
 fn init_hardware() -> (PB3<Output<PushPull>>, Tx<USART2>, hal::serial::Rx<USART2>, MonoTimer) {
     let p = hal::stm32::Peripherals::take().unwrap();
     let mut rcc = p.RCC.constrain();
@@ -172,7 +199,9 @@ fn init_hardware() -> (PB3<Output<PushPull>>, Tx<USART2>, hal::serial::Rx<USART2
     (led, tx, rx, timer)
 }
 
-// Macro to simplify sending formatted strings
+/**
+ * Macro to simplify sending formatted strings.
+ */
 #[macro_export]
 macro_rules! print {
     ($sender:expr, $($arg:tt)*) => {{
@@ -180,6 +209,9 @@ macro_rules! print {
     }};
 }
 
+/**
+ * Panic handler.
+ */
 #[panic_handler]
 fn panic(_panic: &PanicInfo<'_>) -> ! {
     loop {}
