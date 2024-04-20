@@ -45,12 +45,7 @@ fn main() -> ! {
     let tick_cnt_for_action = get_tick_ms(1000);
     let mut time_tick = timer.now();
 
-    print!(sender, "************************************\r\n");
-    print!(sender, "* Welcome to STM32L431 Rust Project\r\n");
-    print!(sender, "* Version: 0.0.0\r\n");
-    print!(sender, "* Author: sskim \r\n");
-    print!(sender, "************************************\r\n");
-
+    cli_print_info(&mut sender);
     print!(sender, "Enter a command...\r\n");
 
     loop {
@@ -58,20 +53,74 @@ fn main() -> ! {
             time_tick = timer.now();
 
             // toggle led
-            led.toggle();
+            //led.toggle();
         }
 
         if let Some(slices) = get_command_slices(&mut serial_rx, &mut str_buffer) {
-            for slice in slices {
-                let maybe_num: Result<i32, _> = slice.parse();
-                match maybe_num {
-                    Ok(num) => {
-                        print!(sender, "arg(num): {}\r\n", num);
+            print!(sender, "CLI: #args={}\r\n", slices.len());
+    
+            if let Some(command) = slices.get(0) {
+                match command.as_str() {
+                    "info" => {
+                        cli_print_info(&mut sender);
                     }
-                    Err(_) => {
-                        print!(sender, "arg(str): {}\r\n", slice);
+                    "led" => {
+                        cli_control_led(slices.clone(), &mut sender, &mut led);
+                    }
+                    _ => {
                     }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * This function prints the welcome message and project information to the serial sender.
+ *
+ * @param sender: A mutable reference to the `SerialSender` used to send the information.
+ */
+fn cli_print_info(sender: &mut SerialSender<Tx<USART2>>)
+{
+    print!(sender, "************************************\r\n");
+    print!(sender, "* Welcome to STM32L431 Rust Project\r\n");
+    print!(sender, "* Version: 0.0.0\r\n");
+    print!(sender, "* Author: sskim \r\n");
+    print!(sender, "************************************\r\n");
+}
+
+/**
+ * This function controls the state of an LED based on the command received.
+ * The command is expected to be in the first slice of the `slices` vector.
+ * If the command is "on", the LED is set to high. Otherwise, the LED is set to low.
+ *
+ * @param slices: A vector of `String<SIZE_RX_BUFFER>`, each representing a slice of the received command.
+ * @param sender: A mutable reference to the `SerialSender` used to send responses.
+ * @param led: A mutable reference to the LED to be controlled.
+ */
+fn cli_control_led(slices: Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>, sender: &mut SerialSender<Tx<USART2>>, led: &mut PB3<Output<PushPull>>)
+{
+    if let Some(status) = slices.get(1) {
+        print!(sender, "CLI: led {}\r\n", status.as_str());
+        if status.as_str() == "on" {
+            led.set_high();
+        }
+        else {
+            led.set_low();
+        }
+    }
+}
+
+fn cli_peek_slices(slices: Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>, sender: &mut SerialSender<Tx<USART2>>)
+{
+    for slice in slices {
+        let maybe_num: Result<i32, _> = slice.parse();
+        match maybe_num {
+            Ok(num) => {
+                print!(sender, "arg(num): {}\r\n", num);
+            }
+            Err(_) => {
+                print!(sender, "arg(str): {}\r\n", slice);
             }
         }
     }
@@ -89,6 +138,7 @@ fn main() -> ! {
  */
 fn get_command_slices(serial_rx: &mut hal::serial::Rx<USART2>, str_buffer: &mut String<SIZE_RX_BUFFER>) -> Option<Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>> {
     let received = serial_rx.read().ok();
+ 
     if let Some(ch) = received {
         if ch != b'\n' {
             // push byte into the string buffer
