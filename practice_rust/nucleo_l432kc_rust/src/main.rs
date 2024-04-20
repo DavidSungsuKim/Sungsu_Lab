@@ -120,33 +120,6 @@ fn get_command_slices(serial_rx: &mut hal::serial::Rx<USART2>, str_buffer: &mut 
 }
 
 /**
- * Split the string into slices by whitespace.
- * The last slice is always done as string not an integer.
- * 
- * @param string The string to split.
- * @return The slices of the string.
- */
-fn split_into_slices(string: &mut str) -> Vec<&str, MAX_ARGS> {
-    let mut slices: Vec<&str, MAX_ARGS> = Vec::new();
-    let mut start = 0;
-
-    for (index, char) in string.char_indices() {
-        if char == ' ' {
-            if start != index {
-                let _ = slices.push(&string[start..index]);
-            }
-            start = index + 1;
-        }
-    }
-
-    if start < string.len() {
-        let _ = slices.push(&string[start..]);
-    }
-
-    slices
-}
-
-/**
  * Trait for sending bytes.
  */
 trait SendByte {
