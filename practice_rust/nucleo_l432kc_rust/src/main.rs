@@ -16,6 +16,10 @@ use hal::serial::{Serial, Tx};
 use hal::pac::USART2;
 use hal::time::MonoTimer;
 use hal::gpio::gpiob::PB3;
+use hal::gpio::gpioa::PA4;
+use hal::gpio::gpioa::PA5;
+use hal::gpio::gpioa::PA6;
+use hal::gpio::gpioa::PA7;
 use hal::gpio::Output;
 use hal::gpio::PushPull;
 use heapless::String;
@@ -33,7 +37,7 @@ type FixedStringSlices = Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>;
  * Main function.
  */
 fn main() -> ! {
-    let (mut led, serial_tx, mut serial_rx, timer) = init_hardware();
+    let (mut led, serial_tx, mut serial_rx, timer, mut a_pos, mut a_neg, mut b_pos, mut b_neg) = init_hardware();
 
     let mut sender = SerialSender::new(serial_tx);
 
@@ -68,6 +72,9 @@ fn main() -> ! {
                 }
                 "led" => {
                     cli_control_led(slices.clone(), &mut sender, &mut led);
+                }
+                "stepper" => {
+                    cli_control_stepper(slices.clone(), &mut sender, &mut a_pos, &mut a_neg, &mut b_pos, &mut b_neg );
                 }
                 _ => {
                 }
@@ -108,6 +115,42 @@ fn cli_control_led(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART
         }
         else {
             led.set_low();
+        }
+    }
+}
+
+fn cli_control_stepper(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART2>>, 
+                        a_pos: &mut PA4<Output<PushPull>>, a_neg: &mut PA5<Output<PushPull>>, b_pos: &mut PA6<Output<PushPull>>, b_neg: &mut PA7<Output<PushPull>>)
+{
+    if let Some(num) = slices.get(1) {
+        print!(sender, "CLI: num {}\r\n", num.as_str());
+        match num.as_str() {
+            "0" => {
+                a_pos.set_high();
+                a_neg.set_low();
+                b_pos.set_low();
+                b_neg.set_low();
+            }
+            "1" => {
+                a_pos.set_low();
+                a_neg.set_high();
+                b_pos.set_low();
+                b_neg.set_low();
+            }
+            "2" => {
+                a_pos.set_low();
+                a_neg.set_low();
+                b_pos.set_high();
+                b_neg.set_low();
+            }
+            "3" => {
+                a_pos.set_low();
+                a_neg.set_low();
+                b_pos.set_low();
+                b_neg.set_high();
+            }
+            _ => 
+            {}
         }
     }
 }
@@ -239,31 +282,41 @@ impl<T: SendByte> SerialSender<T> {
  * 
  * @return The LED, TX, RX, and timer.
  */
-fn init_hardware() -> (PB3<Output<PushPull>>, Tx<USART2>, hal::serial::Rx<USART2>, MonoTimer) {
+fn init_hardware() -> (PB3<Output<PushPull>>, Tx<USART2>, hal::serial::Rx<USART2>, MonoTimer, PA4<Output<PushPull>>, PA5<Output<PushPull>>, PA6<Output<PushPull>>, PA7<Output<PushPull>>) {
+
+    // Setup the clock and etc
     let p = hal::stm32::Peripherals::take().unwrap();
     let mut rcc = p.RCC.constrain();
+
+    let mut flash = p.FLASH.constrain();
+    let mut pwr = p.PWR.constrain(&mut rcc.apb1r1);
+
+    let clocks = rcc.cfgr.sysclk(80.MHz()).pclk1(80.MHz()).pclk2(80.MHz()).freeze(&mut flash.acr, &mut pwr);
+
+    // Setup GPIO pins
+    let mut gpioa = p.GPIOA.split(&mut rcc.ahb2);
+    let tx = gpioa.pa2.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
+    let rx = gpioa.pa3.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
+
+    let pin_stepper_a_pos = gpioa.pa4.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let pin_stepper_a_neg = gpioa.pa5.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let pin_stepper_b_pos = gpioa.pa6.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let pin_stepper_b_neg = gpioa.pa7.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
 
     let mut gpiob = p.GPIOB.split(&mut rcc.ahb2);
     let led = gpiob.pb3.into_push_pull_output(&mut gpiob.moder, &mut gpiob.otyper);
 
-    let mut flash = p.FLASH.constrain();
-    let mut pwr = p.PWR.constrain(&mut rcc.apb1r1);
-    let mut gpioa = p.GPIOA.split(&mut rcc.ahb2);
-
-    let clocks = rcc.cfgr.sysclk(80.MHz()).pclk1(80.MHz()).pclk2(80.MHz()).freeze(&mut flash.acr, &mut pwr);
-
-    let tx = gpioa.pa2.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
-    let rx = gpioa.pa3.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
-
+    // Setup the serial pins
     let serial = Serial::usart2(p.USART2, (tx, rx), 115_200.bps(), clocks, &mut rcc.apb1r1);
     let (tx, rx) = serial.split();
 
+    // Setup the timer
     let mut cp = cortex_m::Peripherals::take().unwrap();
     cp.DCB.enable_trace();
     cp.DWT.enable_cycle_counter();
     let timer: MonoTimer = MonoTimer::new(cp.DWT, clocks);
 
-    (led, tx, rx, timer)
+    (led, tx, rx, timer, pin_stepper_a_pos, pin_stepper_a_neg, pin_stepper_b_pos, pin_stepper_b_neg)
 }
 
 /**
