@@ -26,6 +26,8 @@ const SIZE_TX_BUFFER: usize = 128;
 const SIZE_RX_BUFFER: usize = 64;
 const MAX_ARGS: usize = 20;
 
+type FixedStringSlices = Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>;
+
 #[entry]
 /**
  * Main function.
@@ -97,7 +99,7 @@ fn cli_print_info(sender: &mut SerialSender<Tx<USART2>>)
  * @param sender: A mutable reference to the `SerialSender` used to send responses.
  * @param led: A mutable reference to the LED to be controlled.
  */
-fn cli_control_led(slices: Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>, sender: &mut SerialSender<Tx<USART2>>, led: &mut PB3<Output<PushPull>>)
+fn cli_control_led(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART2>>, led: &mut PB3<Output<PushPull>>)
 {
     if let Some(status) = slices.get(1) {
         print!(sender, "CLI: led {}\r\n", status.as_str());
@@ -117,7 +119,7 @@ fn cli_control_led(slices: Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>, sender: &mut S
  * @param sender: A mutable reference to the `SerialSender` used to send responses.
  */
 /*
- fn cli_peek_slices(slices: Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>, sender: &mut SerialSender<Tx<USART2>>)
+fn cli_peek_slices(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART2>>)
 {
     for slice in slices {
         let maybe_num: Result<i32, _> = slice.parse();
@@ -143,7 +145,7 @@ fn cli_control_led(slices: Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>, sender: &mut S
  * @param str_buffer: A mutable reference to a `String<SIZE_RX_BUFFER>` that is used as a buffer to store the received data.
  * @return: An `Option` that contains a `Vec` of `String<SIZE_RX_BUFFER>` if the received data ends with a newline character, or `None` otherwise.
  */
-fn get_command_slices(serial_rx: &mut hal::serial::Rx<USART2>, str_buffer: &mut String<SIZE_RX_BUFFER>) -> Option<Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>> {
+fn get_command_slices(serial_rx: &mut hal::serial::Rx<USART2>, str_buffer: &mut String<SIZE_RX_BUFFER>) -> Option<FixedStringSlices> {
     let received = serial_rx.read().ok();
  
     if let Some(ch) = received {
@@ -156,7 +158,7 @@ fn get_command_slices(serial_rx: &mut hal::serial::Rx<USART2>, str_buffer: &mut 
             str_buffer.pop();
             str_buffer.push(' ').unwrap();
 
-            let mut slices: Vec<String<SIZE_RX_BUFFER>, MAX_ARGS> = Vec::new();
+            let mut slices: FixedStringSlices = Vec::new();
             let mut start = 0;
 
             for (index, char) in str_buffer.char_indices() {
