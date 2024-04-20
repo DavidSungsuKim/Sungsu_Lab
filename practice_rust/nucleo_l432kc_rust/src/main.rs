@@ -59,16 +59,15 @@ fn main() -> ! {
         if let Some(slices) = get_command_slices(&mut serial_rx, &mut str_buffer) {
             print!(sender, "CLI: #args={}\r\n", slices.len());
     
-            if let Some(command) = slices.get(0) {
-                match command.as_str() {
-                    "info" => {
-                        cli_print_info(&mut sender);
-                    }
-                    "led" => {
-                        cli_control_led(slices.clone(), &mut sender, &mut led);
-                    }
-                    _ => {
-                    }
+            let command = slices.get(0).unwrap();
+            match command.as_str() {
+                "info" => {
+                    cli_print_info(&mut sender);
+                }
+                "led" => {
+                    cli_control_led(slices.clone(), &mut sender, &mut led);
+                }
+                _ => {
                 }
             }
         }
@@ -111,7 +110,14 @@ fn cli_control_led(slices: Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>, sender: &mut S
     }
 }
 
-fn cli_peek_slices(slices: Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>, sender: &mut SerialSender<Tx<USART2>>)
+/**
+ * This function iterates over the slices of the received command and prints each slice to the serial sender.
+ *
+ * @param slices: A vector of `String<SIZE_RX_BUFFER>`, each representing a slice of the received command.
+ * @param sender: A mutable reference to the `SerialSender` used to send responses.
+ */
+/*
+ fn cli_peek_slices(slices: Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>, sender: &mut SerialSender<Tx<USART2>>)
 {
     for slice in slices {
         let maybe_num: Result<i32, _> = slice.parse();
@@ -125,6 +131,7 @@ fn cli_peek_slices(slices: Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>, sender: &mut S
         }
     }
 }
+*/
 
 /**
  * This function reads from the serial receiver and splits the received string into slices based on spaces.
