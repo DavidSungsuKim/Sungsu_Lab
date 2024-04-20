@@ -50,7 +50,7 @@ fn main() -> ! {
 
     let tick_cnt_for_action = get_tick_ms(1000);
     let mut time_tick = timer.now();
-
+    let mut stepper_seq : u32 = 0;
     cli_print_info(&mut sender);
     print!(sender, "Enter a command...\r\n");
 
@@ -74,7 +74,7 @@ fn main() -> ! {
                     cli_control_led(slices.clone(), &mut sender, &mut led);
                 }
                 "stepper" => {
-                    cli_control_stepper(slices.clone(), &mut sender, &mut a_pos, &mut a_neg, &mut b_pos, &mut b_neg );
+                    cli_control_stepper(slices.clone(), &mut sender, &mut a_pos, &mut a_neg, &mut b_pos, &mut b_neg, &mut stepper_seq );
                 }
                 _ => {
                 }
@@ -120,30 +120,50 @@ fn cli_control_led(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART
 }
 
 fn cli_control_stepper(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART2>>, 
-                        a_pos: &mut PA4<Output<PushPull>>, a_neg: &mut PA5<Output<PushPull>>, b_pos: &mut PA6<Output<PushPull>>, b_neg: &mut PA7<Output<PushPull>>)
+                        a_pos: &mut PA4<Output<PushPull>>, a_neg: &mut PA5<Output<PushPull>>, b_pos: &mut PA6<Output<PushPull>>, b_neg: &mut PA7<Output<PushPull>>, stepper_seq: &mut u32)
 {
-    if let Some(num) = slices.get(1) {
-        print!(sender, "CLI: num {}\r\n", num.as_str());
-        match num.as_str() {
-            "0" => {
+    if let Some(dir) = slices.get(1) {
+
+        print!(sender, "CLI: stepper {}\r\n", dir.as_str());
+
+        match dir.as_str() {
+            "+" => { 
+                *stepper_seq += 1; 
+                if *stepper_seq > 3 {
+                    *stepper_seq = 0;
+                }
+            }
+            "-" => { 
+                if *stepper_seq == 0 {
+                    *stepper_seq = 3;
+                }
+                else  {
+                    *stepper_seq -= 1;
+                }
+            }
+            _ => { }
+        }
+
+        match stepper_seq {
+            0 => {
                 a_pos.set_high();
                 a_neg.set_low();
                 b_pos.set_low();
                 b_neg.set_low();
             }
-            "1" => {
+            1 => {
                 a_pos.set_low();
                 a_neg.set_high();
                 b_pos.set_low();
                 b_neg.set_low();
             }
-            "2" => {
+            2 => {
                 a_pos.set_low();
                 a_neg.set_low();
                 b_pos.set_high();
                 b_neg.set_low();
             }
-            "3" => {
+            3 => {
                 a_pos.set_low();
                 a_neg.set_low();
                 b_pos.set_low();
