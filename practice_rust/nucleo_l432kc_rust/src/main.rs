@@ -77,6 +77,16 @@ fn main() -> ! {
     }
 }
 
+/**
+ * This function reads from the serial receiver and splits the received string into slices based on spaces.
+ * Each slice is then converted into a `String<SIZE_RX_BUFFER>` and stored in a `Vec`.
+ * The function returns `None` if no data is received from the serial receiver, or if the received data does not end with a newline character.
+ * If the received data ends with a newline character, the function returns a `Vec` of `String<SIZE_RX_BUFFER>`, each representing a slice of the received data.
+ *
+ * @param serial_rx: A mutable reference to the serial receiver.
+ * @param str_buffer: A mutable reference to a `String<SIZE_RX_BUFFER>` that is used as a buffer to store the received data.
+ * @return: An `Option` that contains a `Vec` of `String<SIZE_RX_BUFFER>` if the received data ends with a newline character, or `None` otherwise.
+ */
 fn get_command_slices(serial_rx: &mut hal::serial::Rx<USART2>, str_buffer: &mut String<SIZE_RX_BUFFER>) -> Option<Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>> {
     let received = serial_rx.read().ok();
     if let Some(ch) = received {
