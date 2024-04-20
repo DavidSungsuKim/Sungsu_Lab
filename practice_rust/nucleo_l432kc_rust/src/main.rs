@@ -83,7 +83,7 @@ fn cli_print_info(sender: &mut SerialSender<Tx<USART2>>)
 {
     print!(sender, "************************************\r\n");
     print!(sender, "* Welcome to STM32L431 Rust Project\r\n");
-    print!(sender, "* Version: 0.0.0\r\n");
+    print!(sender, "* Version: 1.0.0\r\n");
     print!(sender, "* Author: sskim \r\n");
     print!(sender, "************************************\r\n");
 }
