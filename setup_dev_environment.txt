@@ -52,6 +52,7 @@
          . Decrease Font size       --> Ctrl + -
          . peek for definition      --> Alt + E
          . Find All Referenes       --> Ctrl + Shift + R 
+      . Problems: Visibility        --> (unchecked)
       . rust-analyzer
          . rust-analyzer inlay --> enable/disable "Type Hints"
    - restore *.exe in .cargo
