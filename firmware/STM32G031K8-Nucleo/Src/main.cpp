@@ -229,7 +229,7 @@ void MailQueueProducer(void const * argument)
   for(;;)
   {
 
-    pTMail = reinterpret_cast<Amail_TypeDef*>(mailId, osWaitForever); /* Allocate memory */
+    pTMail = reinterpret_cast<Amail_TypeDef*>(osMailAlloc(mailId, osWaitForever)); /* Allocate memory */
     pTMail->var1 = ProducerValue1; /* Set the mail content */
     pTMail->var2 = ProducerValue2;
     pTMail->var3 = ProducerValue3;
