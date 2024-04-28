@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -26,12 +27,18 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+typedef struct
+{ /* Mail object structure */
+  uint32_t var1; /* var1 is a uint32_t */
+  uint32_t var2; /* var2 is a uint32_t */
+  uint8_t var3; /* var3 is a uint8_t */
+} Amail_TypeDef;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define blckqSTACK_SIZE   configMINIMAL_STACK_SIZE
+#define MAIL_SIZE        (uint32_t) 1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -41,15 +48,27 @@
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2;
+osThreadId MailQueueProducHandle;
+osThreadId MailQueueConsumHandle;
 
 /* USER CODE BEGIN PV */
+osMailQId mailId;
 
+uint32_t ProducerValue1 = 0, ProducerValue2 = 0;
+uint8_t ProducerValue3 = 0;
+__IO uint32_t ProducerErrors = 0;
+uint32_t ConsumerValue1 = 0, ConsumerValue2 = 0;
+uint8_t ConsumerValue3 = 0;
+__IO uint32_t ConsumerErrors = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
+void MailQueueProducer(void const * argument);
+void MailQueueConsumer(void const * argument);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -90,9 +109,22 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+  /* Create the mail queue used by the two tasks to pass the struct Amail_TypeDef */
+  osMailQDef(mail, MAIL_SIZE, Amail_TypeDef); /* Define mail queue */
 
+  mailId = osMailCreate(osMailQ(mail), NULL); /* create mail queue */
   /* USER CODE END 2 */
 
+  /* Create the thread(s) */
+  /* definition and creation of MailQueueProduc */
+  osThreadDef(MailQueueProduc, MailQueueProducer, osPriorityBelowNormal, 0, 128);
+  MailQueueProducHandle = osThreadCreate(osThread(MailQueueProduc), NULL);
+
+  /* definition and creation of MailQueueConsum */
+  osThreadDef(MailQueueConsum, MailQueueConsumer, osPriorityBelowNormal, 0, 128);
+  MailQueueConsumHandle = osThreadCreate(osThread(MailQueueConsum), NULL);
+  /* Start scheduler */
+  osKernelStart();
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -229,9 +261,99 @@ static void MX_GPIO_Init(void)
 /* USER CODE END MX_GPIO_Init_2 */
 }
 
-/* USER CODE BEGIN 4 */
+/* USER CODE BEGIN Header_MailQueueProducer */
+/**
+  * @brief  Function implementing the MailQueueProduc thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+/* USER CODE END Header_MailQueueProducer */
+void MailQueueProducer(void const * argument)
+{
+  /* USER CODE BEGIN 5 */
+  Amail_TypeDef *pTMail;
 
-/* USER CODE END 4 */
+  for(;;)
+  {
+
+    pTMail = osMailAlloc(mailId, osWaitForever); /* Allocate memory */
+    pTMail->var1 = ProducerValue1; /* Set the mail content */
+    pTMail->var2 = ProducerValue2;
+    pTMail->var3 = ProducerValue3;
+
+    if(osMailPut(mailId, pTMail) != osOK) /* Send Mail */
+    {
+      ++ProducerErrors;
+
+      /* Turn on LED3 to indicate error */
+      //BSP_LED_On(LED3);
+    }
+    else
+    {
+      /* Increment the variables we are going to post next time round.  The
+      consumer will expect the numbers to follow in numerical order. */
+      ++ProducerValue1;
+      ProducerValue2 += 2;
+      ProducerValue3 += 3;
+
+      /* Toggle LED3 to indicate a correct number received  */
+      if( (ProducerErrors == 0) && (ConsumerErrors == 0) )
+        //BSP_LED_Toggle(LED3);
+
+      osDelay(250);
+    }
+  }
+  /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_MailQueueConsumer */
+/**
+* @brief Function implementing the MailQueueConsum thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_MailQueueConsumer */
+void MailQueueConsumer(void const * argument)
+{
+  /* USER CODE BEGIN MailQueueConsumer */
+  osEvent event;
+  Amail_TypeDef *pRMail;
+
+  for(;;)
+  {
+    /* Get the message from the queue */
+    event = osMailGet(mailId, osWaitForever); /* wait for mail */
+
+    if(event.status == osEventMail)
+    {
+      pRMail = event.value.p;
+
+      if((pRMail->var1 != ConsumerValue1) || (pRMail->var2 != ConsumerValue2) || (pRMail->var3 != ConsumerValue3))
+      {
+        /* Catch-up. */
+        ConsumerValue1 = pRMail->var1;
+        ConsumerValue2 = pRMail->var2;
+        ConsumerValue3 = pRMail->var3;
+
+        ++ConsumerErrors;
+
+        /* Turn on LED3 to indicate error */
+        //BSP_LED_On(LED3);
+      }
+      else
+      {
+        /* Calculate values we expect to remove from the mail queue next time
+        round. */
+        ++ConsumerValue1;
+        ConsumerValue2 += 2;
+        ConsumerValue3 += 3;
+      }
+
+      osMailFree(mailId, pRMail); /* free memory allocated for mail */
+    }
+  }
+  /* USER CODE END MailQueueConsumer */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.

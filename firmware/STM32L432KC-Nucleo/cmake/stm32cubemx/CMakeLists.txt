@@ -17,14 +17,19 @@ target_include_directories(stm32cubemx INTERFACE
     ../../Core/Inc
     ../../Drivers/STM32L4xx_HAL_Driver/Inc
     ../../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy
+    ../../Middlewares/Third_Party/FreeRTOS/Source/include
+    ../../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS
+    ../../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM0
     ../../Drivers/CMSIS/Device/ST/STM32L4xx/Include
     ../../Drivers/CMSIS/Include
 )
 
 target_sources(stm32cubemx INTERFACE
     ../../Core/Src/main.c
+    ../../Core/Src/app_freertos.c
     ../../Core/Src/stm32l4xx_it.c
     ../../Core/Src/stm32l4xx_hal_msp.c
+    ../../Core/Src/system_stm32l4xx.c
     ../../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim.c
     ../../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_tim_ex.c
     ../../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart.c
@@ -44,7 +49,16 @@ target_sources(stm32cubemx INTERFACE
     ../../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr_ex.c
     ../../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.c
     ../../Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_exti.c
-    ../../Core/Src/system_stm32l4xx.c
+    ../../Middlewares/Third_Party/FreeRTOS/Source/croutine.c
+    ../../Middlewares/Third_Party/FreeRTOS/Source/event_groups.c
+    ../../Middlewares/Third_Party/FreeRTOS/Source/list.c
+    ../../Middlewares/Third_Party/FreeRTOS/Source/queue.c
+    ../../Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c
+    ../../Middlewares/Third_Party/FreeRTOS/Source/tasks.c
+    ../../Middlewares/Third_Party/FreeRTOS/Source/timers.c
+    ../../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c
+    ../../Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c
+    ../../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM0/port.c
     ../../Core/Src/sysmem.c
     ../../Core/Src/syscalls.c
     ../../startup_stm32l432xx.s
