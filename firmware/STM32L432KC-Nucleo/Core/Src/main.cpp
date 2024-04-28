@@ -276,7 +276,7 @@ void MailQueueProducer(void const * argument)
   for(;;)
   {
 
-    pTMail = osMailAlloc(mailId, osWaitForever); /* Allocate memory */
+    pTMail = reinterpret_cast<Amail_TypeDef*>(osMailAlloc(mailId, osWaitForever)); /* Allocate memory */
     pTMail->var1 = ProducerValue1; /* Set the mail content */
     pTMail->var2 = ProducerValue2;
     pTMail->var3 = ProducerValue3;
@@ -326,7 +326,7 @@ void MailQueueConsumer(void const * argument)
 
     if(event.status == osEventMail)
     {
-      pRMail = event.value.p;
+      pRMail = reinterpret_cast<Amail_TypeDef*>(event.value.p);
 
       if((pRMail->var1 != ConsumerValue1) || (pRMail->var2 != ConsumerValue2) || (pRMail->var3 != ConsumerValue3))
       {
