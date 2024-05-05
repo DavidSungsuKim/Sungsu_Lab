@@ -39,6 +39,11 @@ class Application(tk.Frame):
         self.send_button["command"] = self.send_data
         self.send_button.pack(side="top")
 
+        self.clear_button = tk.Button(self)
+        self.clear_button["text"] = "Clear"
+        self.clear_button["command"] = self.clear_data
+        self.clear_button.pack(side="left")
+
         self.output_field = scrolledtext.ScrolledText(self, wrap=tk.WORD)
         self.output_field.pack(side="top", fill=tk.BOTH, expand=True)
 
@@ -54,7 +59,10 @@ class Application(tk.Frame):
 
     def display_data(self, data):
         self.output_field.insert(tk.END, data + '\n')
-
+        
+    def clear_data(self):
+        self.output_field.delete(1.0, tk.END)  # Clear the output field
+        
 if __name__ == "__main__":
     port_name = "COM7"
     baud_rate = 115200
