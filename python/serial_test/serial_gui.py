@@ -3,6 +3,7 @@ from tkinter import scrolledtext
 from tkinter import filedialog
 import threading
 import serial
+import time
 
 class SerialCommunication:
     def __init__(self, port, baudrate):
@@ -17,7 +18,7 @@ class SerialCommunication:
             if self.serial.in_waiting:
                 data = self.serial.readline().decode().strip()
                 app.display_data(data)  # Display received data in the GUI
-                app.save_data_to_file(data)  # Save received data to file
+                #app.save_data_to_file(data)  # Save received data to file
 
     def send_data(self, data):
         self.serial.write(data.encode())
@@ -58,8 +59,6 @@ class Application(tk.Frame):
                               command=self.master.destroy)
         self.quit.pack(side="bottom")
 
-        self.file_name = ""
-
     def send_data(self):
         data = self.input_field.get()
         
@@ -73,16 +72,16 @@ class Application(tk.Frame):
         self.output_field.delete(1.0, tk.END)  # Clear the output field
 
     def save_data(self):
-        if not self.file_name:
-            self.file_name = filedialog.asksaveasfilename(defaultextension=".txt")
-        
-        with open(self.file_name, "a") as file:
-            file.write(self.output_field.get(1.0, tk.END))
+        file_name = filedialog.asksaveasfilename(defaultextension=".txt")
+        if file_name:
+            selected_text = self.output_field.get(tk.SEL_FIRST, tk.SEL_LAST)  # Get the selected text
+            with open(file_name, "w") as file:
+                file.write(selected_text)
 
-    def save_data_to_file(self, data):
-        if self.file_name:
-            with open(self.file_name, "a") as file:
-                file.write(data + '\n')
+    # def save_data_to_file(self, data):
+    #     file_name = "received_data_{}.txt".format(int(time.time()))  # Unique file name with current time
+    #     with open(file_name, "a") as file:
+    #         file.write(data + '\n')
 
 if __name__ == "__main__":
     port_name = "COM7"
