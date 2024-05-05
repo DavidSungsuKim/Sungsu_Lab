@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import scrolledtext
 import threading
 import serial
 
@@ -38,8 +39,8 @@ class Application(tk.Frame):
         self.send_button["command"] = self.send_data
         self.send_button.pack(side="top")
 
-        self.output_field = tk.Text(self)
-        self.output_field.pack(side="top")
+        self.output_field = scrolledtext.ScrolledText(self, wrap=tk.WORD)
+        self.output_field.pack(side="top", fill=tk.BOTH, expand=True)
 
         self.quit = tk.Button(self, text="QUIT", fg="red",
                               command=self.master.destroy)
