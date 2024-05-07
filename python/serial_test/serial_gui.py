@@ -26,17 +26,18 @@ class SerialCommunication:
         self.serial.close()
 
 class Application(tk.Frame):
-    def __init__(self, master=None):
+    def __init__(self, master=None, my_font=("Consolas", 10)):
         super().__init__(master)
         self.master = master
+        self.my_font = my_font
         self.pack()
         self.create_widgets()
-
+        
     def create_widgets(self):
         # Input frame 1
         self.input_frame1 = tk.Frame(self)
         self.input_frame1.pack(fill=tk.X)
-        self.input_field1 = tk.Entry(self.input_frame1)
+        self.input_field1 = tk.Entry(self.input_frame1, font=self.my_font)
         self.input_field1.pack(side="left", padx=5, pady=5, fill=tk.X, expand=True)
         self.send_button1 = tk.Button(self.input_frame1, text="Send", command=self.send_data1)
         self.send_button1.pack(side="left", padx=5, pady=5)
@@ -44,13 +45,13 @@ class Application(tk.Frame):
         # Input frame 2
         self.input_frame2 = tk.Frame(self)
         self.input_frame2.pack(fill=tk.X)
-        self.input_field2 = tk.Entry(self.input_frame2)
+        self.input_field2 = tk.Entry(self.input_frame2, font=self.my_font)
         self.input_field2.pack(side="left", padx=5, pady=5, fill=tk.X, expand=True)
         self.send_button2 = tk.Button(self.input_frame2, text="Send", command=self.send_data2)
         self.send_button2.pack(side="left", padx=5, pady=5)
 
         # Text output field
-        self.output_field = scrolledtext.ScrolledText(self, wrap=tk.WORD, bg="black", fg="white")
+        self.output_field = scrolledtext.ScrolledText(self, wrap=tk.WORD, bg="black", fg="white", font=self.my_font)
         self.output_field.pack(side="top", fill=tk.BOTH, expand=True, padx=5, pady=5)
 
         # Control buttons (Clear and Save)
@@ -64,7 +65,7 @@ class Application(tk.Frame):
         # Filtering field and button
         self.filtering_frame = tk.Frame(self)
         self.filtering_frame.pack(fill=tk.X)
-        self.filtering_field = tk.Entry(self.filtering_frame)
+        self.filtering_field = tk.Entry(self.filtering_frame, font=self.my_font)
         self.filtering_field.pack(side="left", padx=5, pady=5, fill=tk.X, expand=True)
         self.filter_button = tk.Button(self.filtering_frame, text="Filter", command=self.filter_data)
         self.filter_button.pack(side="left", padx=5, pady=5)
