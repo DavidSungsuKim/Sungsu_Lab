@@ -61,6 +61,14 @@ class Application(tk.Frame):
         self.save_button = tk.Button(self.button_frame, text="Save", command=self.save_data)
         self.save_button.pack(side="left", padx=5, pady=5)
 
+        # Filtering field and button
+        self.filtering_frame = tk.Frame(self)
+        self.filtering_frame.pack(fill=tk.X)
+        self.filtering_field = tk.Entry(self.filtering_frame)
+        self.filtering_field.pack(side="left", padx=5, pady=5, fill=tk.X, expand=True)
+        self.filter_button = tk.Button(self.filtering_frame, text="Filter", command=self.filter_data)
+        self.filter_button.pack(side="left", padx=5, pady=5)
+
         # Quit button
         self.quit = tk.Button(self, text="QUIT", fg="red", command=self.master.destroy)
         self.quit.pack(side="right", padx=5, pady=5)
@@ -85,6 +93,17 @@ class Application(tk.Frame):
             selected_text = self.output_field.get(tk.SEL_FIRST, tk.SEL_LAST)  # Get the selected text
             with open(file_name, "w") as file:
                 file.write(selected_text)
+
+    def filter_data(self):
+        filtering_text = self.filtering_field.get()
+        filtered_text = ""
+        full_text = self.output_field.get("1.0", tk.END)
+        lines = full_text.split("\n")
+        for line in lines:
+            if filtering_text in line:
+                filtered_text += line + "\n"
+        self.clear_data()
+        self.output_field.insert(tk.END, filtered_text)
 
 if __name__ == "__main__":
     port_name = "COM7"
