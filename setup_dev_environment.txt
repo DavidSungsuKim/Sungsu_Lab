@@ -58,5 +58,4 @@
    - restore *.exe in .cargo
       . [Users] - [SungsuKim] - [.cargo]
    - Python 
-      . pip install numpy scipy matplotlib ipython scikit-learn pandas pillow imageio 
-      
+      . pip install numpy scipy matplotlib ipython scikit-learn pandas pillow imageio xlsxwriter openpyxl argparse      
