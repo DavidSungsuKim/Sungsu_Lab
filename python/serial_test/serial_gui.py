@@ -12,11 +12,13 @@ class SerialCommunication:
         self.serial = serial.Serial(port, baudrate)
         self.rx_thread = threading.Thread(target=self.receive_data, daemon=True)
         self.rx_thread.start()
+        self.received_data = []
 
     def receive_data(self):
         while True:
             if self.serial.in_waiting:
                 data = self.serial.readline().decode().strip()
+                self.received_data.append(data)  # Store received data
                 app.display_data(data)  # Display received data in the GUI
 
     def send_data(self, data):
@@ -54,20 +56,18 @@ class Application(tk.Frame):
         self.output_field = scrolledtext.ScrolledText(self, wrap=tk.WORD, bg="black", fg="white", font=self.my_font)
         self.output_field.pack(side="top", fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # Control buttons (Clear and Save)
+        # Control buttons (Clear, Save, Reset, and Filter)
         self.button_frame = tk.Frame(self)
         self.button_frame.pack(fill=tk.X)
         self.clear_button = tk.Button(self.button_frame, text="Clear", command=self.clear_data)
         self.clear_button.pack(side="left", padx=5, pady=5)
         self.save_button = tk.Button(self.button_frame, text="Save", command=self.save_data)
         self.save_button.pack(side="left", padx=5, pady=5)
-
-        # Filtering field and button
-        self.filtering_frame = tk.Frame(self)
-        self.filtering_frame.pack(fill=tk.X)
-        self.filtering_field = tk.Entry(self.filtering_frame, font=self.my_font)
+        self.reset_button = tk.Button(self.button_frame, text="Reset", command=self.reset_data)
+        self.reset_button.pack(side="left", padx=5, pady=5)
+        self.filtering_field = tk.Entry(self.button_frame, font=self.my_font)
         self.filtering_field.pack(side="left", padx=5, pady=5, fill=tk.X, expand=True)
-        self.filter_button = tk.Button(self.filtering_frame, text="Filter", command=self.filter_data)
+        self.filter_button = tk.Button(self.button_frame, text="Filter", command=self.filter_data)
         self.filter_button.pack(side="left", padx=5, pady=5)
 
         # Quit button
@@ -94,6 +94,11 @@ class Application(tk.Frame):
             selected_text = self.output_field.get(tk.SEL_FIRST, tk.SEL_LAST)  # Get the selected text
             with open(file_name, "w") as file:
                 file.write(selected_text)
+
+    def reset_data(self):
+        self.clear_data()
+        for data in serial_comm.received_data:
+            self.output_field.insert(tk.END, data + '\n')
 
     def filter_data(self):
         filtering_text = self.filtering_field.get()
