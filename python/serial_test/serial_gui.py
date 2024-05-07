@@ -50,7 +50,7 @@ class Application(tk.Frame):
         self.send_button2.pack(side="left", padx=5, pady=5)
 
         # Text output field
-        self.output_field = scrolledtext.ScrolledText(self, wrap=tk.WORD)
+        self.output_field = scrolledtext.ScrolledText(self, wrap=tk.WORD, bg="black", fg="white")
         self.output_field.pack(side="top", fill=tk.BOTH, expand=True, padx=5, pady=5)
 
         # Control buttons (Clear and Save)
