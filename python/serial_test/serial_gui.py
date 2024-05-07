@@ -55,7 +55,7 @@ class Application(tk.Frame):
 
         # Quit button
         self.quit = tk.Button(self, text="QUIT", fg="red", command=self.master.destroy)
-        self.quit.pack(side="bottom", pady=5)
+        self.quit.pack(side="right", padx=5, pady=5)
 
     def send_data(self):
         data = self.input_field.get()
