@@ -18,7 +18,6 @@ class SerialCommunication:
             if self.serial.in_waiting:
                 data = self.serial.readline().decode().strip()
                 app.display_data(data)  # Display received data in the GUI
-                #app.save_data_to_file(data)  # Save received data to file
 
     def send_data(self, data):
         self.serial.write(data.encode())
@@ -34,42 +33,39 @@ class Application(tk.Frame):
         self.create_widgets()
 
     def create_widgets(self):
-        self.input_field = tk.Entry(self)
-        self.input_field.pack(side="top")
+        # Input field and send button
+        self.input_frame = tk.Frame(self)
+        self.input_frame.pack(fill=tk.X)
+        self.input_field = tk.Entry(self.input_frame)
+        self.input_field.pack(side="left", padx=5, pady=5, fill=tk.X, expand=True)
+        self.send_button = tk.Button(self.input_frame, text="Send", command=self.send_data)
+        self.send_button.pack(side="left", padx=5, pady=5)
 
-        self.send_button = tk.Button(self)
-        self.send_button["text"] = "Send"
-        self.send_button["command"] = self.send_data
-        self.send_button.pack(side="top")
-
-        self.clear_button = tk.Button(self)
-        self.clear_button["text"] = "Clear"
-        self.clear_button["command"] = self.clear_data
-        self.clear_button.pack(side="left")
-
-        self.save_button = tk.Button(self)
-        self.save_button["text"] = "Save"
-        self.save_button["command"] = self.save_data
-        self.save_button.pack(side="left")
-
+        # Text output field
         self.output_field = scrolledtext.ScrolledText(self, wrap=tk.WORD)
-        self.output_field.pack(side="top", fill=tk.BOTH, expand=True)
+        self.output_field.pack(side="top", fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        self.quit = tk.Button(self, text="QUIT", fg="red",
-                              command=self.master.destroy)
-        self.quit.pack(side="bottom")
+        # Control buttons (Clear and Save)
+        self.button_frame = tk.Frame(self)
+        self.button_frame.pack(fill=tk.X)
+        self.clear_button = tk.Button(self.button_frame, text="Clear", command=self.clear_data)
+        self.clear_button.pack(side="left", padx=5, pady=5)
+        self.save_button = tk.Button(self.button_frame, text="Save", command=self.save_data)
+        self.save_button.pack(side="left", padx=5, pady=5)
+
+        # Quit button
+        self.quit = tk.Button(self, text="QUIT", fg="red", command=self.master.destroy)
+        self.quit.pack(side="bottom", pady=5)
 
     def send_data(self):
         data = self.input_field.get()
-        
-        print("Sending data:", data)
         serial_comm.send_data(data + "\r\n")
 
     def display_data(self, data):
         self.output_field.insert(tk.END, data + '\n')
 
     def clear_data(self):
-        self.output_field.delete(1.0, tk.END)  # Clear the output field
+        self.output_field.delete(1.0, tk.END)
 
     def save_data(self):
         file_name = filedialog.asksaveasfilename(defaultextension=".txt")
@@ -77,11 +73,6 @@ class Application(tk.Frame):
             selected_text = self.output_field.get(tk.SEL_FIRST, tk.SEL_LAST)  # Get the selected text
             with open(file_name, "w") as file:
                 file.write(selected_text)
-
-    # def save_data_to_file(self, data):
-    #     file_name = "received_data_{}.txt".format(int(time.time()))  # Unique file name with current time
-    #     with open(file_name, "a") as file:
-    #         file.write(data + '\n')
 
 if __name__ == "__main__":
     port_name = "COM7"
