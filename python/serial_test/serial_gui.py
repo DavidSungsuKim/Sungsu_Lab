@@ -33,13 +33,21 @@ class Application(tk.Frame):
         self.create_widgets()
 
     def create_widgets(self):
-        # Input field and send button
-        self.input_frame = tk.Frame(self)
-        self.input_frame.pack(fill=tk.X)
-        self.input_field = tk.Entry(self.input_frame)
-        self.input_field.pack(side="left", padx=5, pady=5, fill=tk.X, expand=True)
-        self.send_button = tk.Button(self.input_frame, text="Send", command=self.send_data)
-        self.send_button.pack(side="left", padx=5, pady=5)
+        # Input frame 1
+        self.input_frame1 = tk.Frame(self)
+        self.input_frame1.pack(fill=tk.X)
+        self.input_field1 = tk.Entry(self.input_frame1)
+        self.input_field1.pack(side="left", padx=5, pady=5, fill=tk.X, expand=True)
+        self.send_button1 = tk.Button(self.input_frame1, text="Send", command=self.send_data1)
+        self.send_button1.pack(side="left", padx=5, pady=5)
+
+        # Input frame 2
+        self.input_frame2 = tk.Frame(self)
+        self.input_frame2.pack(fill=tk.X)
+        self.input_field2 = tk.Entry(self.input_frame2)
+        self.input_field2.pack(side="left", padx=5, pady=5, fill=tk.X, expand=True)
+        self.send_button2 = tk.Button(self.input_frame2, text="Send", command=self.send_data2)
+        self.send_button2.pack(side="left", padx=5, pady=5)
 
         # Text output field
         self.output_field = scrolledtext.ScrolledText(self, wrap=tk.WORD)
@@ -57,8 +65,12 @@ class Application(tk.Frame):
         self.quit = tk.Button(self, text="QUIT", fg="red", command=self.master.destroy)
         self.quit.pack(side="right", padx=5, pady=5)
 
-    def send_data(self):
-        data = self.input_field.get()
+    def send_data1(self):
+        data = self.input_field1.get()
+        serial_comm.send_data(data + "\r\n")
+
+    def send_data2(self):
+        data = self.input_field2.get()
         serial_comm.send_data(data + "\r\n")
 
     def display_data(self, data):
