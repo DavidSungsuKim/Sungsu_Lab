@@ -8,4 +8,12 @@ fn main() {
 
     // constants
     const MAX_VAL: i32 = 100;
+
+    // Type aliasing
+    type Age = u8;
+    let peter_age: Age = 42;
+
+    // Type conversion
+    let a = 10;
+    let b = a as f64;
 }
