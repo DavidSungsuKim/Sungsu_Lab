@@ -52,9 +52,27 @@
          . Decrease Font size       --> Ctrl + -
          . peek for definition      --> Alt + E
          . Find All Referenes       --> Ctrl + Shift + R 
-      . Problems: Visibility        --> (unchecked)
+         . Show side bar            --> Ctrl + B
+      . settings
+         . Editor: Format On Save   --> checked
+         . Editor: cursor blinking  -->
+         . Editor: Mouse Wheel Zoom --> checked
+         . Window: Zoom Level       --> -1
+         . Problems: Visibility     --> (unchecked)
       . rust-analyzer
          . rust-analyzer inlay --> enable/disable "Type Hints"
+      . Extensions
+         . C/C++
+         . C/C++ Extension Pack
+         . C/C++ Theme
+         . IntelliCode
+         . IntelliCode API Usage Examples
+         . C++ TestMate
+         . CMake
+         . CMake ToolsCortex-Debug
+         . GitHub Copilot
+         . GitHub Copilot Chat
+         . ...
    - restore *.exe in .cargo
       . [Users] - [SungsuKim] - [.cargo]
    - Python 
