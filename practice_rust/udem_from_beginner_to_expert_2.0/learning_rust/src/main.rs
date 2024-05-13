@@ -52,6 +52,79 @@ fn main() {
     };
 
     println!("{full_name}");
+
+    /* Conditionals */
+    // If-else
+    let num = 40;
+    if num < 50 {
+        println!("The number is less than 50");
+    } else {
+        println!("The number is greater than or equal to 50");
+    }
+
+    // If else if ladder
+    let marks = 95;
+    let mut grade = 'N';
+
+    if marks >= 90 {
+        grade = 'A';
+    } else {
+        grade = 'F';
+    }
+
+    let grade = if marks >= 90 {
+        grade = 'A';
+    } else {
+        grade = 'F';
+    };
+
+    let grade = if marks >= 90 { 'A' } else { 'F' };
+
+    // Match
+    let grade;
+    match marks {
+        90..=100 => grade = 'A',
+        _ => grade = 'F',
+    }
+
+    let grade = match marks {
+        90..=100 => 'A',
+        _ => 'F',
+    };
+    println!("Grade={grade}");
+
+    /* Control Flow */
+    // loops
+    loop {
+        println!("simple loop!");
+        break;
+    }
+
+    let mut count = 0;
+    'outer: loop {
+        loop {
+            break 'outer;
+        }
+        count = count + 1;
+    }
+    println!("loop count={count}");
+
+    let a = loop {
+        break 5;
+    };
+    println!("a={a}");
+
+    // for loops
+    let vec = vec![1, 2, 3, 4, 5];
+    for i in vec {
+        println!("{i}");
+    }
+
+    // While loops
+    let mut num = 0;
+    while num < 10 {
+        num = num + 1;
+    }
 }
 
 fn my_fn(s: &str) {
