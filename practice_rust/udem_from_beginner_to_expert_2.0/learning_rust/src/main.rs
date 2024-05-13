@@ -120,6 +120,11 @@ fn main() {
         println!("{i}");
     }
 
+    let num = 10;
+    for i in 1..=num {
+        println!("i={i}");
+    }
+
     // While loops
     let mut num = 0;
     while num < 10 {
