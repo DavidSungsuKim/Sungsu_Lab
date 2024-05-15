@@ -130,6 +130,29 @@ fn main() {
     while num < 10 {
         num = num + 1;
     }
+
+    /* Bonus */
+    // More prints
+    print!("This is");
+    print!("in the same line\n");
+    println!("{language}", language = "Rust");
+
+    // Stdin
+    println!("Write a number:");
+    let mut n = String::new();
+    std::io::stdin()
+        .read_line(&mut n)
+        .expect("failed to read input.");
+
+    let n: f64 = n.trim().parse().expect("invalid input");
+    println!("{n}");
+
+    // Naming conventions and etc
+    let x = 40_000;
+    println!("{x}");
+
+    static WELCOME: &str = "Welcome";
+    const PI: f32 = 3.14; // Prefer const to static
 }
 
 fn my_fn(s: &str) {
