@@ -53,6 +53,8 @@
          . peek for definition      --> Alt + E
          . Find All Referenes       --> Ctrl + Shift + R 
          . Show side bar            --> Ctrl + B
+         . Search files by name     --> Ctrl + P
+         . Go to Symbol in Editor   --> Ctrl + Shift + O
       . settings
          . Editor: Format On Save   --> checked
          . Editor: cursor blinking  -->
