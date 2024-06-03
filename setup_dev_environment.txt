@@ -74,6 +74,9 @@
          . CMake ToolsCortex-Debug
          . GitHub Copilot
          . GitHub Copilot Chat
+         . C#
+         . C# Dev Kit
+         . .NET Extention Pack
          . ...
    - restore *.exe in .cargo
       . [Users] - [SungsuKim] - [.cargo]
