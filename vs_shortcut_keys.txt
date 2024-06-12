@@ -1,0 +1,3 @@
+Alt + R        : go to definition
+Ctrl + F12     : go to implementation
+Ctrl + Q       : code search/Feature search
