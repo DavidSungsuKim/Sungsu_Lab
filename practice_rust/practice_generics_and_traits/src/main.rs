@@ -1,3 +1,264 @@
+/*
+#[derive(Debug)]
+struct Square {
+    side: f32,
+}
+
+trait Shape {
+    fn area(&self) -> f32;
+}
+
+impl Shape for Square {
+    fn area(&self) -> f32 {
+        self.side * self.side
+    }
+}
+
+fn shape_properties(object: impl Shape + std::fmt::Debug) {
+    println!("{:?}", object);
+}
+
+fn main() {
+
+    let my_square = Square {
+        side: 1.0
+    };
+
+    shape_properties(my_square);
+}
+*/
+
+/*
+#[derive(Debug)]
+struct Square {
+    side: f32,
+}
+
+trait Draw {
+    fn draw_object(&self) {
+        println!("default draw");
+    }
+}
+
+trait Shape: Draw {
+    fn area(&self) -> f32;
+}
+
+impl Draw for Square {
+   99 fn draw_object(&self) {
+        println!("draw for Square");
+    }
+}
+
+impl Shape for Square {
+    fn area(&self) -> f32 {
+        self.side * self.side
+    }
+}
+
+fn main() {
+    let my_square = Square {
+        side: 1.0
+    };
+
+    my_square.draw_object();
+}
+*/
+
+/*
+struct Square {
+    side: f32,
+}
+
+struct Rectangle {
+    length: f32,
+    width: f32,
+}
+
+trait Shape {
+    fn area(&self) -> f32;
+    fn perimeter(&self) -> f32 {
+        println!("Perimeter not implemented, returning dummy value");
+        0.0
+    }
+}
+
+impl Shape for Rectangle {
+    fn area(&self) -> f32 {
+        let area_of_rect = self.length * self.width;
+        println!("Rectangle area: {}", area_of_rect);
+        area_of_rect
+    }
+    fn perimeter(&self) -> f32 {
+        let perimeter_of_rect = 2.0 * (self.length + self.width);
+        println!("Rectangle Perimeter: {}", perimeter_of_rect);
+        perimeter_of_rect
+    }
+}
+
+impl Shape for Square {
+    fn area(&self) -> f32 {
+        let area_of_square = self.side * self.side;
+        println!("Square area: {}", area_of_square);
+        area_of_square
+    }
+}
+
+// fn shape_properties_dynamic(object: Box<dyn Shape>) {
+//     object.area();
+//     object.perimeter();
+// }
+
+fn shape_properties_dynamic(object: &dyn Shape) {
+    object.area();
+    object.perimeter();
+}
+
+fn main() {
+    let shape1 = Box::new(Rectangle {
+        width: 5.0,
+        length: 4.0,
+    });
+
+    let shape2 = Box::new(Square {
+        side: 3.2,
+    });
+    // shape_properties_dynamic(shape1);
+    // shape_properties_dynamic(shape2);
+    
+     shape_properties_dynamic(&shape1);
+     shape_properties_dynamic(&shape2);
+}
+*/
+
+// trait Properties: PartialEq + Default + Clone {}
+// #[derive(Debug, PartialEq, Default, Clone)]
+// struct Person {
+//     name: String,
+//     age: u8,
+// }
+
+// impl Properties for Person {}
+
+// fn main() {
+//     let person1 = Person {
+//         name: String::from("Heungmin Son"),
+//         age: 35,
+//     };
+
+//     let person2 = Person {
+//         name: String::from("Jisong Park"),
+//         age: 40,
+//     };
+
+//     println!("Person: {:?}", person1);
+//     println!("Person: {:?}", person2);    
+//     println!("person1 and person2 are equal: {}", person1 == person2);
+// }
+
+// #[derive(Debug, PartialEq, Default, Clone)]
+// struct Person {
+//     name: String,
+//     age: u8,
+// }
+
+
+// fn main() {
+//     let person1 = Person {
+//         name: String::from("Heungmin Son"),
+//         age: 35,
+//     };
+
+//     let person2 = Person {
+//         name: String::from("Jisong Park"),
+//         age: 40,
+//     };
+
+//     println!("Person: {:?}", person1);
+//     println!("Person: {:?}", person2);    
+//     println!("person1 and person2 are equal: {}", person1 == person2);
+// }
+
+// use std::fmt;
+
+// struct Person {
+//     name: String,
+//     age: u8,
+// }
+
+// impl fmt::Debug for Person {
+//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+//         f.debug_struct("Person")
+//             .field("name", &self.name)
+//             .field("age", &self.age)
+//             .finish()
+//     }
+// }
+
+// fn main() {
+//     let person1 = Person {
+//         name: String::from("Heungmin Son"),
+//         age: 35,
+//     };
+
+//     let person2 = Person {
+//         name: String::from("Jisong Park"),
+//         age: 40,
+//     };
+
+//     println!("Person: {:?}", person1);
+//     println!("Person: {:?}", person2);    
+// }
+
+
+// #[derive(Debug)]
+// struct Person {
+//     name: String,
+//     age: u8,
+// }
+
+// // Default 트레이트를 직접 구현
+// impl Default for Person {
+//     fn default() -> Self {
+//         Person {
+//             name: String::from("Unknown"),
+//             age: 0,
+//         }
+//     }
+// }
+
+// fn main() {
+//     let default_person = Person::default();
+//     println!("Default Person: {:?}", default_person);
+// }
+
+
+// `Send` 트레이트는 해당 타입이 다른 스레드로 안전하게 전송될 수 있음을 나타냅니다.
+// 따라서 `Person` 구조체가 `Send`를 구현하면 이 구조체는 다른 스레드로 보낼 수 있습니다.
+unsafe impl Send for Person {}
+
+// `Sync` 트레이트는 해당 타입이 여러 스레드에서 안전하게 공유될 수 있음을 나타냅니다.
+// 따라서 `Person` 구조체가 `Sync`를 구현하면 이 구조체는 여러 스레드에서 안전하게 공유될 수 있습니다.
+unsafe impl Sync for Person {}
+
+struct Person {
+    name: String,
+    age: u32,
+}
+
+fn main() {
+    let person = Person {
+        name: String::from("Alice"),
+        age: 30,
+    };
+
+    // `Person` 구조체는 `Send`와 `Sync`를 구현하므로 다른 스레드로 전송하거나 여러 스레드에서 공유할 수 있습니다.
+    //println!("Person: {:?}", person);
+}
+
+
+
+
 // -------------------------------------------
 // 	Enums
 // -------------------------------------------
