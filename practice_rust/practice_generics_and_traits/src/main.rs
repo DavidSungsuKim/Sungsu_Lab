@@ -260,6 +260,88 @@ fn main() {
 
 
 // -------------------------------------------
+// 			Traits
+// -------------------------------------------
+
+/*
+struct Square {
+    side: f32,
+}
+
+struct Rectangle {
+    length: f32,
+    width: f32,
+}
+
+trait Shape {
+    fn area(&self) -> f32;
+}
+
+impl Shape for Rectangle {
+    fn area(&self) -> f32 {
+        self.length * self.width
+    }
+}
+
+impl Shape for Square {
+    fn area(&self) -> f32 {
+        self.side * self.side
+    }
+}
+
+fn main() {
+    let r1 = Rectangle {
+        width: 5.0,
+        length: 4.0,
+
+    };
+
+    let s1 = Square {
+        side: 3.2,
+    };
+
+    r1.area();
+    s1.area();
+}
+*/
+
+#[derive(Debug)]
+struct Person {
+    name: String,
+    age: u32,
+}
+
+trait Athlete { 
+    type Sport;
+    fn play(&self, sport: &Self::Sport);
+}
+
+impl Athlete for Person {
+    type Sport = String;
+
+    fn play(&self, sport: &Self::Sport) {
+        println!("{} is playing {}!", self.name, sport);
+    }
+}
+
+fn exercise<T: Athlete>(athlete: T, sport: T::Sport) {
+    athlete.play(&sport);
+}
+
+fn main() {
+    let person = Person {
+        name: String::from("Heungmin Son"),
+        age: 30,
+    };
+
+    let sport = String::from("Soccer");
+    exercise(person, sport);
+}
+
+
+
+
+// -------------------------------------------
 // 	Enums
 // -------------------------------------------
 

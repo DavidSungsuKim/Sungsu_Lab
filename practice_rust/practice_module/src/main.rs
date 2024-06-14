@@ -19,3 +19,16 @@ fn main() {
         _ => {}
     }
 }
+
+// #[cfg(test)]
+// #[test]
+// fn my_test() {
+//     let mut myself = Person {
+//         id: 12345678,
+//         name: String::from("Embedded"),
+//         email: String::from("...@naver.com"),
+//         occupation: Occupation::EmbeddedDeveloper
+//     };
+
+//     assert_eq!(myself.id, 12345678);
+// }
