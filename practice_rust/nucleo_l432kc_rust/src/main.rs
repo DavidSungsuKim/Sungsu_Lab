@@ -122,56 +122,83 @@ fn cli_control_led(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART
 fn cli_control_stepper(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART2>>, 
                         a_pos: &mut PA4<Output<PushPull>>, a_neg: &mut PA5<Output<PushPull>>, b_pos: &mut PA6<Output<PushPull>>, b_neg: &mut PA7<Output<PushPull>>, stepper_seq: &mut u32)
 {
-    if let Some(dir) = slices.get(1) {
+    if let Some(steps) = slices.get(1) {
+        print!(sender, "CLI: stepper {}\r\n", steps.as_str());
+        
+        let maybe_num: Result<i32, _> = steps.parse();
+        match maybe_num {
+            Ok(count) => {
+                let mut count_steps = count;
+                loop {
+                    *stepper_seq += 1; 
+                    if *stepper_seq > 3 {
+                      *stepper_seq = 0;
+                    }
 
-        print!(sender, "CLI: stepper {}\r\n", dir.as_str());
+                    match stepper_seq {
+                        0 => {
+                            a_pos.set_high();
+                            a_neg.set_low();
+                            b_pos.set_low();
+                            b_neg.set_low();
+                        }
+                        1 => {
+                            a_pos.set_low();
+                            a_neg.set_high();
+                            b_pos.set_low();
+                            b_neg.set_low();
+                        }
+                        2 => {
+                            a_pos.set_low();
+                            a_neg.set_low();
+                            b_pos.set_high();
+                            b_neg.set_low();
+                        }
+                        3 => {
+                            a_pos.set_low();
+                            a_neg.set_low();
+                            b_pos.set_low();
+                            b_neg.set_high();
+                        }
+                        _ => 
+                        {}
+                    }
 
-        match dir.as_str() {
-            "+" => { 
-                *stepper_seq += 1; 
-                if *stepper_seq > 3 {
-                    *stepper_seq = 0;
+                    count_steps -= 1;
+                    if count_steps == 0 {
+                        break;
+                    }
+
+                    let mut delay_count = 12000;
+                    loop {
+                        delay_count -= 1;
+                        if delay_count == 0 {
+                            break;
+                        }
+                    }
                 }
             }
-            "-" => { 
-                if *stepper_seq == 0 {
-                    *stepper_seq = 3;
-                }
-                else  {
-                    *stepper_seq -= 1;
-                }
-            }
-            _ => { }
-        }
-
-        match stepper_seq {
-            0 => {
-                a_pos.set_high();
-                a_neg.set_low();
-                b_pos.set_low();
-                b_neg.set_low();
-            }
-            1 => {
-                a_pos.set_low();
-                a_neg.set_high();
-                b_pos.set_low();
-                b_neg.set_low();
-            }
-            2 => {
-                a_pos.set_low();
-                a_neg.set_low();
-                b_pos.set_high();
-                b_neg.set_low();
-            }
-            3 => {
-                a_pos.set_low();
-                a_neg.set_low();
-                b_pos.set_low();
-                b_neg.set_high();
-            }
-            _ => 
+            Err(_) =>
             {}
         }
+
+        // match steps.as_str() {
+        //     "+" => { 
+        //         *stepper_seq += 1; 
+        //         if *stepper_seq > 3 {
+        //             *stepper_seq = 0;
+        //         }
+        //     }
+        //     "-" => { 
+        //         if *stepper_seq == 0 {
+        //             *stepper_seq = 3;
+        //         }
+        //         else  {
+        //             *stepper_seq -= 1;
+        //         }
+        //     }
+        //     _ => { }
+        // }
     }
 }
 
