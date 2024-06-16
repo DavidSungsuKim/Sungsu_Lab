@@ -48,6 +48,106 @@ fn main() {
 */
 
 /*
+// Simple example
+fn is_valid_user<T>(name: &str, validator: T) -> bool
+where
+    T: FnOnce(&str) -> bool,
+{
+    validator(name)
+}
+
+fn main() {
+    let user = String::from("someone");
+
+    let validate_user = move |name: &str| {
+        let user_filtered = String::from("invalid user");
+        name.len() != 0 && name != user_filtered
+    };
+
+    println!("{}", is_valid_user( &user.to_string(), validate_user ));
+}
+*/
+
+/*
+// Simple example
+fn is_valid_user(name: &str, validator: fn(&str) -> bool) -> bool
+{
+    validator(name)
+}
+
+fn main() {
+    let user = String::from("someone");
+
+    let validate_user = move |name: &str| {
+        let user_filtered = String::from("invalid user");
+        name.len() != 0 && name != user_filtered
+    };
+
+    println!("{}", is_valid_user( &user.to_string(), validate_user ));
+}
+*/
+
+/*
+fn validate_user (name: &str) -> bool {
+    let user_filtered = String::from("invalid user");
+    name.len() != 0 && name != user_filtered
+}
+
+fn is_valid_user(name: &str, validator: fn(&str) -> bool) -> bool
+{
+    validator(name)
+}
+
+fn main() {
+    let user = String::from("someone");
+    println!("{}", is_valid_user( &user.to_string(), validate_user ));
+}
+*/
+
+/*
+fn validate_user (name: &str) -> bool {
+    let user_filtered = String::from("invalid user");
+    name.len() != 0 && name != user_filtered
+}
+
+fn is_valid_user<T>(name: &str, validator: T) -> bool
+where
+    T: FnOnce(&str) -> bool,
+{
+    validator(name)
+}
+
+fn main() {
+    let user = String::from("someone");
+
+    // let validate_user = move |name: &str| {
+    //     let user_filtered = String::from("invalid user");
+    //     name.len() != 0 && name != user_filtered
+    // };
+
+    println!("{}", is_valid_user( &user.to_string(), validate_user ));
+}
+*/
+
+/*
+fn main() {
+    let is_plus_integer = |value: u8| value > 0;
+    println!("result={}", is_plus_integer(1));
+}
+*/
+
+/*
+fn main() {
+    let mut sum = 0;
+    let mut addup = |value_to_add : u32| sum += value_to_add;
+    addup(1);
+    addup(1);
+    addup(1);
+    println!("result={:?}", sum);
+}
+*/
+
+/*
 // Problem 1: Complete the code by adding the closure definition
 
 fn main() {
@@ -60,7 +160,7 @@ fn main() {
 */
 
 /*
-// Problem 2: Complete the 'process_employee' function signature by adding the suitable trait bounds 
+// Problem 2: Complete the 'process_employee' function signature by adding the suitable trait bounds
 
 struct Employee {
     name: String,
@@ -127,7 +227,7 @@ fn main() {
 fn main() {
     let mut counter = 0;
 
-    let mut increment_counter = || { counter += 1 }; /* Complete the Closure definition */ 
+    let mut increment_counter = || { counter += 1 }; /* Complete the Closure definition */
     increment_counter();
     increment_counter();
 
@@ -185,8 +285,8 @@ fn main() {
 */
 
 /*
-// Problem 1: Complete the function signature for `sum_of_squares`. 
-//It must not contain any generics. 
+// Problem 1: Complete the function signature for `sum_of_squares`.
+//It must not contain any generics.
 
 fn add(x: u32, y: u32) -> u32 {
     x + y
@@ -196,7 +296,7 @@ fn square(x: u32) -> u32 {
     x * x
 }
 
-fn sum_of_squares(num: u32, sq: fn(u32) -> u32, add: fn(u32, u32) -> u32) -> u32 { 
+fn sum_of_squares(num: u32, sq: fn(u32) -> u32, add: fn(u32, u32) -> u32) -> u32 {
     let mut result = 0;
     for i in 1..=num {
         result = add(result, sq(i));
@@ -212,7 +312,7 @@ fn main() {
 */
 
 /*
-// Problem 2: Update the function signature so that it uses function pointers instead of closures. 
+// Problem 2: Update the function signature so that it uses function pointers instead of closures.
 // You will also add a square function.
 
 fn invoker(operation: fn(i32) -> i32, operand: i32) -> i32 // This needs to be updated
@@ -224,7 +324,7 @@ fn operation(op: i32) -> i32 {
     op * op
 }
 
-/* A square function needs to be added here */ 
+/* A square function needs to be added here */
 
 fn main() {
     let square = |x: i32| x * x;
@@ -233,6 +333,142 @@ fn main() {
     println!("Result is: {}", result);
 }
 */
+
+/*
+// -------------------------------------------
+// 			Iterator
+// -------------------------------------------
+
+// trait Iterator {
+//     type Item;
+//     fn next(&mut self) -> Option<Self::Item>;
+// }
+
+struct Employee {
+    name: String,
+    salary: u16,
+}
+
+struct Employee_Records {
+    employee_db: Vec<Employee>,
+}
+
+impl Iterator for Employee_Records {
+    type Item = String;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.employee_db.len() != 0 {
+            let result = self.employee_db[0].name.clone();
+            self.employee_db.remove(0);
+            Some(result)
+        } else {
+            None
+        }
+    }
+}
+fn main() {
+    let mut emp_1 = Employee {
+        name: String::from("John"),
+        salary: 40_000,
+    };
+
+    let mut emp_2 = Employee {
+        name: String::from("Joseph"),
+        salary: 30_000,
+    };
+
+    let mut emp_db = Employee_Records {
+        employee_db: vec![emp_1, emp_2],
+    };
+
+    // println!("{:?}", emp_db.next());
+    // println!("{:?}", emp_db.next());
+    // println!("{:?}", emp_db.next());
+
+    for employee in emp_db {
+        println!("{employee}");
+    }
+}
+*/
+
+// -------------------------------------------
+// 			Iterator
+// -------------------------------------------
+
+/*
+// trait Iterator {
+//     type Item;
+//     fn next(&mut self) -> Option<Self::Item>;
+// }
+
+#[derive(Debug)]
+struct Employee {
+    name: String,
+    salary: u16,
+}
+
+struct Employee_Records {
+    employee_db: Vec<Employee>,
+}
+
+// impl Iterator for Employee_Records {
+//     type Item = String;
+//     fn next(&mut self) -> Option<Self::Item> {
+//         if self.employee_db.len() != 0 {
+//             let result = self.employee_db[0].name.clone();
+//             self.employee_db.remove(0);
+//             Some(result)
+//         } else {
+//             None
+//         }
+//     }
+// }
+
+fn main() {
+    let mut emp_1 = Employee {
+        name: String::from("John"),
+        salary: 40_000,
+    };
+
+    let mut emp_2 = Employee {
+        name: String::from("Joseph"),
+        salary: 30_000,
+    };
+
+    let mut emp_db = Employee_Records {
+        employee_db: vec![emp_1, emp_2],
+    };
+
+    for employee in emp_db.employee_db.iter() {
+        println!("{:?}", employee);
+    }
+}
+
+*/
+
+/*
+fn main() {
+    let vec = vec![1, 2, 3, 4, 5];
+    let mut iter = vec.iter();
+    for val in iter {
+        println!("{}", val);
+    }
+}
+*/
+
+fn main() {
+    let vec = vec![1, 2, 3, 4, 5];
+    let mut iter = vec.iter();
+
+    println!("{}", iter.next().unwrap());
+    println!("{}", iter.next().unwrap());
+    println!("{}", iter.next().unwrap());
+    println!("{}", iter.next().unwrap());
+    println!("{}", iter.next().unwrap());
+
+    // for val in iter {
+    //     println!("{}", val);
+    // }
+}
 
 /*
 // Problem 1: Compile the code by adding the definition for the next method
@@ -251,7 +487,7 @@ impl Counter {
 impl Iterator for Counter {
     type Item = u32;
 
-    fn next(&mut self) -> Option<Self::Item> { 
+    fn next(&mut self) -> Option<Self::Item> {
         if self.current < self.max {
             let current = Some(self.current);
             self.current += 1;
@@ -310,7 +546,7 @@ fn main() {
 /*
 // Problem 3: Complete the into_iter function definition.
 // Also add the type for the associated type item
-// Solution: 
+// Solution:
 
 struct Pixel {
     r: i8,
@@ -343,11 +579,11 @@ fn main() {
 
 /*
 // Problem 1: Fix the code so that it compiles
-// Solution: 
+// Solution:
 
 fn main() {
     let mut vec_1 = vec![4, 5, 6, 9, 8];
-    for i in vec_1.iter_mut()  { 
+    for i in vec_1.iter_mut()  {
         *i = *i * 2;
     }
     println!("{:?}", vec_1);
@@ -355,13 +591,13 @@ fn main() {
 */
 
 /*
-// Problem 1: Convert the code based on the combinators  
+// Problem 1: Convert the code based on the combinators
 
 fn main() {
     let numbers = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     let mut result = 0;
 
-    /* The code in the for loop needs to be replaced */ 
+    /* The code in the for loop needs to be replaced */
     for &num in &numbers {
         if num % 2 != 0 {
             let squared_num = num * num;
@@ -377,7 +613,7 @@ fn main() {
         .map(|num| num * num)
         .collect::<Vec<i32>>()
         .into_iter().sum::<i32>();
-    
+
     println!("Result with combinators: {}", result);
 }
 */
