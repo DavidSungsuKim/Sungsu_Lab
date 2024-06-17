@@ -390,32 +390,32 @@ fn main() {
 }
 */
 
+/*
 // -------------------------------------------
 // 			Iterator
 // -------------------------------------------
 
-/*
 // trait Iterator {
 //     type Item;
 //     fn next(&mut self) -> Option<Self::Item>;
 // }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Employee {
     name: String,
     salary: u16,
 }
 
-struct Employee_Records {
-    employee_db: Vec<Employee>,
+struct Employees {
+    employees: Vec<Employee>,
 }
 
-// impl Iterator for Employee_Records {
-//     type Item = String;
+// impl Iterator for Employees {
+//     type Item = Employee;
 //     fn next(&mut self) -> Option<Self::Item> {
-//         if self.employee_db.len() != 0 {
-//             let result = self.employee_db[0].name.clone();
-//             self.employee_db.remove(0);
+//         if self.employees.len() != 0 {
+//             let result = self.employees[0].clone();
+//             self.employees.remove(0);
 //             Some(result)
 //         } else {
 //             None
@@ -423,31 +423,30 @@ struct Employee_Records {
 //     }
 // }
 
+
 fn main() {
-    let mut emp_1 = Employee {
+    let emp_1 = Employee {
         name: String::from("John"),
         salary: 40_000,
     };
-
-    let mut emp_2 = Employee {
+    let emp_2 = Employee {
         name: String::from("Joseph"),
         salary: 30_000,
     };
 
-    let mut emp_db = Employee_Records {
-        employee_db: vec![emp_1, emp_2],
+    let employees = Employees {
+        employees: vec![emp_1, emp_2],
     };
 
-    for employee in emp_db.employee_db.iter() {
+    for employee in employees.employees {
         println!("{:?}", employee);
     }
 }
-
 */
 
 /*
 fn main() {
-    let vec = vec![1, 2, 3, 4, 5];
+    let vec = vec![1, 2, 3];
     let mut iter = vec.iter();
     for val in iter {
         println!("{}", val);
@@ -455,12 +454,11 @@ fn main() {
 }
 */
 
+/*
 fn main() {
-    let vec = vec![1, 2, 3, 4, 5];
+    let vec = vec![1, 2, 3];
     let mut iter = vec.iter();
 
-    println!("{}", iter.next().unwrap());
-    println!("{}", iter.next().unwrap());
     println!("{}", iter.next().unwrap());
     println!("{}", iter.next().unwrap());
     println!("{}", iter.next().unwrap());
@@ -468,6 +466,100 @@ fn main() {
     // for val in iter {
     //     println!("{}", val);
     // }
+}
+*/
+
+/*
+// -------------------------------------------
+// 		IntoIterator
+// -------------------------------------------
+/*
+trait IntoIterator {
+    type Item;
+    type IntoIter: Iterator;
+    fn into_iter(self) -> Self::IntoIter;
+}
+*/
+struct Book {
+    title: String,
+    author: String,
+    genre: String,
+}
+
+// struct BookIterator {
+//     properties: Vec<String>,
+// }
+
+// impl Iterator for BookIterator {
+//     type Item = String;
+
+//     fn next(&mut self) -> Option<Self::Item> {
+//         if !self.properties.is_empty() {
+//             Some(self.properties.remove(0))
+//         } else {
+//             None
+//         }
+//     }
+// }
+
+impl IntoIterator for Book {
+    type Item = String;
+    // type IntoIter = BookIterator;
+
+    // fn into_iter(self) -> Self::IntoIter {
+    //     BookIterator {
+    //         properties: vec![self.title, self.author, self.genre],
+    //     }
+    // }
+
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+    fn into_iter(self) -> Self::IntoIter {
+        vec![self.title, self.author, self.genre].into_iter()
+    }
+}
+
+fn main() {
+    let book = Book {
+        title: "Digital Image Processing".to_string(),
+        author: "Gonzales".to_string(),
+        genre: "Science Book".to_string(),
+    };
+
+    let mut book_iterator = book.into_iter();
+
+    // println!("{:?}", book_iterator.next());
+    // println!("{:?}", book_iterator.next());
+    // println!("{:?}", book_iterator.next());
+    // println!("{:?}", book_iterator.next());
+
+    for book_info in book_iterator {
+        println!("{book_info}");
+    }
+}
+*/
+
+// Simpler example
+struct MyCollection {
+    items: Vec<i32>,
+}
+
+impl IntoIterator for MyCollection {
+    type Item = i32;
+    type IntoIter = std::vec::IntoIter<i32>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.items.into_iter()
+    }
+}
+
+fn main() {
+    let my_collection = MyCollection {
+        items: vec![1, 2, 3, 4, 5],
+    };
+
+    for item in my_collection {
+        println!("{}", item);
+    }
 }
 
 /*
