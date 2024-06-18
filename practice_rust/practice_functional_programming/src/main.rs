@@ -538,6 +538,7 @@ fn main() {
 }
 */
 
+/*
 // Simpler example
 struct MyCollection {
     items: Vec<i32>,
@@ -561,6 +562,109 @@ fn main() {
         println!("{}", item);
     }
 }
+*/
+
+/*
+use std::vec::IntoIter;
+
+struct MyCollection {
+    item1: i32,
+    item2: String,
+    item3: f64,
+}
+
+impl IntoIterator for MyCollection {
+    type Item = Box<dyn std::fmt::Debug>;
+    type IntoIter = IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        let mut vec = Vec::new();
+        vec.push(Box::new(self.item1) as Box<dyn std::fmt::Debug>);
+        vec.push(Box::new(self.item2) as Box<dyn std::fmt::Debug>);
+        vec.push(Box::new(self.item3) as Box<dyn std::fmt::Debug>);
+        vec.into_iter()
+    }
+}
+
+fn main() {
+    let my_collection = MyCollection {
+        item1: 42,
+        item2: String::from("Hello"),
+        item3: 3.14,
+    };
+
+    for item in my_collection {
+        println!("{:?}", item);
+    }
+}*/
+
+/*
+use std::any::Any;
+use std::vec::IntoIter;
+
+struct MyCollection {
+    item1: i32,
+    item2: String,
+    item3: f64,
+}
+
+impl MyCollection {
+    fn into_vec(self) -> Vec<Box<dyn Any>> {
+        vec![
+            Box::new(self.item1) as Box<dyn Any>,
+            Box::new(self.item2) as Box<dyn Any>,
+            Box::new(self.item3) as Box<dyn Any>,
+        ]
+    }
+}
+
+fn main() {
+    let my_collection = MyCollection {
+        item1: 42,
+        item2: String::from("Hello"),
+        item3: 3.14,
+    };
+
+    let vec = my_collection.into_vec();
+
+    for item in vec {
+        if let Some(i) = item.downcast_ref::<i32>() {
+            println!("i32: {}", i);
+        } else if let Some(s) = item.downcast_ref::<String>() {
+            println!("String: {}", s);
+        } else if let Some(f) = item.downcast_ref::<f64>() {
+            println!("f64: {}", f);
+        }
+    }
+}
+*/
+
+/*
+// -------------------------------------------
+//         - Combinators
+// -------------------------------------------
+
+fn main() {
+    let words = vec!["apple", "banana", "grape", "orange", "pear"];
+    // let mut result: Vec<String> = vec![];
+
+    // for word in words {
+    //     if word.starts_with("a") || word.starts_with("b") {
+    //         let uppercase_word = word.to_uppercase();
+    //         result.push(uppercase_word);
+    //     }
+    // }
+    // println!("Result: {:?}", result);
+
+    let result: Vec<String> = words
+        .into_iter()
+        .filter(|&word| word.starts_with("a") || word.starts_with("b"))
+        .map(|word| word.to_uppercase())
+        .collect::<Vec<String>>();
+
+    println!("Result: {:?}", result);
+}
+*/
 
 /*
 // Problem 1: Compile the code by adding the definition for the next method
@@ -710,7 +814,6 @@ fn main() {
 }
 */
 
-/*
 // -------------------------------------------
 //          - Iterating Through Options
 // -------------------------------------------
@@ -766,4 +869,3 @@ fn main() {
     let prod_wihtout_none: Vec<&str> = products.into_iter().flatten().collect();
     println!("{:?}", prod_wihtout_none);
 }
-*/
