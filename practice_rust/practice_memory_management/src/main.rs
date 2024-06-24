@@ -290,16 +290,16 @@ fn new(buf: &mut [u8]) -> BufWriter;                       // does not need expl
 fn new<'a>(buf: &'a mut [u8]) -> BufWriter<'a>;            // expanded
 */
 
+/*
 // -------------------------------------------
 // 			Lifetimes in Structs
 // -------------------------------------------
 
-/*
-1. Each paramter that is a reference, gets its own lifetime parameter.
-2. If there is exactly one input lifetime parameter, that lifetime is assigned to all output lifetime parameters.
-3. If there are multiple input lifetime parameters, but one of them is &self or &mut self,
-   the lifetime of self is assigned to all output lifetime parameters.
-*/
+// 1. Each paramter that is a reference, gets its own lifetime parameter.
+// 2. If there is exactly one input lifetime parameter, that lifetime is assigned to all output lifetime parameters.
+// 3. If there are multiple input lifetime parameters, but one of them is &self or &mut self,
+//    the lifetime of self is assigned to all output lifetime parameters.
+
 struct ArrayProcessor<'a> {
     data: &'a [i32],
 }
@@ -318,3 +318,250 @@ fn main() {
     println!("Previous data: {:?}", previous_data);
     println!("New data: {:?}", some_data.data);
 }
+
+*/
+
+/*
+// -------------------------------------------
+//         Box Smart Pointer (Part 1)
+// -------------------------------------------
+
+//       Simple Pointer          ||         Smart Pointers
+// ----------------------------------------------------------------------
+// Just stores memory address    ||   Special capabilities
+// Indicated by &                ||   Not just simple references
+// Also called references        ||
+// No special capabilities       ||
+
+// enum Conveyance {
+//     Car(i32),
+//     Train(i32),
+//     Air(i32),
+//     Walk
+}
+
+#[derive(Debug)]
+enum List {
+    Cons(i32, Box<List>),
+    Nil,
+}
+
+fn main() {
+    // let x = 0.625;
+    // let y = Box::new(x);
+    // let z = &x;
+
+    let list = List::Cons(
+        1,
+        Box::new(List::Cons(2, Box::new(List::Cons(3, Box::new(List::Nil))))),
+    );
+
+    println!("{:?}", list);
+}
+*/
+
+// -------------------------------------------
+//         Box Smart Pointer (Part 2)
+// -------------------------------------------
+
+// Example 1
+/*
+#[derive(Debug)]
+enum List {
+    Cons(i32, Option<Box<List>>),
+}
+
+fn main() {
+    let list = List::Cons(
+        1,
+        Some(Box::new(List::Cons(2, Some(Box::new(List::Cons(3, None)))))),
+    );
+
+    println!("{:?}", list);
+}
+*/
+
+/*
+// Example 2
+struct Huge_Data;
+struct Small_Data;
+
+trait Storage {}
+
+impl Storage for Huge_Data {}
+impl Storage for Small_Data {}
+
+fn main() {
+    let data_1 = Huge_Data;
+    let data_2 = Box::new(Huge_Data);
+
+    let data_3 = data_1;
+    let data_4 = data_2;
+
+    let data_5 = Box::new(Small_Data);
+
+    let data: Vec<Box<dyn Storage>> = vec![Box::new(data_3), data_4, data_5];
+}
+*/
+
+/*
+// Problem 1: Fix the code below so that it compiles
+
+enum BinaryTree {
+    Leaf,
+    Node(i32, Box<BinaryTree>, Box<BinaryTree>),
+}
+
+fn main() {}
+*/
+
+/*
+// Problem 2: Fix the code by completing the function signature
+
+struct Wrapper {
+    data: String,
+}
+
+fn modify_data(mut wrapper: Box<Wrapper>) -> Box<Wrapper> {
+    wrapper.data = String::from("Modified");
+    wrapper
+}
+
+fn main() {
+    let original_wrapper = Box::new(Wrapper {
+        data: String::from("Original"),
+    });
+    let modified_wrapper = modify_data(original_wrapper);
+}
+*/
+
+/*
+// Problem 3: Complete the code below
+// Solution:
+
+#[derive(Debug)]
+enum ListNode<T> {
+    Node(T, Box<ListNode<T>>),
+    None,
+}
+
+fn main() {
+    // Create a linked list representing: Node(1, Node(2, Node(3, Node(4, None))))
+    let list = ListNode::Node(
+        1,
+        Box::new(ListNode::Node(
+            2,
+            Box::new(ListNode::Node(
+                3,
+                Box::new(ListNode::Node(4, Box::new(ListNode::None))),
+            )),
+        )),
+    );
+    println!("{:?}", list);
+}
+*/
+
+/*
+// Problem 4: Fix the code by adding the type annotation
+
+struct AudioSample;
+struct ImageFile;
+
+trait Media {}
+
+impl Media for AudioSample {}
+impl Media for ImageFile {}
+
+fn main() {
+    let audio_1 = AudioSample;
+    let audio_2 = Box::new(AudioSample);
+
+    let audio_3 = audio_1;
+    let audio_4 = audio_2;
+
+    let image_1 = Box::new(ImageFile);
+
+    let media_collection: Vec<Box<dyn Media>> = vec![Box::new(audio_3), audio_4, image_1];
+}
+*/
+
+/*
+// -------------------------------------------
+// 		Reference Counting Smart Pointer
+// -------------------------------------------
+
+use std::rc::Rc;
+enum List {
+    Cons(i32, Option<Rc<List>>),
+}
+fn main() {
+    let a = Rc::new(List::Cons(1, Some(Rc::new(List::Cons(2, None)))));
+    println!("Reference count after a: {}", Rc::strong_count(&a));
+    {
+        let b = List::Cons(3, Some(Rc::clone(&a)));
+        println!("Reference count after b: {}", Rc::strong_count(&a));
+
+        let c = List::Cons(4, Some(Rc::clone(&a)));
+        println!("Reference count after c: {}", Rc::strong_count(&a));
+    }
+    println!("Reference count after scope: {}", Rc::strong_count(&a));
+}
+*/
+
+/*
+// Problem 1: Put correct values in the assert_eq! macro so that the code does not panic
+// Only use numbers as second parameter to assert_eq's.
+
+use std::rc::Rc;
+#[derive(Debug)]
+struct ListNode<T> {
+    value: T,
+    next: Option<Rc<ListNode<T>>>,
+}
+
+fn main() {
+    let node_3 = Rc::new(ListNode {
+        value: 3,
+        next: None,
+    });
+
+    let node_2 = Rc::new(ListNode {
+        value: 2,
+        next: Some(Rc::clone(&node_3)),
+    });
+
+    let node_1 = Rc::new(ListNode {
+        value: 1,
+        next: Some(Rc::clone(&node_2)),
+    });
+
+    assert_eq!(Rc::strong_count(&node_1), 1); // put a value inplace of ?
+    assert_eq!(Rc::strong_count(&node_2), 2); // put a value inplace of ?
+    assert_eq!(Rc::strong_count(&node_3), 3); // put a value inplace of ?
+}
+*/
+
+/*
+// Problem: In the code below, we would like to code the idea that multiple
+// users can own a file. Complete the code by adding relevant code
+
+use std::rc::Rc;
+
+struct File {}
+
+struct User {
+    file: Rc<File>, /*You code here*/
+}
+
+fn main() {
+    let txt_file = Rc::new(File {});
+
+    let user_1 = User {
+        file: Rc::clone(&txt_file), /*You code here*/
+    };
+
+    let user_2 = User {
+        file: Rc::clone(&txt_file), /*You code here*/
+    };
+}
+*/
