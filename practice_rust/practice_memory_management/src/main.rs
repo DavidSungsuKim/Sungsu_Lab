@@ -44,23 +44,22 @@ fn str_fn(s: String) {
 // -------------------------------------------
 // 			Generic Lifetimes
 // -------------------------------------------
-
 // Example 1:
 /* fn main() {
     let int1 = 5;
     let int2 = 10;
-    let picked_value = picking_int(&int1, &int2);
-    println!("{picked_value}");
+    let value_chosen = choose_value(&int1, &int2);
+    println!("{value_chosen}");
 }
 
-fn picking_int<'a>(i: &'a i32, j: &'a i32) -> &'a i32 {
+fn choose_value(i: &i32, j: &i32) -> &i32 {
+    //fn choose_value<'a>(i: &'a i32, j: &'a i32) -> &'a i32 {
     if rand::random() {
         i
     } else {
         j
     }
 }
-*/
 
 // Example 2:
 /*
@@ -702,6 +701,7 @@ fn main() {
 }
 */
 
+/*
 // -------------------------------------------
 // 		RefCell Example
 // -------------------------------------------
@@ -732,3 +732,4 @@ fn main() {
     user_2.file.borrow_mut().active_user += 1;
     println!("Active users: {:?}", txt_file.borrow().active_user);
 }
+*/
