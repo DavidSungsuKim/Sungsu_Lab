@@ -339,6 +339,7 @@ fn main() {
 //     Walk
 //}
 
+/*
 #[derive(Debug)]
 enum List {
     Cons(i32, Box<List>),
@@ -357,6 +358,26 @@ fn main() {
 
     println!("{:?}", list);
 }
+*/
+
+/*
+// my example
+#[derive(Debug)]
+struct Person {
+    name: String,
+}
+
+fn main() {
+    let a: Box<i32> = Box::new(5);
+
+    let b: Box<Person> = Box::new(Person {
+        name: String::from("Embedded"),
+    });
+
+    println!("a: {}", a);
+    println!("b: {:?}", b);
+}
+*/
 
 // -------------------------------------------
 //         Box Smart Pointer (Part 2)
@@ -378,27 +399,42 @@ fn main() {
     println!("{:?}", list);
 }
 */
-
-/*
-// Example 2
-struct Huge_Data;
-struct Small_Data;
+#[derive(Debug)]
+struct StructBig;
+#[derive(Debug)]
+struct StructSmall;
 
 trait Storage {}
 
-impl Storage for Huge_Data {}
-impl Storage for Small_Data {}
+impl Storage for StructBig {}
+impl Storage for StructSmall {}
 
 fn main() {
-    let data_1 = Huge_Data;
-    let data_2 = Box::new(Huge_Data);
+    let data1 = StructBig;
+    let data2 = data1;
 
-    let data_3 = data_1;
-    let data_4 = data_2;
+    //println!("data1: {:?}", data1);
 
-    let data_5 = Box::new(Small_Data);
+    let data3 = Box::new(StructBig);
+    let data4 = data3;
 
-    let data: Vec<Box<dyn Storage>> = vec![Box::new(data_3), data_4, data_5];
+    //println!("data3: {:?}", data3);
+
+    let data5 = Box::new(StructSmall);
+    let data: Vec<Box<dyn Storage>> = vec![Box::new(data2), data4, data5];
+}
+
+/*
+// Example 2
+#[derive(Debug, Clone, Copy)]
+struct StructBig;
+
+fn main() {
+    let data1 = Box::new(StructBig);
+    let data2 = data1.clone();
+
+    println!("data2: {:?}", data2);
+    println!("data1: {:?}", data1);
 }
 */
 
