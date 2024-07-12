@@ -399,6 +399,8 @@ fn main() {
     println!("{:?}", list);
 }
 */
+
+/*
 #[derive(Debug)]
 struct StructBig;
 #[derive(Debug)]
@@ -423,6 +425,7 @@ fn main() {
     let data5 = Box::new(StructSmall);
     let data: Vec<Box<dyn Storage>> = vec![Box::new(data2), data4, data5];
 }
+*/
 
 /*
 // Example 2
@@ -539,6 +542,33 @@ fn main() {
         println!("Reference count after c: {}", Rc::strong_count(&a));
     }
     println!("Reference count after scope: {}", Rc::strong_count(&a));
+}
+*/
+
+/*
+// my example
+use std::rc::Rc;
+
+#[derive(Debug)]
+struct Person {
+    name: String,
+}
+
+fn main() {
+    // Rc 객체 생성
+    let person = Rc::new(Person {
+        name: String::from("Alice"),
+    });
+
+    // 생성된 Rc 객체를 참조하는 또다른 Rc 객체 생성
+    {
+        let person_clone1 = Rc::clone(&person);
+        println!("Person: {:?}", person);
+        println!("person_clone1 : {:?}", person_clone1);
+        println!("Reference count: {}", Rc::strong_count(&person));
+    }
+
+    println!("Reference count: {}", Rc::strong_count(&person));
 }
 */
 
