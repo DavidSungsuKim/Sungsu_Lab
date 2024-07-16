@@ -766,6 +766,32 @@ fn main() {
 }
 */
 
+// my example
+use std::cell::RefCell;
+use std::rc::Rc;
+
+#[derive(Debug)]
+struct MyStruct {
+    value: i32,
+}
+
+fn main() {
+    // Rc와 RefCell을 사용하여 힙에 데이터를 저장합니다.
+    let my_data = Rc::new(RefCell::new(MyStruct { value: 42 }));
+
+    let mut data = my_data.borrow_mut(); // mutable reference
+    data.value += 1;
+    drop(data);
+
+    let data = my_data.borrow(); // immutable reference
+    println!("Updated value: {:?}", data.value);
+
+    // Rc를 사용하여 동일한 데이터를 여러 참조자가 공유할 수 있습니다.
+    let another_reference = Rc::clone(&my_data);
+    let data = another_reference.borrow();
+    println!("Shared value: {:?}", data.value);
+}
+
 /*
 // -------------------------------------------
 // 		RefCell Example
