@@ -68,6 +68,7 @@ fn main() {
 }
 */
 
+/*
 //Problem 2: Complete the code below
 
 use std::thread;
@@ -75,7 +76,7 @@ use std::thread;
 fn main() {
     let handle_1 = thread::spawn(|| {
         let mut sum = 0;
-        let range = 0..=1_000;
+        let range = 0..=1000;
         for num in range {
             sum += num;
         }
@@ -85,13 +86,96 @@ fn main() {
         // You can access the returned i32 value by calling .unwrap() on join.
 
     // Todo!: Insert a code for creating another thread which will compute the summation from 1001 - 2000
+    let handle_2 = thread::spawn(|| {
+        let mut sum = 0;
+        let range = 1001..=2000;
+        for num in range {
+            sum += num;
+        }
+        sum
+    });
 
     // Todo!: Insert a code for creating another thread which will compute the summation from 2001 - 3000
+    let handle_3 = thread::spawn(|| {
+        let mut sum = 0;
+        let range = 2001..=3000;
+        for num in range {
+            sum += num;
+        }
+        sum
+    });
 
-    let mut sum = 0;
+    let mut sum = handle_1.join().unwrap() + handle_2.join().unwrap() + handle_3.join().unwrap();
 
     // Todo!: Insert code to make sure that the summation is computed correctly.
     // Summation will be computed correctly, if all the threads go to completion.
 
     println!("Final Summation Result {sum}");
 }
+*/
+
+/*
+// -------------------------------------------
+// 			    - Multiple Threads
+// 			    - Ownership and Threads
+// -------------------------------------------
+
+use std::thread::{self, spawn};
+fn main() {
+    // let mut thread_vec = vec![];
+    // for i in 0..10 {
+    //     thread_vec.push(thread::spawn(move || {
+    //         println!("Thread number {}", i);
+    //     }));
+    // }
+
+    // for i in thread_vec {
+    //     i.join();
+    // }
+
+    let v = vec![1, 2, 3];
+    let x = 5;
+    let handle = thread::spawn(move || {
+        println!("Here's a vector: {:?}", v);
+        println!("Here's a variable : {:?}", x);
+    });
+
+    drop(x);
+    println!("The variable x is still alive {}", x);
+    //println!("The variable v is not alive {:?}", v);
+    handle.join();
+}
+*/
+
+/*
+// Problem 1: Fix the code to make it compile.
+
+use std::thread;
+
+fn main() {
+    let mut v = vec!["Nouman".to_string()];
+    let handle = thread::spawn(move || {
+        v.push("Azam".to_string());
+    });
+}
+*/
+
+/*
+// Problem 1: Fix the code to make it compile.
+
+use std::thread;
+
+fn main() {
+    let v = vec![1, 2, 3];
+    let x = 5;
+
+    let handle = thread::spawn(move || {
+        println!("Here's a vector: {:?}", v);
+        println!("Here's a variable : {:?}", x);
+    });
+
+    println!("The variable x is still alive {}", x);
+    //println!("The variable v is not alive {}", v); // something wrong here <-- this can't be done because v is moved to the thread
+    handle.join();
+}
+*/
