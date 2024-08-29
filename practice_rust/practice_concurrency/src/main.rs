@@ -179,3 +179,390 @@ fn main() {
     handle.join();
 }
 */
+
+/*
+// -------------------------------------------
+// 			Message Passing through Channels
+// -------------------------------------------
+use std::sync::mpsc;
+use std::thread;
+fn main() {
+    let (tx, rx) = mpsc::channel();
+
+    // let rx1 = rx;
+
+    let t = thread::spawn(move || {
+        let val = String::from("some data from sender");
+        println!("Value sending from the thread");
+        tx.send(val).unwrap();
+        // println!("This may execute after the statement in the main");
+        // println!("Val is {:?}", val);
+    });
+
+    // let recieved = rx.recv().unwrap();
+    // println!("Recieved: {:?}", recieved);
+
+    t.join();
+    let mut recieved_status = false;
+    while recieved_status != true {
+        match rx.try_recv() {
+            Ok(recieved_value) => {
+                println!("Recieved value is {:?}", recieved_value);
+                recieved_status = true;
+            }
+            Err(_) => println!("I am doing some other stuff"),
+        }
+    }
+}
+*/
+
+// -------------------------------------------
+// 			    - Sending Multiple Messages
+// 			    - Multiple Producers
+// 			    - Threads and Functions
+// -------------------------------------------
+
+/*
+use std::sync::mpsc;
+use std::thread;
+fn main() {
+    let (tx, rx) = mpsc::channel();
+
+    let t = thread::spawn(move || {
+        let my_vec = vec![1, 2, 3, 4, 5];
+        for i in my_vec {
+            tx.send(i).unwrap();
+        }
+    });
+
+    for recieved_vals in rx {
+        println!("I recieved the value of {}", recieved_vals);
+    }
+
+    /*
+    let recived_vals_vec  = rx.iter().collect::<Vec<i32>>();
+    println!("The recieved values are {:?}", recived_vals_vec);
+     */
+}
+*/
+
+/*
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
+
+fn main() {
+    let (tx, rx) = mpsc::channel();
+    let tx1 = tx.clone();
+
+    thread::spawn(move || {
+        let my_vec = vec![1, 2, 3, 4, 5];
+        for i in my_vec {
+            tx.send(i).unwrap();
+            thread::sleep(Duration::from_secs(1));
+        }
+    });
+
+    thread::spawn(move || {
+        let my_vec = vec![6, 7, 8, 9, 10];
+        for i in my_vec {
+            tx1.send(i).unwrap();
+            thread::sleep(Duration::from_secs(1));
+        }
+    });
+
+    for recieved_vals in rx {
+        println!("I recieved the value of {}", recieved_vals);
+    }
+}
+*/
+
+/*
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
+
+fn timer(d: i32, tx: mpsc::Sender<i32>) {
+    thread::spawn(move || {
+        //thread::sleep(Duration::from_millis(d as u64));
+        println!("{} send!", d);
+        tx.send(d).unwrap();
+    });
+}
+
+fn main() {
+    let (tx, rx) = mpsc::channel();
+    for i in 0..5 {
+        timer(i, tx.clone());
+    }
+
+    drop(tx); // this will be written at the end
+
+    for recieving_val in rx {
+        println!("{} recieved!", recieving_val);
+    }
+}
+*/
+
+// Problem 1: Fix the code below
+/* original code
+use std::sync::mpsc;
+use std::thread;
+
+fn main() {
+    let (tx, rx) = mpsc::channel();
+
+    thread::spawn(move || {
+        let my_vec = vec![1, 2, 3, 4, 5];
+        for i in my_vec {
+            tx.send(i).unwrap();
+        }
+    });
+
+    thread::spawn(move || {
+        let my_vec = vec![6, 7, 8, 9, 10];
+        for i in my_vec {
+            tx.send(i).unwrap();   // fix this line
+        }
+    });
+
+    for recieved_vals in rx {
+        println!("I recieved the value of {}", recieved_vals);
+    }
+}
+*/
+
+/*
+use std::sync::mpsc;
+use std::thread;
+
+fn main() {
+    let (tx, rx) = mpsc::channel();
+
+    let tx1 = tx.clone(); // Clone the sender for the second thread
+
+    thread::spawn(move || {
+        let my_vec = vec![1, 2, 3, 4, 5];
+        for i in my_vec {
+            tx.send(i).unwrap();
+        }
+    });
+
+    thread::spawn(move || {
+        let my_vec = vec![6, 7, 8, 9, 10];
+        for i in my_vec {
+            tx1.send(i).unwrap(); // Use the cloned sender for the second thread
+        }
+    });
+
+    for recieved_vals in rx {
+        println!("I recieved the value of {}", recieved_vals);
+    }
+}
+*/
+
+// Problem 2: Complete the code below
+/* original code
+use std::sync::mpsc;
+use std::thread;
+
+fn thread_fn(d: i32, tx: mpsc::Sender<i32>) {
+    thread::spawn(move || {
+        println!("{} send!", d);
+        // Add code for sending d
+    });
+}
+
+fn main() {
+    let (tx, rx) = mpsc::channel();
+    for i in 0..5 {
+        // Add code for calling the function with value i and a clone of tx
+    }
+
+    drop(tx);
+
+    for recieving_val in rx {
+        println!("{} received!", recieving_val);
+    }
+}
+*/
+
+/*
+use std::sync::mpsc;
+use std::thread;
+
+fn thread_fn(d: i32, tx: mpsc::Sender<i32>) {
+    thread::spawn(move || {
+        println!("{} send!", d);
+        // Add code for sending d
+        tx.send(d).unwrap();
+    });
+}
+
+fn main() {
+    let (tx, rx) = mpsc::channel();
+    for i in 0..5 {
+        // Add code for calling the function with value i and a clone of tx
+        let tx2 = tx.clone();
+        thread_fn(i, tx2);
+    }
+
+    drop(tx);
+
+    for recieving_val in rx {
+        println!("{} received!", recieving_val);
+    }
+}
+*/
+
+// Problem 1: The code is unable to do some other stuff.
+// Seems like a message is always available, when you make a call to try_recv().
+// Fix the code so that it is able to do other work.
+
+/* original code
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
+fn main() {
+    let (tx, rx) = mpsc::channel();
+
+    let t = thread::spawn(move || {
+        let x = "some_value".to_string();
+        println!("Sending value {x}");
+        tx.send(x).unwrap();
+    });
+
+    t.join(); // Something wrong here
+    let mut received_status = false;
+    while received_status != true {
+        match rx.try_recv() {
+            Ok(received_value) => {
+                println!("Received value is: {received_value}");
+                received_status = true;
+            }
+            Err(_) => println!("I am doing some other stuff"), // This line never executes.
+                                                               // Make approperiate changes in the code, so that this line executes.
+        }
+    }
+}
+*/
+
+/*
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
+fn main() {
+    let (tx, rx) = mpsc::channel();
+
+    let t = thread::spawn(move || {
+        let x = "some_value".to_string();
+        println!("Sending value {x}");
+        tx.send(x).unwrap();
+    });
+
+    let mut received_status = false;
+    while received_status != true {
+        match rx.try_recv() {
+            Ok(received_value) => {
+                println!("Received value is: {received_value}");
+                received_status = true;
+            }
+            Err(_) => println!("I am doing some other stuff"), // This line never executes.
+                                                               // Make approperiate changes in the code, so that this line executes.
+        }
+    }
+
+    t.join(); // Something wrong here
+}
+*/
+
+/*
+// -------------------------------------------
+// 			Sharing States
+// -------------------------------------------
+use std::sync::Mutex;
+fn main() {
+    let m = Mutex::new(5);
+
+    /*
+    {
+        let mut num = m.lock().unwrap();
+        *num = 10;
+    }
+    */
+
+    println!("m = {:?}", m);
+
+    let mut num = m.lock().unwrap();
+    *num = 10;
+    drop(num);
+
+    let mut num1 = m.lock().unwrap();
+    *num1 = 15;
+    drop(num1);
+}
+*/
+
+// -------------------------------------------
+// 			Passes Mutexes betwen Threads
+// -------------------------------------------
+
+/*
+use std::sync::Mutex;
+use std::thread;
+//use std::rc::Rc;
+//use std::sync::Arc;
+
+fn main() {
+    let counter = Mutex::new(0);
+    //let counter = Rc::new(Mutex::new(0));
+    //let counter = Arc::new(Mutex::new(0));
+
+    let mut handles = vec![];
+
+    for _ in 0..10 {
+        //let counter = Rc::clone(&counter);
+        //let counter = Arc::clone(&counter);
+        let handle = thread::spawn(move || {
+            let mut num = counter.lock().unwrap();
+
+            *num += 1;
+        });
+        handles.push(handle);
+    }
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+
+    println!("Result: {}", *counter.lock().unwrap());
+}
+*/
+
+use std::sync::Arc;
+use std::thread;
+
+struct MyString(String);
+
+impl MyString {
+    fn new(s: &str) -> MyString {
+        MyString(s.to_string())
+    }
+}
+
+fn main() {
+    let mut threads = Vec::new();
+    let name = Arc::new(MyString::new("Rust"));
+
+    for i in 0..5 {
+        let some_str = name.clone();
+        let t = thread::spawn(move || {
+            println!("hello {} count {}", some_str.0, i);
+        });
+        threads.push(t);
+    }
+
+    for t in threads {
+        t.join();
+    }
+}
