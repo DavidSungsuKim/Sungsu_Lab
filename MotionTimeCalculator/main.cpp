@@ -40,7 +40,7 @@ double calculateMotionTime(double distance, double maxVelocity, double maxAccele
    if ( tc < 0.0 )
    {
       float a = maxAcceleration;
-      float b = 2.0 * maxAcceleration * ta;
+      float b = 3.0 * maxAcceleration * ta;
       float c = 2.0 * maxAcceleration * ta * ta - distance;
 
       float discriminant = b * b - 4 * a * c;
@@ -75,11 +75,13 @@ int main() {
 
    auto squareToMeter = [] ( int square ) { return square * 0.725; };
 
-   MotionProfile profileReacingConstVel = { squareToMeter(5), 2.23, 2.0, 2.0, 5.0 };  // total motion time: 3.11 [sec], validated
-   MotionProfile profileReacingConstAcc = { squareToMeter(4), 2.23, 2.0, 2.0, 5.0 };  // total motion time: 2.83 [sec],
-   MotionProfile profileTriangularAcc   = { squareToMeter(1), 2.23, 2.0, 2.0, 5.0 };  // total motion time: [sec],
+   MotionProfile profileReacingConstVel  = { squareToMeter(5), 2.23, 2.0, 2.0, 5.0 };  // total motion time: 3.11 [sec], validated
+   MotionProfile profileReacingConstAcc  = { squareToMeter(4), 2.23, 2.0, 2.0, 5.0 };  // total motion time: 2.83 [sec],
+   MotionProfile profileReacingConstAcc2 = { squareToMeter(3), 2.23, 2.0, 2.0, 5.0 };  // total motion time: 2.51 [sec],
+   MotionProfile profileReacingConstAcc3 = { squareToMeter(2), 2.23, 2.0, 2.0, 5.0 };  // total motion time: 2.14 [sec],
+   MotionProfile profileTriangularAcc    = { squareToMeter(1), 2.23, 2.0, 2.0, 5.0 };  // total motion time: [sec],
 
-   MotionProfile &profile = profileReacingConstAcc;
+   MotionProfile &profile = profileReacingConstAcc3;
 
    double motionTime = calculateMotionTime(profile.distance, profile.maxVelocity, profile.maxAcceleration, profile.jerk);
 
