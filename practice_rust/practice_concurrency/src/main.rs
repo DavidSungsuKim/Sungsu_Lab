@@ -598,6 +598,7 @@ fn main() {
 }
 */
 
+/*
 use std::sync::Arc;
 use std::sync::Barrier;
 use std::sync::Mutex;
@@ -623,14 +624,14 @@ fn main() {
             *result.lock().unwrap() += x;
 
             //let mut x = result.lock().unwrap();
-            //*x = data[i][0..3].iter().sum();
+            // *x = data[i][0..3].iter().sum();
 
             println!("Thread {} Part 1 is done", i);
             barrier.wait();
 
             let x: i32 = data[i][3..6].iter().sum();
             *result.lock().unwrap() += x;
-            //*x = data[i][3..6].iter().sum();
+            // *x = data[i][3..6].iter().sum();
 
             println!("Thread {} is complete ", i);
         });
@@ -646,3 +647,390 @@ fn main() {
         *result.lock().unwrap()
     );
 }
+*/
+
+/*
+// -------------------------------------------
+// 			        - Scope Threads
+// -------------------------------------------
+
+use std::thread;
+
+fn main() {
+    let mut vec = vec![1, 2, 3];
+    let mut x = 0;
+
+    thread::scope(|some_scope| {
+        some_scope.spawn(|| {
+            println!("I am first thread in the scope");
+            println!("{:?}", vec);
+        });
+
+        some_scope.spawn(|| {
+            println!("I am second thread in the scope");
+            x += 45;
+            // vec.push(4);
+            println!("{:?}", vec);
+        });
+    });
+
+    println!("The threads are now complete");
+    vec.push(5);
+    println!("x: {:?} and vec: {:?}", x, vec);
+}
+*/
+
+/*
+// -------------------------------------------
+// 			        - Thread Park
+// -------------------------------------------
+
+use std::thread;
+use std::time::Duration;
+fn main() {
+    let job_1 = thread::spawn(|| {
+        println!("-- Job 1 has started -- ");
+        println!("Waiting for job 2 to complete");
+        //thread::park_timeout(Duration::from_secs(2));
+        //thread::sleep(Duration::from_secs(2));
+        thread::yield_now();
+
+        println!("-- Job 1 resumed --");
+        println!("-- Job 1 finished");
+    });
+
+    let job_2 = thread::spawn(|| {
+        println!("-- Job 2 started --");
+        println!(" -- Job 2 finished --");
+    });
+    job_2.join().unwrap();
+    println!("Job 2 is now completed");
+    println!("Job 1 will now resume");
+    job_1.thread().unpark();
+    job_1.join().unwrap();
+}
+*/
+
+/*
+// -------------------------------------------
+// 			    - Async Await basics
+//                   - tokio = {version = "1.17", features = ["full"]}
+// -------------------------------------------
+
+async fn printing() {
+    println!("I am async function");
+}
+
+#[tokio::main]
+async fn main() {
+    // let x = printing();
+    // println!("The has not being polled yet");
+    // drop(x);
+
+    let x = printing();
+    println!("The has not being polled yet");
+    x.await;
+}
+*/
+
+// -------------------------------------------
+// 			    - Async Await (Tasks, Select)
+//                  - tokio = {version = "1.17", features = ["full"]}
+// -------------------------------------------
+
+/*
+#[tokio::main]
+async fn main() {
+    let mut handles = vec![];
+    println!("This code is not part of the async block");
+    let s1 = String::from("Huge Computation function");
+    let s2 = String::from("Simpler Computation function");
+    let aw1 = tokio::spawn(async move {
+        huge_computation(s1).await;
+    });
+    handles.push(aw1);
+
+    let aw2 = tokio::spawn(async move {
+        simpler_computation(s2).await;
+    });
+    handles.push(aw2);
+
+    for handle in handles {
+        handle.await.unwrap();
+    }
+    println!("All tasks are now completed");
+}
+
+async fn huge_computation(s: String) {
+    println!("{:?} has started", s);
+    for i in 0..100_000_000 {}
+    println!("{:?} is now completed", s);
+}
+async fn simpler_computation(s: String) {
+    println!("{:?} has started", s);
+    println!("{:?} is now completed", s);
+}
+*/
+
+/*
+use tokio::select;
+#[tokio::main]
+async fn main() {
+    // tokio::select! {
+    //     _ = function_1() => println!("Function 1 is completed first"),
+    //     _ = function_2() => println!("Function 2 is completed first"),
+    // };
+
+    // let aw1 = tokio::spawn(async move {
+    //     function_1().await;
+    // });
+
+    // let aw2 = tokio::spawn(async move {
+    //     function_2().await;
+    // });
+
+    // tokio::select! {
+    //     _ = aw1 => println!("Function 1 is selected"),
+    //     _ = aw2 => println!("Function 2 is selected"),
+    // };
+
+    tokio::join! {
+        function_1(),
+        function_2(),
+    };
+}
+
+async fn function_1() {
+    println!("Function 1 has started");
+    for i in 0..100_000_000 {}
+    println!("Function 1 has ended");
+}
+
+async fn function_2() {
+    println!("Function 2 has started");
+    println!("Function 2 has ended");
+}
+*/
+
+/*
+// Problem 1: Fix the code to make it compile. You may only add code, not remove it.
+
+use std::time::Duration;
+use tokio::time::sleep;
+
+struct Project {
+    id: u32,
+    name: String,
+    duration_days: u32,
+}
+
+impl Project {
+    fn new(id: u32, name: &str, duration_days: u32) -> Self {
+        Self {
+            id,
+            name: name.to_string(),
+            duration_days,
+        }
+    }
+}
+
+#[tokio::main]
+async fn main() {
+    let (id1, id2) = (1, 2);
+    let project1 = read_details_from_db(id1).await.unwrap();
+    let project2 = read_details_from_db(id2).await.unwrap();
+    if project1.duration_days > project2.duration_days {
+        println!(
+            "{} takes {} days more than {}",
+            project1.name,
+            project1.duration_days - project2.duration_days,
+            project2.name
+        );
+    } else if project2.duration_days > project1.duration_days {
+        println!(
+            "{} takes {} days more than {}",
+            project2.name,
+            project2.duration_days - project1.duration_days,
+            project1.name
+        );
+    } else {
+        println!(
+            "Both {} and {} take the same number of days",
+            project1.name, project2.name
+        );
+    }
+}
+
+async fn read_details_from_db(id: u32) -> Result<Project, String> {
+    // dummy read from database
+    sleep(Duration::from_millis(1000)).await;
+    let database = [
+        Project::new(1, "Project Alpha", 30),
+        Project::new(2, "Project Beta", 45),
+        Project::new(3, "Project Gamma", 30),
+    ];
+    for project in database {
+        if id == project.id {
+            return Ok(project);
+        }
+    }
+    Err("Project record not present".into())
+}
+*/
+
+// Problem 2: Fix the code so that the two functions execute concurrently.
+// Consider calling the functions inside spawned tasks.
+
+/* original code
+use tokio::time::{sleep, Duration};
+
+async fn fn1() {
+    println!("Task 1 started!");
+    sleep(Duration::from_secs(3)).await;
+    println!("Task 1 completed!");
+}
+
+async fn fn2() {
+    println!("Task 2 started!");
+    sleep(Duration::from_secs(2)).await;
+    println!("Task 2 completed!");
+}
+
+#[tokio::main]
+async fn main() {
+    fn1().await;
+    fn2().await;
+}
+*/
+
+/*
+// Problem 2: Fix the code so that the two functions execute concurrently.
+// Consider calling the functions inside spawned tasks.
+// Solution:
+
+use tokio::time::{sleep, Duration};
+
+async fn fn1() {
+    println!("Task 1 started!");
+    sleep(Duration::from_secs(3)).await;
+    println!("Task 1 completed!");
+}
+
+async fn fn2() {
+    println!("Task 2 started!");
+    sleep(Duration::from_secs(2)).await;
+    println!("Task 2 completed!");
+}
+
+#[tokio::main]
+async fn main() {
+    let mut handles = vec![];
+    let handle_1 = tokio::spawn(amove {
+        fn1().await;
+    });
+    handles.push(handle_1);
+
+    let handle_2 = tokio::spawn(async move {
+        fn2().await;
+    });
+    handles.push(handle_2);
+
+    for handle in handles {
+        handle.await.unwrap();
+    }
+}
+*/
+
+/*
+// -------------------------------------------
+// 			    - Project: Web Scrapping
+// -------------------------------------------
+
+use std::sync::{mpsc, Arc, Mutex};
+use std::thread;
+use std::time::{Duration, Instant};
+use ureq::{Agent, AgentBuilder};
+fn main() -> Result<(), ureq::Error> {
+    let webpages = vec![
+        "https://gist.github.com/recluze/1d2989c7e345c8c3c542",
+        "https://gist.github.com/recluze/a98aa1804884ca3b3ad3",
+        "https://gist.github.com/recluze/5051735efe3fc189b90d",
+        "https://gist.github.com/recluze/460157afc6a7492555bb",
+        "https://gist.github.com/recluze/5051735efe3fc189b90d",
+        "https://gist.github.com/recluze/c9bc4130af995c36176d",
+        "https://gist.github.com/recluze/1d2989c7e345c8c3c542",
+        "https://gist.github.com/recluze/a98aa1804884ca3b3ad3",
+        "https://gist.github.com/recluze/5051735efe3fc189b90d",
+        "https://gist.github.com/recluze/460157afc6a7492555bb",
+        "https://gist.github.com/recluze/5051735efe3fc189b90d",
+        "https://gist.github.com/recluze/c9bc4130af995c36176d",
+        "https://gist.github.com/recluze/1d2989c7e345c8c3c542",
+        "https://gist.github.com/recluze/a98aa1804884ca3b3ad3",
+        "https://gist.github.com/recluze/5051735efe3fc189b90d",
+        "https://gist.github.com/recluze/460157afc6a7492555bb",
+        "https://gist.github.com/recluze/5051735efe3fc189b90d",
+        "https://gist.github.com/recluze/c9bc4130af995c36176d",
+    ];
+
+    let agent = ureq::AgentBuilder::new().build();
+    let now = Instant::now();
+
+    for web_page in &webpages {
+        let web_body = agent.get(web_page).call()?.into_string()?;
+        println!(
+            "Webpage {} has {} bytes, body contents {}",
+            web_page,
+            web_body.len(),
+            web_body
+        );
+    }
+    println!("Time taken wihtout Threads: {:.2?}", now.elapsed());
+
+    let now = Instant::now();
+    let agent = Arc::new(agent);
+    let mut handles: Vec<thread::JoinHandle<Result<(), ureq::Error>>> = Vec::new();
+
+    for web_page in webpages {
+        let agent_thread = agent.clone();
+        let t = thread::spawn(move || {
+            let web_body = agent_thread.get(web_page).call()?.into_string()?;
+
+            Ok(())
+        });
+        handles.push(t);
+    }
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+
+    println!("Time taken using Threads: {:.2?}", now.elapsed());
+    Ok(())
+}
+*/
+
+// use regex::Regex;
+// use std::error::Error;
+// use ureq::Agent;
+
+// fn main() -> Result<(), Box<dyn Error>> {
+//     let url =
+//         "https://www.bookdonga.com/mall/product_ebs_view.donga?product_seq=33389#view-tab-cont2"; // 웹페이지 URL을 여기에 입력하세요
+//     let keyword = "방송일 오후 1시~"; // 찾고자 하는 특정한 글자를 여기에 입력하세요
+
+//     let agent: Agent = ureq::AgentBuilder::new().build();
+//     let response = agent.get(url).call()?.into_string()?;
+
+//     let re = Regex::new(&format!(r"{}(.+?)\s", regex::escape(keyword)))?;
+//     if let Some(captures) = re.captures(&response) {
+//         if let Some(matched) = captures.get(1) {
+//             println!("Found value: {}", matched.as_str());
+//         } else {
+//             println!("No match found.");
+//         }
+//     } else {
+//         println!("No match found.");
+//     }
+
+//     Ok(())
+// }
