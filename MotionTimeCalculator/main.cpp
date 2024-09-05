@@ -2,18 +2,18 @@
 #include <cmath>
 
 // Function to calculate motion time using a cubic motion profile
-double calculateMotionTime(double distance, double maxVelocity, double maxAcceleration, double jerk) 
+double calculateMotionTime(double P, double V, double A, double J) 
 {
-   float ta = maxAcceleration / jerk;
-   float tb = ( maxVelocity - maxAcceleration * ta ) / maxAcceleration;
-   float tc = distance / maxVelocity - maxAcceleration / jerk - maxVelocity / maxAcceleration;
+   float ta = A / J;
+   float tb = ( V - A * ta ) / A;
+   float tc = P / V - A / J - V / A;
 
    //!< Cases that don't reach the constant velocity; recalculate tb
    if ( tc < 0.0 )
    {
-      float a = maxAcceleration;
-      float b = 3.0 * maxAcceleration * ta;
-      float c = 2.0 * maxAcceleration * ta * ta - distance;
+      float a = A;
+      float b = 3.0 * A * ta;
+      float c = 2.0 * A * ta * ta - P;
 
       float discriminant = b * b - 4 * a * c;
       float tb = (-b + std::sqrt(discriminant)) / (2 * a);
@@ -21,7 +21,7 @@ double calculateMotionTime(double distance, double maxVelocity, double maxAccele
       //!< Cases that don't reach the constant acceleration; recalculate ta
       if ( tb < 0.0 )
       {
-         float ta = sqrt( distance / ( 2.0 * maxAcceleration ) );
+         float ta = sqrt( P / ( 2.0 * A ) );
          float totalTime = 4.0 * ta;
          return totalTime;
       }
@@ -61,7 +61,7 @@ int main() {
    MotionProfile profileReachingConstAcc4 = { squareToMeter(1), 2.23, 2.0, 2.0, 5.0 };  // total motion time: 1.65 [sec],
    MotionProfile profileTriangular        = { squareToMeter(0.1), 2.23, 2.0, 2.0, 5.0 }; // total motion time: 0.54 [sec],
 
-   MotionProfile &profile = profileTriangular;
+   MotionProfile &profile = profileReachingConstAcc4;
 
    double motionTime = calculateMotionTime(profile.distance, profile.maxVelocity, profile.maxAcceleration, profile.jerk);
 
