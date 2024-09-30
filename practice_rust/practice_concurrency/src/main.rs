@@ -136,8 +136,9 @@ fn main() {
     let v = vec![1, 2, 3];
     let x = 5;
     let handle = thread::spawn(move || {
-        println!("Here's a vector: {:?}", v);
-        println!("Here's a variable : {:?}", x);
+        //let y = v;
+        println!("Here's a vector: {:?}", y);
+        //println!("Here's a variable : {:?}", x);
     });
 
     drop(x);
@@ -202,15 +203,53 @@ fn main() {
     // let recieved = rx.recv().unwrap();
     // println!("Recieved: {:?}", recieved);
 
+    // t.join();
+    // let mut recieved_status = false;
+    // while recieved_status != true {
+    //     match rx.try_recv() {
+    //         Ok(recieved_value) => {
+    //             println!("Recieved value is {:?}", recieved_value);
+    //             recieved_status = true;
+    //         }
+    //         Err(_) => println!("I am doing some other stuff"),
+    //     }
+    // }
+
     t.join();
-    let mut recieved_status = false;
-    while recieved_status != true {
+    let mut received_value = rx.recv().unwrap();
+    println!("Recieved value is {:?}", received_value);
+}
+*/
+
+/*
+// multiple senders
+use std::sync::mpsc;
+use std::thread;
+fn main() {
+    let (tx, rx) = mpsc::channel();
+    let mut handles = vec![];
+
+    for i in 0..10 {
+        let tx_clone = tx.clone();
+        let t = thread::spawn(move || {
+            let val = String::from("a tx msg");
+            tx_clone.send(val).unwrap();
+        });
+        handles.push(t);
+    }
+
+    for handle in handles {
+        handle.join();
+    }
+
+    let mut num_of_messages = 0;
+    while num_of_messages < 10 {
         match rx.try_recv() {
             Ok(recieved_value) => {
                 println!("Recieved value is {:?}", recieved_value);
-                recieved_status = true;
+                num_of_messages += 1;
             }
-            Err(_) => println!("I am doing some other stuff"),
+            Err(_) => {}
         }
     }
 }
@@ -503,11 +542,11 @@ fn main() {
 }
 */
 
+/* This doesn't work; the author deliberately made it not work
 // -------------------------------------------
 // 			Passes Mutexes betwen Threads
 // -------------------------------------------
 
-/*
 use std::sync::Mutex;
 use std::thread;
 //use std::rc::Rc;
@@ -535,12 +574,12 @@ fn main() {
         handle.join().unwrap();
     }
 
-    println!("Result: {}", *counter.lock().unwrap());
+    //println!("Result: {}", *counter.lock().unwrap());
 }
 */
 
 /*
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::thread;
 
 struct MyString(String);
@@ -552,47 +591,47 @@ impl MyString {
 }
 
 fn main() {
-    let mut threads = Vec::new();
-    let name = Arc::new(MyString::new("Rust"));
+    let name = Arc::new(Mutex::new(MyString::new("Rust")));
+    let mut thread_handles = Vec::new();
 
     for i in 0..5 {
-        let some_str = name.clone();
+        let some_str = Arc::clone(&name);
         let t = thread::spawn(move || {
-            println!("hello {} count {}", some_str.0, i);
+            let some_str = Arc::clone(&name).lock().unwrap();
+            println!("str: {} count: {}", some_str.0, i);
         });
-        threads.push(t);
+        thread_handles.push(t);
     }
 
-    for t in threads {
+    for t in thread_handles {
         t.join();
     }
-}
-*/
+}*/
 
+/*
 // -------------------------------------------
 // 			    - Barriers
 // -------------------------------------------
 
-/*
 use std::sync::Arc;
 use std::sync::Barrier;
 use std::thread;
 
 fn main() {
-    let mut threads = Vec::new();
+    let mut thread_handles = Vec::new();
     let barrier = Arc::new(Barrier::new(5));
 
-    for i in 0..10 {
+    for i in 0..5 {
         let barrier = barrier.clone();
         let t = thread::spawn(move || {
             println!("before wait {}", i);
             barrier.wait();
             println!("after wait {}", i);
         });
-        threads.push(t);
+        thread_handles.push(t);
     }
 
-    for t in threads {
+    for t in thread_handles {
         t.join().unwrap();
     }
 }
@@ -649,11 +688,10 @@ fn main() {
 }
 */
 
-/*
 // -------------------------------------------
 // 			        - Scope Threads
 // -------------------------------------------
-
+/* An example using thread::scope
 use std::thread;
 
 fn main() {
@@ -662,19 +700,57 @@ fn main() {
 
     thread::scope(|some_scope| {
         some_scope.spawn(|| {
-            println!("I am first thread in the scope");
+            println!("1st thread in the scope");
             println!("{:?}", vec);
         });
 
         some_scope.spawn(|| {
-            println!("I am second thread in the scope");
-            x += 45;
-            // vec.push(4);
+            println!("2nd thread in the scope");
+            x += 1;
+            //vec.push(4);
             println!("{:?}", vec);
         });
     });
 
-    println!("The threads are now complete");
+    println!("All threads have been joined");
+    x += 1;
+    vec.push(5);
+    println!("x: {:?} and vec: {:?}", x, vec);
+}
+*/
+
+/* An example not using thread::scope
+use std::thread;
+
+fn main() {
+    let mut vec = vec![1, 2, 3];
+    let mut x = 0;
+
+    let handle1 = thread::spawn({
+        // 1st thread 생성
+        let vec = vec.clone(); // vec 를 clone 하고 move 를 통해 thread 로 넘김
+        move || {
+            println!("1st thread");
+            println!("{:?}", vec);
+        }
+    });
+
+    let handle2 = thread::spawn({
+        // 2nd thread 생성
+        let vec = vec.clone(); // vec 를 clone 하고 move 를 통해 thread 로 넘김
+        move || {
+            println!("2nd thread");
+            x += 1;
+            // vec.push(4);
+            println!("{:?}", vec);
+        }
+    });
+
+    handle1.join().unwrap(); // join 을 호출하여 1st thread 가 끝나기를 명시적으로 대기
+    handle2.join().unwrap(); // join 을 호출하여 1st thread 가 끝나기를 명시적으로 대기
+
+    println!("All threads have been joined");
+    x += 1;
     vec.push(5);
     println!("x: {:?} and vec: {:?}", x, vec);
 }
