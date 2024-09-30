@@ -1,71 +1,111 @@
 #include <iostream>
 #include <cmath>
 
-// Function to calculate motion time using a cubic motion profile
-double calculateMotionTime(double P, double V, double A, double J) 
+struct MotionTime
 {
-   float ta = A / J;
-   float tb = ( V - A * ta ) / A;
-   float tc = P / V - A / J - V / A;
+   double accDecTime;
+   double constVeltime;
+   double totalTime;
+};
+
+struct MotionProfile
+{
+   double distance;
+   double maxVelocity;
+   double maxAcceleration;
+   double maxDeceleration;
+   double jerk;
+};
+
+// Function to calculate motion time using a cubic motion profile
+MotionTime calculateMotionTime(double P, double V, double A, double J) 
+{
+   double ta = A / J;
+   double tb = ( V - A * ta ) / A;
+   double tc = P / V - A / J - V / A;
+
+   MotionTime time;
 
    //!< Cases that don't reach the constant velocity; recalculate tb
    if ( tc < 0.0 )
    {
-      float a = A;
-      float b = 3.0 * A * ta;
-      float c = 2.0 * A * ta * ta - P;
+      double a = A;
+      double b = 3.0 * A * ta;
+      double c = 2.0 * A * ta * ta - P;
 
-      float discriminant = b * b - 4 * a * c;
-      float tb = (-b + std::sqrt(discriminant)) / (2 * a);
+      double discriminant = b * b - 4 * a * c;
+      double tb = (-b + std::sqrt(discriminant)) / (2 * a);
 
       //!< Cases that don't reach the constant acceleration; recalculate ta
       if ( tb < 0.0 )
       {
-         float ta = sqrt( P / ( 2.0 * A ) );
-         float totalTime = 4.0 * ta;
-         return totalTime;
+         double ta = sqrt( P / ( 2.0 * A ) );
+         double totalTime = 4.0 * ta;
+
+         time.accDecTime = 2.0 * ta;
       }
       else
       {
-         float totalTime = 4.0 * ta + 2.0 * tb;
-         return totalTime;
+         double totalTime = 4.0 * ta + 2.0 * tb;
+         time.totalTime = totalTime;
+
+         time.accDecTime = 2.0 * ta + tb;
       }
+
+      time.constVeltime = 0.0;
    }
    //!< Cases that reach the constant velocity
    else
    {
-      float totalTime = 4.0 * ta + 2.0 * tb + tc;      
-      float tAcc = 2.0 * ta + tb;
+      double totalTime = 4.0 * ta + 2.0 * tb + tc;      
+      double tAcc = 2.0 * ta + tb;
 
-      return totalTime;
+      time.accDecTime = tAcc;
+      time.constVeltime = tc;
    }
+
+   time.totalTime = time.accDecTime * 2. + time.constVeltime;
+   return time;
 }
 
-int main() {
+MotionTime calculateMotionTime( MotionProfile profile ) 
+{
+   return calculateMotionTime( profile.distance, profile.maxVelocity, profile.maxAcceleration, profile.jerk );
+}
 
-   struct MotionProfile
-   {
-      double distance;
-      double maxVelocity;
-      double maxAcceleration;
-      double maxDeceleration;
-      double jerk;
-   };
+void printMotionTime( MotionTime time ) 
+{
+   printf( "Motion time[s]: total=%.3f, acc=%.3f, dec=%.3f, constVel=%.3f\r\n", time.totalTime, time.accDecTime, time.accDecTime, time.constVeltime );
+}
 
-   auto squareToMeter = [] ( float square ) { return square * 0.725; };
+int main() 
+{
+   // struct MotionProfile
+   // {
+   //    double distance;
+   //    double maxVelocity;
+   //    double maxAcceleration;
+   //    double maxDeceleration;
+   //    double jerk;
+   // };
 
-   MotionProfile profileReachingConstVel  = { squareToMeter(5), 2.23, 2.0, 2.0, 5.0 };  // total motion time: 3.11 [sec], validated
+   auto squareToMeter = [] ( double square ) -> double { return square * 0.725; };
+
+   MotionProfile profileReachingConstVel   = { squareToMeter(5),  2.23, 2.0, 2.0, 5.0 }; 
+   MotionProfile profile1                  = { squareToMeter(5),  3.90, 2.5, 2.5, 5.0 }; 
+   MotionProfile profile2                  = { squareToMeter(12), 3.90, 2.5, 2.5, 5.0 }; 
+   MotionProfile profile3                  = { squareToMeter(5),  2.23, 2.5, 2.5, 5.0 }; 
+
+   printMotionTime( calculateMotionTime( profileReachingConstVel ) );
+   printMotionTime( calculateMotionTime( profile1 ) );
+   printMotionTime( calculateMotionTime( profile2 ) );   
+   printMotionTime( calculateMotionTime( profile3 ) );
+
    MotionProfile profileReachingConstAcc  = { squareToMeter(4), 2.23, 2.0, 2.0, 5.0 };  // total motion time: 2.83 [sec],
    MotionProfile profileReachingConstAcc2 = { squareToMeter(3), 2.23, 2.0, 2.0, 5.0 };  // total motion time: 2.51 [sec],
    MotionProfile profileReachingConstAcc3 = { squareToMeter(2), 2.23, 2.0, 2.0, 5.0 };  // total motion time: 2.14 [sec],
    MotionProfile profileReachingConstAcc4 = { squareToMeter(1), 2.23, 2.0, 2.0, 5.0 };  // total motion time: 1.65 [sec],
    MotionProfile profileTriangular        = { squareToMeter(0.1), 2.23, 2.0, 2.0, 5.0 }; // total motion time: 0.54 [sec],
-
-   MotionProfile &profile = profileReachingConstAcc4;
-
-   double motionTime = calculateMotionTime(profile.distance, profile.maxVelocity, profile.maxAcceleration, profile.jerk);
-
-   printf( "Motion time: %.2f\n", motionTime);
 
    return 0;
 }
