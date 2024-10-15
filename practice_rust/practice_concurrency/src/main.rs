@@ -793,18 +793,16 @@ fn main() {
 //                   - tokio = {version = "1.17", features = ["full"]}
 // -------------------------------------------
 
+use std::future::Future;
+
 async fn printing() {
-    println!("I am async function");
+    println!("from the async");
 }
 
 #[tokio::main]
 async fn main() {
-    // let x = printing();
-    // println!("The has not being polled yet");
-    // drop(x);
-
     let x = printing();
-    println!("The has not being polled yet");
+    println!("from the main");
     x.await;
 }
 */
@@ -813,7 +811,6 @@ async fn main() {
 // 			    - Async Await (Tasks, Select)
 //                  - tokio = {version = "1.17", features = ["full"]}
 // -------------------------------------------
-
 /*
 #[tokio::main]
 async fn main() {
@@ -887,6 +884,39 @@ async fn function_2() {
     println!("Function 2 has ended");
 }
 */
+
+use std::sync::{Arc, Mutex};
+use tokio::task;
+use tokio::time::{sleep, Duration};
+
+async fn increment_counter(id: usize, counter: Arc<Mutex<i32>>) {
+    println!("Task {} has started", id);
+
+    sleep(Duration::from_secs(1)).await;
+
+    let mut counter = counter.lock().unwrap();
+    *counter += 1;
+
+    println!("Task {} is now completed", id);
+}
+
+#[tokio::main]
+async fn main() {
+    let counter = Arc::new(Mutex::new(0));
+
+    let handles = vec![
+        task::spawn(increment_counter(0, Arc::clone(&counter))),
+        task::spawn(increment_counter(1, Arc::clone(&counter))),
+        task::spawn(increment_counter(2, Arc::clone(&counter))),
+    ];
+
+    for handle in handles {
+        handle.await.unwrap();
+    }
+
+    let counter = counter.lock().unwrap();
+    println!("All tasks are completed with counter value {}", *counter);
+}
 
 /*
 // Problem 1: Fix the code to make it compile. You may only add code, not remove it.
