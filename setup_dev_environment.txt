@@ -55,6 +55,7 @@
          . Show side bar            --> Ctrl + B
          . Search files by name     --> Ctrl + P
          . Go to Symbol in Editor   --> Ctrl + Shift + O
+         . View Source Control      --> Ctrl + Shift + G (default, for Git)
       . settings
          . Editor: Format On Save   --> checked
          . Editor: cursor blinking  -->
@@ -77,6 +78,7 @@
          . C#
          . C# Dev Kit
          . .NET Extention Pack
+         . Git / Git Graph / Git Histrory / Git Blame / Git Extension Pack
          . ...
    - restore *.exe in .cargo
       . [Users] - [SungsuKim] - [.cargo]
