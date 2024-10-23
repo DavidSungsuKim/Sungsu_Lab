@@ -56,6 +56,8 @@
          . Search files by name     --> Ctrl + P
          . Go to Symbol in Editor   --> Ctrl + Shift + O
          . View Source Control      --> Ctrl + Shift + G (default, for Git)
+         . Open Command Parlette    --> Ctrl + Shift + P
+         . CMake: Reveal Test Explorer --> Ctrl + Shift + T
       . settings
          . Editor: Format On Save   --> checked
          . Editor: cursor blinking  -->
@@ -79,6 +81,7 @@
          . C# Dev Kit
          . .NET Extention Pack
          . Git / Git Graph / Git Histrory / Git Blame / Git Extension Pack
+         . Rust Macro Expand
          . ...
    - restore *.exe in .cargo
       . [Users] - [SungsuKim] - [.cargo]
