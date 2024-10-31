@@ -112,29 +112,27 @@ fn main() {
 // -------------------------------------------------
 //          	- Repeating Patterns
 // -------------------------------------------------
-
+/*
 macro_rules! string_concat {
-    /*
-    () => {
-        String::new();
-    };
+    // () => {
+    //     String::new();
+    // };
 
-    ($some_str: expr) => {{
-        let mut temp_str = String::new();
-        temp_str.push_str($some_str);
-        temp_str
-    }
-    };
+    // ($some_str: expr) => {{
+    //     let mut temp_str = String::new();
+    //     temp_str.push_str($some_str);
+    //     temp_str
+    // }
+    // };
 
-    ($some_s1: expr, $some_s2:expr) => {{
-        let mut temp_str = String::new();
-        temp_str.push_str($some_s1);
-        temp_str.push_str($some_s2);
+    // ($some_s1: expr, $some_s2:expr) => {{
+    //     let mut temp_str = String::new();
+    //     temp_str.push_str($some_s1);
+    //     temp_str.push_str($some_s2);
 
-        temp_str
-    }
+    //     temp_str
+    // }
 };
-*/
 
 ($($some_str:expr,) *) => {{
     let mut temp_str = String::new();
@@ -161,3 +159,108 @@ fn main() {
     println!("{}", str_single); // 출력: "First"
     println!("{}", str_double); // 출력: "FirstSecond"
 }
+*/
+
+/*
+// homework 1.
+// We want to create a macro called make_struct which will create a new struct containing some fields. The input to the macro is the name of the struct and the name of the fields along with their types. The skeleton of the macro along with its left sides of the rules are given.
+// You are required to write the code for the expansion or the right side of the rule.
+
+macro_rules! make_struct {
+    ($name:ident {$($field:ident: $ty:ty),* }) => {
+       // Your code here
+        #[derive(Debug)]
+        struct $name {
+            $($field: $ty),*
+        };
+    };
+
+}
+fn main() {
+    make_struct!(Person {
+        name: String,
+        age: u32,
+        occupation: String
+    });
+
+    let p = Person {
+        name: "Senior".to_string(),
+        age: 83,
+        occupation: "embedded developer".to_string(),
+    };
+
+    println!("{:?}", p);
+}
+*/
+
+/*
+// homework 2.
+// Consider the code below. Show the expansion part of this code, espacially for the invocation to macro.
+macro_rules! make_functions {
+    ($($func_name:ident: $return_type:ty => $return_expr:expr),+) => {
+        $(
+            fn $func_name() -> $return_type {
+
+                $return_expr
+            }
+        )+
+    };
+}
+
+make_functions!(foo: i32 => 42, bar: String => "hello world".to_owned());
+
+fn main() {
+    let result1 = foo();
+    let result2 = bar();
+
+    println!("foo result: {}", result1);
+    println!("bar result: {}", result2);
+}*/
+
+/*
+// answer:
+fn main() {
+    let result1 = foo();
+    let result2 = bar();
+    {
+        ::std::io::_print(format_args!("foo result: {0}\n", result1));
+    };
+    {
+        ::std::io::_print(format_args!("bar result: {0}\n", result2));
+    };
+}
+*/
+
+/*
+// homework 3.
+// Consider the code below. Write the expanded version of the code that can be viewed using the cargo expand utility.
+
+macro_rules! sum_macro {
+    ($($x:expr),*) => {
+        {
+            let mut sum = 0;
+            $(sum += $x;)*
+            sum
+        }
+    };
+}
+
+fn main() {
+    let result = sum_macro!(1, 2, 3, 4, 5);
+}
+*/
+
+/*
+// answer:
+fn main() {
+    let result = {
+        let mut sum = 0;
+        sum += 1;
+        sum += 2;
+        sum += 3;
+        sum += 4;
+        sum += 5;
+        sum
+    };
+}
+*/
