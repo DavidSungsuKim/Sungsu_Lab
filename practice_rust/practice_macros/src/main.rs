@@ -264,3 +264,175 @@ fn main() {
     };
 }
 */
+
+// -------------------------------------------
+// 			Question Marks Operator
+// -------------------------------------------
+/*
+use std::num::ParseIntError;
+
+fn parse_string(input_str: &str) -> Result<i32, ParseIntError> {
+    let parsed = input_str.parse::<i32>()?;
+    Ok(parsed)
+}
+
+fn main() {
+    let values = vec!["123", "some1", "some(123)", "abc", "53"];
+    for value in values {
+        println!("{:?}", parse_string(value));
+    }
+}*/
+
+/*
+// example when there's no '?' operators
+use std::num::ParseIntError;
+
+fn parse_string(input_str: &str) -> Result<i32, ParseIntError> {
+    match input_str.parse::<i32>() {
+        Ok(parsed) => Ok(parsed),
+        Err(e) => Err(e),
+    }
+}
+
+fn main() {
+    let values = vec!["123", "some1", "some(123)", "abc", "53"];
+    for value in values {
+        match parse_string(value) {
+            Ok(parsed) => println!("Parsed value: {}", parsed),
+            Err(e) => println!("Failed to parse '{}': {:?}", value, e),
+        }
+    }
+}
+*/
+
+/*
+fn division(dividend: f64, divisor: f64) -> Result<f64, String> {
+    //fn division(dividend: f64, divisor: f64) -> Result<f64, u8>  {
+
+    let answer = match divisor {
+        0.0 => Err(String::from("Error: Division by zero")), // Err(8),
+        _ => Ok(dividend / divisor),
+    };
+
+    let correct = answer?; // it is also going to unwrap the result
+                           // A small note: this operator will take the ownership
+                           //println!("{:?}",answer);
+    println!("This line will not print in case of error {:?}", correct);
+    Ok(correct)
+}
+
+fn main() {
+    println!(
+        "Call from main with result equals to {:?}\n",
+        division(9.0, 3.0)
+    );
+    println!(
+        "Call from main with result equals to {:?}\n",
+        division(4.0, 0.0)
+    );
+    println!(
+        "Call from main with result equals to {:?}\n",
+        division(0.0, 2.0)
+    );
+}
+*/
+
+/*
+fn division(dividend: f64, divisor: f64) -> Option<f64> {
+    let answer = match divisor {
+        0.0 => None,
+        _ => Some(dividend / divisor),
+    };
+
+    let correct = answer?; // A small note: this operator will take the ownership
+
+    // println!("{:?}",answer);
+    println!("This line will not print in case of error {:?}", correct);
+    Some(correct)
+}
+
+fn main() {
+    //let x = division(1.0,2.0);
+    println!(
+        "Call from main with result equals to {:?}\n",
+        division(9.0, 3.0)
+    );
+    println!(
+        "Call from main with result equals to {:?}\n",
+        division(4.0, 0.0)
+    );
+    println!(
+        "Call from main with result equals to {:?}\n",
+        division(0.0, 2.0)
+    );
+}
+*/
+
+/*
+#[derive(Debug)]
+enum MathError {
+    DivisionError_DivisionByZero,
+    LogError_NonPositiveLogarithm,
+    SqrtError_NegativeSquareRoot,
+}
+
+type MathResult = Result<(), MathError>;
+
+fn division(x: f64, y: f64) -> MathResult {
+    if y == 0.0 {
+        Err(MathError::DivisionError_DivisionByZero)
+    } else {
+        println!("The division is successful and has a result of {}", x / y);
+        Ok(())
+    }
+}
+
+fn sqrt(x: f64) -> MathResult {
+    if x < 0.0 {
+        Err(MathError::SqrtError_NegativeSquareRoot)
+    } else {
+        println!(
+            "The square root is successful and has a result of {}",
+            x.sqrt()
+        );
+        Ok(())
+    }
+}
+
+fn ln(x: f64) -> MathResult {
+    if x <= 0.0 {
+        Err(MathError::LogError_NonPositiveLogarithm)
+    } else {
+        println!("The log was successful and has a result of {}", x.ln());
+        Ok(())
+    }
+}
+fn operations(x: f64, y: f64) -> MathResult {
+    division(x, y)?;
+    sqrt(x)?;
+    ln(x)?;
+    Ok(())
+}
+
+fn main() {
+    let result = operations(0.0, 10.0);
+    if result.is_ok() {
+        println!("All the functions executed successfully");
+    } else {
+        println!("{:?}", result);
+    }
+}
+*/
+
+// Another example not in the video lectures but simple to understand and very useful
+use std::env;
+
+fn current_dir1() -> std::io::Result<()> {
+    let path = env::current_dir()?; // for unwrapping the current path
+    println!("\n\n The current path is {:?}\n\n ", path);
+    Ok(())
+}
+
+fn main() {
+    current_dir1();
+}
