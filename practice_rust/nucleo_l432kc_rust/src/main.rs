@@ -37,10 +37,9 @@ type FixedStringSlices = Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>;
  * Main function.
  */
 fn main() -> ! {
-    let (mut led, serial_tx, mut serial_rx, timer, mut a_pos, mut a_neg, mut b_pos, mut b_neg) = init_hardware();
+    let (timer, mut gpio_led3, mut gpio_serial_tx, mut gpio_serial_rx, mut gpio_stepper_a_pos, mut gpio_stepper_a_neg, mut gpio_stepper_b_pos, mut gpio_stepper_b_neg) = init_hardware();
 
-    let mut sender = SerialSender::new(serial_tx);
-
+    let mut sender = SerialSender::new(gpio_serial_tx);
     let mut str_buffer: String<SIZE_RX_BUFFER> = String::new();
     str_buffer.clear();
 
@@ -59,10 +58,10 @@ fn main() -> ! {
             time_tick = timer.now();
 
             // toggle led
-            //led.toggle();
+            gpio_led3.toggle();
         }
 
-        if let Some(slices) = get_command_slices(&mut serial_rx, &mut str_buffer) {
+        if let Some(slices) = get_command_slices(&mut gpio_serial_rx, &mut str_buffer) {
             print!(sender, "CLI: #args={}\r\n", slices.len());
     
             let command = slices.get(0).unwrap();
@@ -71,10 +70,10 @@ fn main() -> ! {
                     cli_print_info(&mut sender);
                 }
                 "led" => {
-                    cli_control_led(slices.clone(), &mut sender, &mut led);
+                    cli_control_led(slices.clone(), &mut sender, &mut gpio_led3);
                 }
                 "stepper" => {
-                    cli_control_stepper(slices.clone(), &mut sender, &mut a_pos, &mut a_neg, &mut b_pos, &mut b_neg, &mut stepper_seq );
+                    cli_control_stepper(slices.clone(), &mut sender, &mut gpio_stepper_a_pos, &mut gpio_stepper_a_neg, &mut gpio_stepper_b_pos, &mut gpio_stepper_b_neg, &mut stepper_seq );
                 }
                 _ => {
                 }
@@ -329,7 +328,7 @@ impl<T: SendByte> SerialSender<T> {
  * 
  * @return The LED, TX, RX, and timer.
  */
-fn init_hardware() -> (PB3<Output<PushPull>>, Tx<USART2>, hal::serial::Rx<USART2>, MonoTimer, PA4<Output<PushPull>>, PA5<Output<PushPull>>, PA6<Output<PushPull>>, PA7<Output<PushPull>>) {
+fn init_hardware() -> (MonoTimer, PB3<Output<PushPull>>, Tx<USART2>, hal::serial::Rx<USART2>, PA4<Output<PushPull>>, PA5<Output<PushPull>>, PA6<Output<PushPull>>, PA7<Output<PushPull>>) {
 
     // Setup the clock and etc
     let p = hal::stm32::Peripherals::take().unwrap();
@@ -363,7 +362,7 @@ fn init_hardware() -> (PB3<Output<PushPull>>, Tx<USART2>, hal::serial::Rx<USART2
     cp.DWT.enable_cycle_counter();
     let timer: MonoTimer = MonoTimer::new(cp.DWT, clocks);
 
-    (led, tx, rx, timer, pin_stepper_a_pos, pin_stepper_a_neg, pin_stepper_b_pos, pin_stepper_b_neg)
+    (timer, led, tx, rx, pin_stepper_a_pos, pin_stepper_a_neg, pin_stepper_b_pos, pin_stepper_b_neg)
 }
 
 /**
