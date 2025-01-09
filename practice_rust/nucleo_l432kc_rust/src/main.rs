@@ -32,6 +32,13 @@ const MAX_ARGS: usize = 20;
 
 type FixedStringSlices = Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>;
 
+enum StepperSeq{
+    Seq1,
+    Seq2,
+    Seq3,
+    Seq4
+}
+
 #[entry]
 /**
  * Main function.
@@ -49,7 +56,8 @@ fn main() -> ! {
 
     let tick_cnt_for_action = get_tick_ms(1000);
     let mut time_tick = timer.now();
-    let mut stepper_seq : u32 = 0;
+    let mut stepper_seq = StepperSeq::Seq1;
+    
     cli_print_info(&mut sender);
     print!(sender, "Enter a command...\r\n");
 
@@ -124,7 +132,7 @@ fn cli_control_stepper( slices: FixedStringSlices,
                         a_neg: &mut PA5<Output<PushPull>>, 
                         b_pos: &mut PA6<Output<PushPull>>, 
                         b_neg: &mut PA7<Output<PushPull>>, 
-                        stepper_seq: &mut u32)
+                        stepper_seq: &mut StepperSeq)
 {
     if let Some(steps) = slices.get(1) {
         print!(sender, "CLI: stepper {}\r\n", steps.as_str());
@@ -132,41 +140,40 @@ fn cli_control_stepper( slices: FixedStringSlices,
         let maybe_num: Result<i32, _> = steps.parse();
         match maybe_num {
             Ok(count) => {
-                let mut count_steps = count;
-                loop {
-                    *stepper_seq += 1; 
-                    if *stepper_seq > 3 {
-                      *stepper_seq = 0;
-                    }
+                let dir_counter_clockwise: bool = count > 0;
+                let mut count_steps = if count > 0 { count } else { -count };
 
-                    match stepper_seq {
-                        0 => {
+                loop {
+                    *stepper_seq = match stepper_seq {
+                        StepperSeq::Seq1 => {
                             a_pos.set_high();
                             a_neg.set_low();
                             b_pos.set_low();
                             b_neg.set_low();
+                            if dir_counter_clockwise == true { StepperSeq::Seq2 } else { StepperSeq::Seq4 }
                         }
-                        1 => {
+                        StepperSeq::Seq2 => {
                             a_pos.set_low();
                             a_neg.set_high();
                             b_pos.set_low();
                             b_neg.set_low();
+                            if dir_counter_clockwise == true { StepperSeq::Seq3 } else { StepperSeq::Seq1 }
                         }
-                        2 => {
+                        StepperSeq::Seq3 => {
                             a_pos.set_low();
                             a_neg.set_low();
                             b_pos.set_high();
                             b_neg.set_low();
+                            if dir_counter_clockwise == true { StepperSeq::Seq4 } else { StepperSeq::Seq2 }
                         }
-                        3 => {
+                        StepperSeq::Seq4 => {
                             a_pos.set_low();
                             a_neg.set_low();
                             b_pos.set_low();
                             b_neg.set_high();
+                            if dir_counter_clockwise == true { StepperSeq::Seq1 } else { StepperSeq::Seq3 }
                         }
-                        _ => 
-                        {}
-                    }
+                    };
 
                     count_steps -= 1;
                     if count_steps == 0 {
@@ -185,24 +192,6 @@ fn cli_control_stepper( slices: FixedStringSlices,
             Err(_) =>
             {}
         }
-
-        // match steps.as_str() {
-        //     "+" => { 
-        //         *stepper_seq += 1; 
-        //         if *stepper_seq > 3 {
-        //             *stepper_seq = 0;
-        //         }
-        //     }
-        //     "-" => { 
-        //         if *stepper_seq == 0 {
-        //             *stepper_seq = 3;
-        //         }
-        //         else  {
-        //             *stepper_seq -= 1;
-        //         }
-        //     }
-        //     _ => { }
-        // }
     }
 }
 
