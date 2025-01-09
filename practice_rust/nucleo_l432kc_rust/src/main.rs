@@ -37,7 +37,7 @@ type FixedStringSlices = Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>;
  * Main function.
  */
 fn main() -> ! {
-    let (timer, mut gpio_led3, mut gpio_serial_tx, mut gpio_serial_rx, mut gpio_stepper_a_pos, mut gpio_stepper_a_neg, mut gpio_stepper_b_pos, mut gpio_stepper_b_neg) = init_hardware();
+    let ( timer, mut gpio_led3, mut gpio_serial_tx, mut gpio_serial_rx, mut gpio_stepper_a_pos, mut gpio_stepper_a_neg, mut gpio_stepper_b_pos, mut gpio_stepper_b_neg) = init_hardware();
 
     let mut sender = SerialSender::new(gpio_serial_tx);
     let mut str_buffer: String<SIZE_RX_BUFFER> = String::new();
@@ -118,8 +118,13 @@ fn cli_control_led(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART
     }
 }
 
-fn cli_control_stepper(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART2>>, 
-                        a_pos: &mut PA4<Output<PushPull>>, a_neg: &mut PA5<Output<PushPull>>, b_pos: &mut PA6<Output<PushPull>>, b_neg: &mut PA7<Output<PushPull>>, stepper_seq: &mut u32)
+fn cli_control_stepper( slices: FixedStringSlices, 
+                        sender: &mut SerialSender<Tx<USART2>>, 
+                        a_pos: &mut PA4<Output<PushPull>>, 
+                        a_neg: &mut PA5<Output<PushPull>>, 
+                        b_pos: &mut PA6<Output<PushPull>>, 
+                        b_neg: &mut PA7<Output<PushPull>>, 
+                        stepper_seq: &mut u32)
 {
     if let Some(steps) = slices.get(1) {
         print!(sender, "CLI: stepper {}\r\n", steps.as_str());
@@ -234,7 +239,9 @@ fn cli_peek_slices(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART
  * @param str_buffer: A mutable reference to a `String<SIZE_RX_BUFFER>` that is used as a buffer to store the received data.
  * @return: An `Option` that contains a `Vec` of `String<SIZE_RX_BUFFER>` if the received data ends with a newline character, or `None` otherwise.
  */
-fn get_command_slices(serial_rx: &mut hal::serial::Rx<USART2>, str_buffer: &mut String<SIZE_RX_BUFFER>) -> Option<FixedStringSlices> {
+fn get_command_slices( serial_rx: &mut hal::serial::Rx<USART2>, 
+                       str_buffer: &mut String<SIZE_RX_BUFFER>) -> Option<FixedStringSlices> {
+                        
     let received = serial_rx.read().ok();
  
     if let Some(ch) = received {
