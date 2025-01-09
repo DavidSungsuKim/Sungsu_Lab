@@ -134,63 +134,64 @@ fn cli_control_stepper( slices: FixedStringSlices,
                         b_neg: &mut PA7<Output<PushPull>>, 
                         stepper_seq: &mut StepperSeq)
 {
-    if let Some(steps) = slices.get(1) {
-        print!(sender, "CLI: stepper {}\r\n", steps.as_str());
+    if let Some(degrees) = slices.get(1) {
+        print!(sender, "CLI: stepper degree= {}\r\n", degrees.as_str());
         
-        let maybe_num: Result<i32, _> = steps.parse();
-        match maybe_num {
-            Ok(count) => {
-                let dir_counter_clockwise: bool = count > 0;
-                let mut count_steps = if count > 0 { count } else { -count };
+        const MAX_STEPS: f32 = 2048.0;
 
-                loop {
-                    *stepper_seq = match stepper_seq {
-                        StepperSeq::Seq1 => {
-                            a_pos.set_high();
-                            a_neg.set_low();
-                            b_pos.set_low();
-                            b_neg.set_low();
-                            if dir_counter_clockwise == true { StepperSeq::Seq2 } else { StepperSeq::Seq4 }
-                        }
-                        StepperSeq::Seq2 => {
-                            a_pos.set_low();
-                            a_neg.set_high();
-                            b_pos.set_low();
-                            b_neg.set_low();
-                            if dir_counter_clockwise == true { StepperSeq::Seq3 } else { StepperSeq::Seq1 }
-                        }
-                        StepperSeq::Seq3 => {
-                            a_pos.set_low();
-                            a_neg.set_low();
-                            b_pos.set_high();
-                            b_neg.set_low();
-                            if dir_counter_clockwise == true { StepperSeq::Seq4 } else { StepperSeq::Seq2 }
-                        }
-                        StepperSeq::Seq4 => {
-                            a_pos.set_low();
-                            a_neg.set_low();
-                            b_pos.set_low();
-                            b_neg.set_high();
-                            if dir_counter_clockwise == true { StepperSeq::Seq1 } else { StepperSeq::Seq3 }
-                        }
-                    };
+        // positive degree is clockwise, negative degree is counter-clockwise
+        let move_degree: Result<f32, _> = degrees.parse();
+        let steps = move_degree.unwrap_or(0f32) / 360.0 * MAX_STEPS;
+        let steps = steps as i32;
+        print!(sender, "{}\r\n", steps);
 
-                    count_steps -= 1;
-                    if count_steps == 0 {
-                        break;
-                    }
+        let dir_counter_clockwise: bool = steps < 0;
+        let mut count_steps = if steps > 0 { steps } else { -steps };
 
-                    let mut delay_count = 12000;
-                    loop {
-                        delay_count -= 1;
-                        if delay_count == 0 {
-                            break;
-                        }
-                    }
+        loop {
+            *stepper_seq = match stepper_seq {
+                StepperSeq::Seq1 => {
+                    a_pos.set_high();
+                    a_neg.set_low();
+                    b_pos.set_low();
+                    b_neg.set_low();
+                    if dir_counter_clockwise == true { StepperSeq::Seq2 } else { StepperSeq::Seq4 }
+                }
+                StepperSeq::Seq2 => {
+                    a_pos.set_low();
+                    a_neg.set_high();
+                    b_pos.set_low();
+                    b_neg.set_low();
+                    if dir_counter_clockwise == true { StepperSeq::Seq3 } else { StepperSeq::Seq1 }
+                }
+                StepperSeq::Seq3 => {
+                    a_pos.set_low();
+                    a_neg.set_low();
+                    b_pos.set_high();
+                    b_neg.set_low();
+                    if dir_counter_clockwise == true { StepperSeq::Seq4 } else { StepperSeq::Seq2 }
+                }
+                StepperSeq::Seq4 => {
+                    a_pos.set_low();
+                    a_neg.set_low();
+                    b_pos.set_low();
+                    b_neg.set_high();
+                    if dir_counter_clockwise == true { StepperSeq::Seq1 } else { StepperSeq::Seq3 }
+                }
+            };
+
+            count_steps -= 1;
+            if count_steps == 0 {
+                break;
+            }
+
+            let mut delay_count = 12000;
+            loop {
+                delay_count -= 1;
+                if delay_count == 0 {
+                    break;
                 }
             }
-            Err(_) =>
-            {}
         }
     }
 }
