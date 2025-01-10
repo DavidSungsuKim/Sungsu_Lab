@@ -81,7 +81,7 @@ fn main() -> ! {
                     cli_control_led(slices.clone(), &mut sender, &mut gpio_led3);
                 }
                 "stepper" => {
-                    cli_control_stepper(slices.clone(), &mut sender, &mut gpio_stepper_a_pos, &mut gpio_stepper_a_neg, &mut gpio_stepper_b_pos, &mut gpio_stepper_b_neg, &mut stepper_seq );
+                    cli_control_stepper(slices.clone(), &mut sender, &mut gpio_stepper_a_pos, &mut gpio_stepper_a_neg, &mut gpio_stepper_b_pos, &mut gpio_stepper_b_neg, &mut stepper_seq, timer.clone());
                 }
                 _ => {
                 }
@@ -132,21 +132,37 @@ fn cli_control_stepper( slices: FixedStringSlices,
                         a_neg: &mut PA5<Output<PushPull>>, 
                         b_pos: &mut PA6<Output<PushPull>>, 
                         b_neg: &mut PA7<Output<PushPull>>, 
-                        stepper_seq: &mut StepperSeq)
+                        stepper_seq: &mut StepperSeq,
+                        timer: MonoTimer)
 {
     if let Some(degrees) = slices.get(1) {
-        print!(sender, "CLI: stepper degree= {}\r\n", degrees.as_str());
         
         const MAX_STEPS: f32 = 2048.0;
+        const MIN_TIME_EACH_STEP_MS: u32 = 3;
+        const MAX_RPM: f32 = 60f32 / ( MAX_STEPS * MIN_TIME_EACH_STEP_MS as f32 * 0.001 );
+        print!(sender, "Stepper: MAX RPM={}\r\n", MAX_RPM);
 
         // positive degree is clockwise, negative degree is counter-clockwise
-        let move_degree: Result<f32, _> = degrees.parse();
-        let steps = move_degree.unwrap_or(0f32) / 360.0 * MAX_STEPS;
-        let steps = steps as i32;
-        print!(sender, "{}\r\n", steps);
+        let move_degrees = degrees.parse().unwrap_or(0f32);
+        if move_degrees == 0f32 {
+            print!(sender, "Stepper: error, zero degree\r\n");
+            return;
+        }
 
+        let steps = move_degrees / 360.0 * MAX_STEPS;
+        let steps = steps as i32;
+        print!(sender, "Stepper: deg={} steps={}\r\n", move_degrees, steps);
+
+        // move amount-related 
         let dir_counter_clockwise: bool = steps < 0;
         let mut count_steps = if steps > 0 { steps } else { -steps };
+
+        // move interval-related for each step
+
+        let mut time = timer.now();
+        let get_tick_ms = |ms: u32| -> u32 { 
+            timer.frequency().to_Hz() / 1000 * ms
+        };
 
         while count_steps > 0 {
             *stepper_seq = match stepper_seq {
@@ -180,10 +196,9 @@ fn cli_control_stepper( slices: FixedStringSlices,
                 }
             };
 
-            let mut delay_count = 12000;
             loop {
-                delay_count -= 1;
-                if delay_count == 0 {
+                if time.elapsed() > get_tick_ms(MIN_TIME_EACH_STEP_MS) {
+                    time = timer.now();
                     break;
                 }
             }
