@@ -148,7 +148,7 @@ fn cli_control_stepper( slices: FixedStringSlices,
         let dir_counter_clockwise: bool = steps < 0;
         let mut count_steps = if steps > 0 { steps } else { -steps };
 
-        loop {
+        while count_steps > 0 {
             *stepper_seq = match stepper_seq {
                 StepperSeq::Seq1 => {
                     a_pos.set_high();
@@ -180,11 +180,6 @@ fn cli_control_stepper( slices: FixedStringSlices,
                 }
             };
 
-            count_steps -= 1;
-            if count_steps == 0 {
-                break;
-            }
-
             let mut delay_count = 12000;
             loop {
                 delay_count -= 1;
@@ -192,6 +187,8 @@ fn cli_control_stepper( slices: FixedStringSlices,
                     break;
                 }
             }
+
+            count_steps -= 1;
         }
     }
 }
