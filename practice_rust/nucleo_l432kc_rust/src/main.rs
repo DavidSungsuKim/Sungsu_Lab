@@ -100,7 +100,7 @@ fn cli_print_info(sender: &mut SerialSender<Tx<USART2>>)
     print!(sender, "************************************\r\n");
     print!(sender, "* Welcome to STM32L431 Rust Project\r\n");
     print!(sender, "* Version: 1.0.0\r\n");
-    print!(sender, "* Author: sskim \r\n");
+    print!(sender, "* Author: SSKIM \r\n");
     print!(sender, "************************************\r\n");
 }
 
@@ -136,34 +136,42 @@ fn cli_control_stepper( slices: FixedStringSlices,
                         timer: MonoTimer)
 {
     if let Some(degrees) = slices.get(1) {
-        
+  
         const MAX_STEPS: f32 = 2048.0;
         const MIN_TIME_EACH_STEP_MS: u32 = 3;
         const MAX_RPM: f32 = 60f32 / ( MAX_STEPS * MIN_TIME_EACH_STEP_MS as f32 * 0.001 );
-        print!(sender, "Stepper: MAX RPM={}\r\n", MAX_RPM);
 
-        // positive degree is clockwise, negative degree is counter-clockwise
+        // move degrees. (+) is CW, (-) is CCW
         let move_degrees = degrees.parse().unwrap_or(0f32);
         if move_degrees == 0f32 {
             print!(sender, "Stepper: error, zero degree\r\n");
             return;
         }
 
+        // move degrees into steps
         let steps = move_degrees / 360.0 * MAX_STEPS;
         let steps = steps as i32;
+        let mut count_steps = if steps > 0 { steps } else { -steps };
         print!(sender, "Stepper: deg={} steps={}\r\n", move_degrees, steps);
 
-        // move amount-related 
+        // direction
         let dir_counter_clockwise: bool = steps < 0;
-        let mut count_steps = if steps > 0 { steps } else { -steps };
 
-        // move interval-related for each step
+        // speed
+        let mut speed_percent = 100f32;
+        if let Some(speed) = slices.get(2) {
+            speed_percent = speed.parse().unwrap_or(0f32);
+        }
+        let step_interval_ms = MIN_TIME_EACH_STEP_MS as f32 * 100f32 / speed_percent;
+        print!(sender, "Stepper: speed={}%, RPM={:.2}\r\n", speed_percent, MAX_RPM * speed_percent / 100f32);        
 
         let mut time = timer.now();
         let get_tick_ms = |ms: u32| -> u32 { 
             timer.frequency().to_Hz() / 1000 * ms
         };
 
+        let mut time_motion = timer.now();
+        print!(sender, "Stepper: start moving...\r\n");
         while count_steps > 0 {
             *stepper_seq = match stepper_seq {
                 StepperSeq::Seq1 => {
@@ -197,7 +205,7 @@ fn cli_control_stepper( slices: FixedStringSlices,
             };
 
             loop {
-                if time.elapsed() > get_tick_ms(MIN_TIME_EACH_STEP_MS) {
+                if time.elapsed() > get_tick_ms(step_interval_ms as u32) {
                     time = timer.now();
                     break;
                 }
@@ -205,6 +213,7 @@ fn cli_control_stepper( slices: FixedStringSlices,
 
             count_steps -= 1;
         }
+        print!(sender, "Stepper: ...done, elapsed={}ms\r\n", time_motion.elapsed() / get_tick_ms(1) );
     }
 }
 
