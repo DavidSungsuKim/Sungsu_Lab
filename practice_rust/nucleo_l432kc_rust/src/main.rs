@@ -39,24 +39,27 @@ type FixedStringSlices = Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>;
 fn main() -> ! {
     let ( timer, mut gpio_led3, mut gpio_serial_tx, mut gpio_serial_rx, gpio_stepper_a_pos, gpio_stepper_a_neg, gpio_stepper_b_pos, gpio_stepper_b_neg) = init_hardware();
 
+    // serial input 
     let mut sender = SerialSender::new(gpio_serial_tx);
     let mut str_buffer: String<SIZE_RX_BUFFER> = String::new();
     str_buffer.clear();
 
-    let get_tick_ms = |ms: u32| -> u32 { 
-        timer.frequency().to_Hz() / 1000 * ms
-    };
-
-    let tick_cnt_for_action = get_tick_ms(1000);
+    // timer
     let mut time_tick = timer.now();
     
+    // stepper motor
+    let mut stepper = Stepper::new(gpio_stepper_a_pos, gpio_stepper_a_neg, gpio_stepper_b_pos, gpio_stepper_b_neg, timer.clone() );
+
+    // start the service
     cli_print_info(&mut sender);
     print!(sender, "Enter a command...\r\n");
 
-    let mut stepper = Stepper::new(gpio_stepper_a_pos, gpio_stepper_a_neg, gpio_stepper_b_pos, gpio_stepper_b_neg, timer.clone() );
-
     loop {
-        if time_tick.elapsed() > tick_cnt_for_action {
+        let get_tick_ms = |ms: u32| -> u32 { 
+            timer.frequency().to_Hz() / 1000 * ms
+        };
+
+        if time_tick.elapsed() > get_tick_ms(1000) {
             time_tick = timer.now();
 
             // toggle led
@@ -78,6 +81,7 @@ fn main() -> ! {
                     cli_stepper(slices.clone(), &mut sender, &mut stepper);
                 }
                 _ => {
+                    print!(sender, "CLI: undefined command ({})\r\n", command.as_str());
                 }
             }
         }
@@ -93,7 +97,7 @@ fn cli_print_info(sender: &mut SerialSender<Tx<USART2>>)
 {
     print!(sender, "************************************\r\n");
     print!(sender, "* Welcome to STM32L431 Rust Project\r\n");
-    print!(sender, "* Version: 1.0.0\r\n");
+    print!(sender, "* Version: 1.1.0\r\n");
     print!(sender, "* Author: SSKIM \r\n");
     print!(sender, "************************************\r\n");
 }
