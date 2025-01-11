@@ -32,19 +32,12 @@ const MAX_ARGS: usize = 20;
 
 type FixedStringSlices = Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>;
 
-enum StepperSeq{
-    Seq1,
-    Seq2,
-    Seq3,
-    Seq4
-}
-
 #[entry]
 /**
  * Main function.
  */
 fn main() -> ! {
-    let ( timer, mut gpio_led3, mut gpio_serial_tx, mut gpio_serial_rx, mut gpio_stepper_a_pos, mut gpio_stepper_a_neg, mut gpio_stepper_b_pos, mut gpio_stepper_b_neg) = init_hardware();
+    let ( timer, mut gpio_led3, mut gpio_serial_tx, mut gpio_serial_rx, gpio_stepper_a_pos, gpio_stepper_a_neg, gpio_stepper_b_pos, gpio_stepper_b_neg) = init_hardware();
 
     let mut sender = SerialSender::new(gpio_serial_tx);
     let mut str_buffer: String<SIZE_RX_BUFFER> = String::new();
@@ -56,10 +49,11 @@ fn main() -> ! {
 
     let tick_cnt_for_action = get_tick_ms(1000);
     let mut time_tick = timer.now();
-    let mut stepper_seq = StepperSeq::Seq1;
     
     cli_print_info(&mut sender);
     print!(sender, "Enter a command...\r\n");
+
+    let mut stepper = Stepper::new(gpio_stepper_a_pos, gpio_stepper_a_neg, gpio_stepper_b_pos, gpio_stepper_b_neg, timer.clone() );
 
     loop {
         if time_tick.elapsed() > tick_cnt_for_action {
@@ -81,7 +75,7 @@ fn main() -> ! {
                     cli_control_led(slices.clone(), &mut sender, &mut gpio_led3);
                 }
                 "stepper" => {
-                    cli_control_stepper(slices.clone(), &mut sender, &mut gpio_stepper_a_pos, &mut gpio_stepper_a_neg, &mut gpio_stepper_b_pos, &mut gpio_stepper_b_neg, &mut stepper_seq, timer.clone());
+                    cli_control_stepper(slices.clone(), &mut sender, &mut stepper);
                 }
                 _ => {
                 }
@@ -128,92 +122,27 @@ fn cli_control_led(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART
 
 fn cli_control_stepper( slices: FixedStringSlices, 
                         sender: &mut SerialSender<Tx<USART2>>, 
-                        a_pos: &mut PA4<Output<PushPull>>, 
-                        a_neg: &mut PA5<Output<PushPull>>, 
-                        b_pos: &mut PA6<Output<PushPull>>, 
-                        b_neg: &mut PA7<Output<PushPull>>, 
-                        stepper_seq: &mut StepperSeq,
-                        timer: MonoTimer)
+                        stepper: &mut Stepper
+                        )
 {
     if let Some(degrees) = slices.get(1) {
-  
-        const MAX_STEPS: f32 = 2048.0;
-        const MIN_TIME_EACH_STEP_MS: u32 = 3;
-        const MAX_RPM: f32 = 60f32 / ( MAX_STEPS * MIN_TIME_EACH_STEP_MS as f32 * 0.001 );
 
-        // move degrees. (+) is CW, (-) is CCW
         let move_degrees = degrees.parse().unwrap_or(0f32);
         if move_degrees == 0f32 {
             print!(sender, "Stepper: error, zero degree\r\n");
             return;
         }
 
-        // move degrees into steps
-        let steps = move_degrees / 360.0 * MAX_STEPS;
-        let steps = steps as i32;
-        let mut count_steps = if steps > 0 { steps } else { -steps };
-        print!(sender, "Stepper: deg={} steps={}\r\n", move_degrees, steps);
-
-        // direction
-        let dir_counter_clockwise: bool = steps < 0;
-
-        // speed
         let mut speed_percent = 100f32;
         if let Some(speed) = slices.get(2) {
             speed_percent = speed.parse().unwrap_or(0f32);
         }
-        let step_interval_ms = MIN_TIME_EACH_STEP_MS as f32 * 100f32 / speed_percent;
-        print!(sender, "Stepper: speed={}%, RPM={:.2}\r\n", speed_percent, MAX_RPM * speed_percent / 100f32);        
 
-        let mut time = timer.now();
-        let get_tick_ms = |ms: u32| -> u32 { 
-            timer.frequency().to_Hz() / 1000 * ms
-        };
+        print!(sender, "CLI: Stepper move {:.2} degrees\r\n", move_degrees);
+        print!(sender, "CLI: Stepper speed {:.2}%\r\n", speed_percent);
 
-        let mut time_motion = timer.now();
-        print!(sender, "Stepper: start moving...\r\n");
-        while count_steps > 0 {
-            *stepper_seq = match stepper_seq {
-                StepperSeq::Seq1 => {
-                    a_pos.set_high();
-                    a_neg.set_low();
-                    b_pos.set_low();
-                    b_neg.set_low();
-                    if dir_counter_clockwise == true { StepperSeq::Seq2 } else { StepperSeq::Seq4 }
-                }
-                StepperSeq::Seq2 => {
-                    a_pos.set_low();
-                    a_neg.set_high();
-                    b_pos.set_low();
-                    b_neg.set_low();
-                    if dir_counter_clockwise == true { StepperSeq::Seq3 } else { StepperSeq::Seq1 }
-                }
-                StepperSeq::Seq3 => {
-                    a_pos.set_low();
-                    a_neg.set_low();
-                    b_pos.set_high();
-                    b_neg.set_low();
-                    if dir_counter_clockwise == true { StepperSeq::Seq4 } else { StepperSeq::Seq2 }
-                }
-                StepperSeq::Seq4 => {
-                    a_pos.set_low();
-                    a_neg.set_low();
-                    b_pos.set_low();
-                    b_neg.set_high();
-                    if dir_counter_clockwise == true { StepperSeq::Seq1 } else { StepperSeq::Seq3 }
-                }
-            };
-
-            loop {
-                if time.elapsed() > get_tick_ms(step_interval_ms as u32) {
-                    time = timer.now();
-                    break;
-                }
-            }
-
-            count_steps -= 1;
-        }
-        print!(sender, "Stepper: ...done, elapsed={}ms\r\n", time_motion.elapsed() / get_tick_ms(1) );
+        stepper.set_parameters(move_degrees, speed_percent);
+        stepper.move_wait();
     }
 }
 
@@ -239,6 +168,154 @@ fn cli_peek_slices(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART
     }
 }
 */
+
+/**
+ * Enum for the stepper motor sequence.
+ */
+enum StepperSeq{
+    Seq1,
+    Seq2,
+    Seq3,
+    Seq4
+}
+
+/**
+ * Struct for controlling the stepper motor.
+ */
+struct Stepper {
+    // infrastructures
+    a_pos: PA4<Output<PushPull>>,
+    a_neg: PA5<Output<PushPull>>,
+    b_pos: PA6<Output<PushPull>>,
+    b_neg: PA7<Output<PushPull>>,
+    timer: MonoTimer,
+
+    // interal states & parameters for a move
+    steps_move: u32,
+    step_interval_ms: f32,
+    move_dir_cw: bool,
+    ready_move_params: bool,
+    stepper_seq: StepperSeq,
+}
+
+/**
+ * Implementation of the Stepper struct.
+ */
+impl Stepper {
+    pub fn new(a_pos: PA4<Output<PushPull>>, a_neg: PA5<Output<PushPull>>, b_pos: PA6<Output<PushPull>>, b_neg: PA7<Output<PushPull>>, timer: MonoTimer ) -> Self {
+        Stepper {
+            a_pos, a_neg, b_pos, b_neg,
+            timer,
+            steps_move: 0,
+            step_interval_ms: 0.0,
+            move_dir_cw: false,
+            ready_move_params: false,
+            stepper_seq: StepperSeq::Seq1
+        }
+    }
+
+    /**
+     * Set the parameters for the stepper motor to move a certain number of degrees at a certain speed.
+     */
+    pub fn set_parameters(&mut self, degrees: f32, speed_percent: f32 ) -> bool {
+        
+        const MAX_STEPS: f32 = 2048.0;
+        const MIN_TIME_EACH_STEP_MS: u32 = 3;
+        const MAX_RPM: f32 = 60f32 / ( MAX_STEPS * MIN_TIME_EACH_STEP_MS as f32 * 0.001 );
+
+        self.ready_move_params = false;
+
+        if degrees == 0.0 {
+            return false;
+        }
+        
+        // steps to move - (+) for CW, (-) for CCW
+        let steps = degrees / 360.0 * MAX_STEPS;
+        let steps = steps as i32;
+        self.steps_move = if steps > 0 { steps as u32 } else { -steps as u32 };
+
+        // direction
+        self.move_dir_cw = steps >= 0;
+
+        // speed
+        let mut percent = speed_percent;
+        if speed_percent == 0.0 || speed_percent > 100.0 {
+            percent = 100.0;
+        }
+
+        self.step_interval_ms = MIN_TIME_EACH_STEP_MS as f32 * 100f32 / percent;
+        self.ready_move_params = true;
+
+        //print!(sender, "Stepper: deg={} steps={}\r\n", move_degrees, steps);
+        //print!(sender, "Stepper: speed={}%, RPM={:.2}\r\n", speed_percent, MAX_RPM * speed_percent / 100f32);    
+
+        true
+    }
+
+    /**
+     * Move the stepper motor based on the parameters set by the `set_parameters` function.
+     */
+    pub fn move_wait(&mut self) -> bool { 
+
+        let mut time = self.timer.now();
+
+        while self.steps_move > 0 {
+            self.run_stepper_sequence();
+
+            loop {
+                let get_tick_ms = |ms: u32| -> u32 { self.timer.frequency().to_Hz() / 1000 * ms };
+                if time.elapsed() > get_tick_ms(self.step_interval_ms as u32) {
+                    time = self.timer.now();
+                    break;
+                }
+            }
+            self.steps_move -= 1;
+        }
+
+        self.ready_move_params = false;
+        true
+    }
+
+    /**
+     * Run the stepper motor sequence based on the current sequence state.
+     */
+    fn run_stepper_sequence(&mut self) {
+        
+        let dir_cw = self.move_dir_cw;
+        let sequence_next: StepperSeq;
+
+        match self.stepper_seq {
+            StepperSeq::Seq1 => {
+                self.a_pos.set_high();
+                self.a_neg.set_low();
+                self.b_pos.set_low();
+                self.b_neg.set_low();
+                self.stepper_seq = if dir_cw == true { StepperSeq::Seq4 } else { StepperSeq::Seq2 }
+            }
+            StepperSeq::Seq2 => {
+                self.a_pos.set_low();
+                self.a_neg.set_high();
+                self.b_pos.set_low();
+                self.b_neg.set_low();
+                self.stepper_seq = if dir_cw == true { StepperSeq::Seq1 } else { StepperSeq::Seq3 }
+            }
+            StepperSeq::Seq3 => {
+                self.a_pos.set_low();
+                self.a_neg.set_low();
+                self.b_pos.set_high();
+                self.b_neg.set_low();
+                self.stepper_seq = if dir_cw == true { StepperSeq::Seq2 } else { StepperSeq::Seq4 }
+            }
+            StepperSeq::Seq4 => {
+                self.a_pos.set_low();
+                self.a_neg.set_low();
+                self.b_pos.set_low();
+                self.b_neg.set_high();
+                self.stepper_seq = if dir_cw == true { StepperSeq::Seq3 } else { StepperSeq::Seq1 }
+            }
+        };
+    }
+}
 
 /**
  * This function reads from the serial receiver and splits the received string into slices based on spaces.
