@@ -72,10 +72,10 @@ fn main() -> ! {
                     cli_print_info(&mut sender);
                 }
                 "led" => {
-                    cli_control_led(slices.clone(), &mut sender, &mut gpio_led3);
+                    cli_led(slices.clone(), &mut sender, &mut gpio_led3);
                 }
                 "stepper" => {
-                    cli_control_stepper(slices.clone(), &mut sender, &mut stepper);
+                    cli_stepper(slices.clone(), &mut sender, &mut stepper);
                 }
                 _ => {
                 }
@@ -107,7 +107,7 @@ fn cli_print_info(sender: &mut SerialSender<Tx<USART2>>)
  * @param sender: A mutable reference to the `SerialSender` used to send responses.
  * @param led: A mutable reference to the LED to be controlled.
  */
-fn cli_control_led(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART2>>, led: &mut PB3<Output<PushPull>>)
+fn cli_led(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART2>>, led: &mut PB3<Output<PushPull>>)
 {
     if let Some(status) = slices.get(1) {
         print!(sender, "CLI: led {}\r\n", status.as_str());
@@ -120,10 +120,10 @@ fn cli_control_led(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART
     }
 }
 
-fn cli_control_stepper( slices: FixedStringSlices, 
-                        sender: &mut SerialSender<Tx<USART2>>, 
-                        stepper: &mut Stepper
-                        )
+fn cli_stepper( slices: FixedStringSlices, 
+                sender: &mut SerialSender<Tx<USART2>>, 
+                stepper: &mut Stepper
+                )
 {
     if let Some(degrees) = slices.get(1) {
 
@@ -152,7 +152,6 @@ fn cli_control_stepper( slices: FixedStringSlices,
  * @param slices: A vector of `String<SIZE_RX_BUFFER>`, each representing a slice of the received command.
  * @param sender: A mutable reference to the `SerialSender` used to send responses.
  */
-/*
 fn cli_peek_slices(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART2>>)
 {
     for slice in slices {
@@ -167,7 +166,6 @@ fn cli_peek_slices(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART
         }
     }
 }
-*/
 
 /**
  * Enum for the stepper motor sequence.
