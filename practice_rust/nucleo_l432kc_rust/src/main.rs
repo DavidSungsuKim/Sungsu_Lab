@@ -37,7 +37,7 @@ type FixedStringSlices = Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>;
  * Main function.
  */
 fn main() -> ! {
-    let ( timer, mut gpio_led3, mut gpio_serial_tx, mut gpio_serial_rx, gpio_stepper_a_pos, gpio_stepper_a_neg, gpio_stepper_b_pos, gpio_stepper_b_neg) = init_hardware();
+    let ( timer, mut gpio_led3, gpio_serial_tx, mut gpio_serial_rx, gpio_stepper_a_pos, gpio_stepper_a_neg, gpio_stepper_b_pos, gpio_stepper_b_neg) = init_hardware();
 
     // serial input 
     let mut sender = SerialSender::new(gpio_serial_tx);
@@ -95,6 +95,7 @@ fn main() -> ! {
  */
 fn cli_print_info(sender: &mut SerialSender<Tx<USART2>>)
 {
+    print!(sender, "\r\n");
     print!(sender, "************************************\r\n");
     print!(sender, "* Welcome to STM32L431 Rust Project\r\n");
     print!(sender, "* Version: 1.1.0\r\n");
@@ -142,11 +143,8 @@ fn cli_stepper( slices: FixedStringSlices,
             speed_percent = speed.parse().unwrap_or(0f32);
         }
 
-        print!(sender, "CLI: Stepper move {:.2} degrees\r\n", move_degrees);
-        print!(sender, "CLI: Stepper speed {:.2}%\r\n", speed_percent);
-
-        stepper.set_parameters(move_degrees, speed_percent);
-        stepper.move_wait();
+        stepper.set_parameters(move_degrees, speed_percent, sender);
+        stepper.move_wait(sender);
     }
 }
 
@@ -156,6 +154,7 @@ fn cli_stepper( slices: FixedStringSlices,
  * @param slices: A vector of `String<SIZE_RX_BUFFER>`, each representing a slice of the received command.
  * @param sender: A mutable reference to the `SerialSender` used to send responses.
  */
+#[allow(dead_code)]
 fn cli_peek_slices(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART2>>)
 {
     for slice in slices {
@@ -219,7 +218,7 @@ impl Stepper {
     /**
      * Set the parameters for the stepper motor to move a certain number of degrees at a certain speed.
      */
-    pub fn set_parameters(&mut self, degrees: f32, speed_percent: f32 ) -> bool {
+    pub fn set_parameters(&mut self, degrees: f32, speed_percent: f32, sender: &mut SerialSender<Tx<USART2>> ) -> bool {
         
         const MAX_STEPS: f32 = 2048.0;
         const MIN_TIME_EACH_STEP_MS: u32 = 3;
@@ -235,6 +234,7 @@ impl Stepper {
         let steps = degrees / 360.0 * MAX_STEPS;
         let steps = steps as i32;
         self.steps_move = if steps > 0 { steps as u32 } else { -steps as u32 };
+        print!(sender, "Stepper: deg={} steps={}\r\n", degrees, steps);
 
         // direction
         self.move_dir_cw = steps >= 0;
@@ -244,12 +244,10 @@ impl Stepper {
         if speed_percent == 0.0 || speed_percent > 100.0 {
             percent = 100.0;
         }
+        print!(sender, "Stepper: speed={}%, RPM={:.2}\r\n", percent, MAX_RPM * percent / 100f32);    
 
         self.step_interval_ms = MIN_TIME_EACH_STEP_MS as f32 * 100f32 / percent;
         self.ready_move_params = true;
-
-        //print!(sender, "Stepper: deg={} steps={}\r\n", move_degrees, steps);
-        //print!(sender, "Stepper: speed={}%, RPM={:.2}\r\n", speed_percent, MAX_RPM * speed_percent / 100f32);    
 
         true
     }
@@ -257,22 +255,27 @@ impl Stepper {
     /**
      * Move the stepper motor based on the parameters set by the `set_parameters` function.
      */
-    pub fn move_wait(&mut self) -> bool { 
+    pub fn move_wait(&mut self, sender: &mut SerialSender<Tx<USART2>>) -> bool { 
 
         let mut time = self.timer.now();
+        let time_move = self.timer.now();
 
+        let ticks_per_ms = self.timer.frequency().to_Hz() / 1000;
+        let ms_to_ticks = |ms: u32| -> u32 { ticks_per_ms * ms };
+
+        print!(sender, "Stepper: move...\r\n");
         while self.steps_move > 0 {
             self.run_stepper_sequence();
 
             loop {
-                let get_tick_ms = |ms: u32| -> u32 { self.timer.frequency().to_Hz() / 1000 * ms };
-                if time.elapsed() > get_tick_ms(self.step_interval_ms as u32) {
+                if time.elapsed() > ms_to_ticks(self.step_interval_ms as u32) {
                     time = self.timer.now();
                     break;
                 }
             }
             self.steps_move -= 1;
         }
+        print!(sender, "Stepper: ...done, elapsed={}ms\r\n", time_move.elapsed() / ms_to_ticks(1));
 
         self.ready_move_params = false;
         true
@@ -284,7 +287,7 @@ impl Stepper {
     fn run_stepper_sequence(&mut self) {
         
         let dir_cw = self.move_dir_cw;
-        let sequence_next: StepperSeq;
+        let _sequence_next: StepperSeq;
 
         match self.stepper_seq {
             StepperSeq::Seq1 => {
