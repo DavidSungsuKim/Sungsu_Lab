@@ -41,6 +41,7 @@ const SIZE_RX_BUFFER: usize = 64;
 const MAX_ARGS: usize = 20;
 
 type FixedStringSlices = Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>;
+type SerialSenderType = SerialSender<Tx<USART2>>;
 
 #[entry]
 /**
@@ -88,7 +89,7 @@ fn main() -> ! {
  *
  * @param sender: A mutable reference to the `SerialSender` used to send the information.
  */
-fn cli_print_info(sender: &mut SerialSender<Tx<USART2>>)
+fn cli_print_info(sender: &mut SerialSenderType)
 {
     print!(sender, "\r\n");
     print!(sender, "************************************\r\n");
@@ -107,7 +108,7 @@ fn cli_print_info(sender: &mut SerialSender<Tx<USART2>>)
  * @param sender: A mutable reference to the `SerialSender` used to send responses.
  * @param led: A mutable reference to the LED to be controlled.
  */
-fn cli_led(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART2>>, led: &mut PB3<Output<PushPull>>)
+fn cli_led(slices: FixedStringSlices, sender: &mut SerialSenderType, led: &mut PB3<Output<PushPull>>)
 {
     if let Some(status) = slices.get(1) {
         print!(sender, "CLI: led {}\r\n", status.as_str());
@@ -128,7 +129,7 @@ fn cli_led(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART2>>, led
  * @param sender: A mutable reference to the `SerialSender` used to send responses.
  */
 fn cli_stepper( slices: FixedStringSlices, 
-                sender: &mut SerialSender<Tx<USART2>>, 
+                sender: &mut SerialSenderType, 
                 stepper: &mut Stepper )
 {
     if let Some(degrees) = slices.get(1) {
@@ -156,7 +157,7 @@ fn cli_stepper( slices: FixedStringSlices,
  * @param sender: A mutable reference to the `SerialSender` used to send responses.
  */
 #[allow(dead_code)]
-fn cli_peek_slices(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART2>>)
+fn cli_peek_slices(slices: FixedStringSlices, sender: &mut SerialSenderType)
 {
     for slice in slices {
         let maybe_num: Result<i32, _> = slice.parse();

@@ -24,6 +24,8 @@ use hal::gpio::PushPull;
 use crate::serial_sender::SerialSender;
 use crate::print;
 
+type SerialSenderType = SerialSender<Tx<USART2>>;
+
 /**
  * Enum for the stepper motor sequence.
  */
@@ -76,7 +78,7 @@ impl Stepper {
     * @param speed_percent: The speed at which to move the stepper motor as a percentage of the maximum speed.
     * @param sender: A mutable reference to the `SerialSender` used to send responses.
     */
-   pub fn set_parameters(&mut self, degrees: f32, speed_percent: f32, sender: &mut SerialSender<Tx<USART2>> ) -> bool {
+   pub fn set_parameters(&mut self, degrees: f32, speed_percent: f32, sender: &mut SerialSenderType ) -> bool {
        
        const MAX_STEPS: f32 = 2048.0;
        const MIN_TIME_EACH_STEP_MS: u32 = 3;
@@ -116,7 +118,7 @@ impl Stepper {
     * @param sender: A mutable reference to the `SerialSender` used to send responses.
     * @return: `true` if the stepper motor has moved, `false` otherwise.
     */
-   pub fn move_wait(&mut self, sender: &mut SerialSender<Tx<USART2>>) -> bool { 
+   pub fn move_wait(&mut self, sender: &mut SerialSenderType) -> bool { 
 
        let mut time = self.timer.now();
        let time_move = self.timer.now();
