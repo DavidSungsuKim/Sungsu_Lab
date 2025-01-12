@@ -1,4 +1,3 @@
-
 use stm32l4xx_hal as hal;
 use hal::prelude::*;
 use hal::serial::Tx;
@@ -51,4 +50,14 @@ impl<T: SendByte> SerialSender<T> {
        self.tx.send_bytes(&buffer);
        buffer.clear();
    }
+}
+
+/**
+ * Macro to simplify sending formatted strings.
+ */
+#[macro_export]
+macro_rules! print {
+    ($sender:expr, $($arg:tt)*) => {{
+        $sender.send_formatted(format_args!($($arg)*));
+    }};
 }
