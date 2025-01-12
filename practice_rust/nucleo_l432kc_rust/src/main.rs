@@ -114,8 +114,7 @@ fn cli_print_info(sender: &mut SerialSender<Tx<USART2>>)
  */
 fn cli_led(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART2>>, led: &mut PB3<Output<PushPull>>)
 {
-    
-     = slices.get(1) {
+    if let Some(status) = slices.get(1) {
         print!(sender, "CLI: led {}\r\n", status.as_str());
         if status.as_str() == "on" {
             led.set_high();
