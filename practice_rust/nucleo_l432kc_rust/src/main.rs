@@ -39,15 +39,10 @@ type FixedStringSlices = Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>;
 fn main() -> ! {
     let ( timer, mut gpio_led3, gpio_serial_tx, mut gpio_serial_rx, gpio_stepper_a_pos, gpio_stepper_a_neg, gpio_stepper_b_pos, gpio_stepper_b_neg) = init_hardware();
 
-    // serial input 
     let mut sender = SerialSender::new(gpio_serial_tx);
     let mut str_buffer: String<SIZE_RX_BUFFER> = String::new();
     str_buffer.clear();
-
-    // timer
     let mut time_tick = timer.now();
-    
-    // stepper motor
     let mut stepper = Stepper::new(gpio_stepper_a_pos, gpio_stepper_a_neg, gpio_stepper_b_pos, gpio_stepper_b_neg, timer.clone() );
 
     // start the service
@@ -71,18 +66,10 @@ fn main() -> ! {
     
             let command = slices.get(0).unwrap();
             match command.as_str() {
-                "info" => {
-                    cli_print_info(&mut sender);
-                }
-                "led" => {
-                    cli_led(slices.clone(), &mut sender, &mut gpio_led3);
-                }
-                "stepper" => {
-                    cli_stepper(slices.clone(), &mut sender, &mut stepper);
-                }
-                _ => {
-                    print!(sender, "CLI: undefined command ({})\r\n", command.as_str());
-                }
+                "info"      => { cli_print_info(&mut sender); }
+                "led"       => { cli_led(slices.clone(), &mut sender, &mut gpio_led3); }
+                "stepper"   => { cli_stepper(slices.clone(), &mut sender, &mut stepper); }
+                _           => { print!(sender, "CLI: undefined command ({})\r\n", command.as_str());}
             }
         }
     }
