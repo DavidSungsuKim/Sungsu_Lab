@@ -114,7 +114,8 @@ fn cli_print_info(sender: &mut SerialSender<Tx<USART2>>)
  */
 fn cli_led(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART2>>, led: &mut PB3<Output<PushPull>>)
 {
-    if let Some(status) = slices.get(1) {
+    
+     = slices.get(1) {
         print!(sender, "CLI: led {}\r\n", status.as_str());
         if status.as_str() == "on" {
             led.set_high();
@@ -125,10 +126,16 @@ fn cli_led(slices: FixedStringSlices, sender: &mut SerialSender<Tx<USART2>>, led
     }
 }
 
+/**
+ * This function controls the stepper motor based on the command received.
+ * The command is expected to be in the first slice of the `slices` vector.
+ * 
+ * @param slices: A vector of `String<SIZE_RX_BUFFER>`, each representing a slice of the received command.
+ * @param sender: A mutable reference to the `SerialSender` used to send responses.
+ */
 fn cli_stepper( slices: FixedStringSlices, 
                 sender: &mut SerialSender<Tx<USART2>>, 
-                stepper: &mut Stepper
-                )
+                stepper: &mut Stepper )
 {
     if let Some(degrees) = slices.get(1) {
 
@@ -217,6 +224,10 @@ impl Stepper {
 
     /**
      * Set the parameters for the stepper motor to move a certain number of degrees at a certain speed.
+     * 
+     * @param degrees: The number of degrees to move the stepper motor.
+     * @param speed_percent: The speed at which to move the stepper motor as a percentage of the maximum speed.
+     * @param sender: A mutable reference to the `SerialSender` used to send responses.
      */
     pub fn set_parameters(&mut self, degrees: f32, speed_percent: f32, sender: &mut SerialSender<Tx<USART2>> ) -> bool {
         
@@ -254,6 +265,9 @@ impl Stepper {
 
     /**
      * Move the stepper motor based on the parameters set by the `set_parameters` function.
+     * 
+     * @param sender: A mutable reference to the `SerialSender` used to send responses.
+     * @return: `true` if the stepper motor has moved, `false` otherwise.
      */
     pub fn move_wait(&mut self, sender: &mut SerialSender<Tx<USART2>>) -> bool { 
 
@@ -283,6 +297,8 @@ impl Stepper {
 
     /**
      * Run the stepper motor sequence based on the current sequence state.
+     * 
+     * @return: The next sequence state.
      */
     fn run_stepper_sequence(&mut self) {
         
