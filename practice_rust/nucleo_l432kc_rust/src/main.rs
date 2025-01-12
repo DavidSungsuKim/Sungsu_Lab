@@ -5,9 +5,6 @@ extern crate cortex_m;
 extern crate cortex_m_rt as runtime;
 extern crate stm32l4xx_hal;
 
-#[macro_use(block)]
-extern crate nb;
-
 use core::panic::PanicInfo;
 use cortex_m_rt::entry;
 use stm32l4xx_hal as hal;
@@ -24,9 +21,9 @@ use hal::gpio::Output;
 use hal::gpio::PushPull;
 use heapless::String;
 use heapless::Vec;
-use core::fmt::Write;
 
-const SIZE_TX_BUFFER: usize = 128;
+use nucleo_l432::serial_sender::SerialSender;
+
 const SIZE_RX_BUFFER: usize = 64;
 const MAX_ARGS: usize = 20;
 
@@ -374,52 +371,6 @@ fn get_command_slices( serial_rx: &mut hal::serial::Rx<USART2>,
         }
     } else {
         None
-    }
-}
-
-/**
- * Trait for sending bytes.
- */
-trait SendByte {
-    fn send_bytes(&mut self, bytes: &str);  
-    fn send_byte(&mut self, byte: u8);
-}
-
-/**
- * Implementation of the SendByte trait for the USART2.
- */
-impl SendByte for Tx<USART2> {
-    fn send_bytes(&mut self, bytes: &str) {
-        for byte in bytes.bytes() {
-            self.send_byte(byte);
-        }       
-    }   
-
-    fn send_byte(&mut self, byte: u8) {
-        block!(self.write(byte)).ok();
-    }   
-}
-
-/**
- * Struct for sending formatted strings.
- */
-struct SerialSender<T: SendByte> {
-    tx: T,
-}
-
-/**
- * Implementation of the SerialSender trait.
- */
-impl<T: SendByte> SerialSender<T> {
-    fn new(tx: T) -> Self {
-        SerialSender { tx }
-    }
-
-    fn send_formatted(&mut self, format: core::fmt::Arguments) {
-        let mut buffer = heapless::String::<SIZE_TX_BUFFER>::new(); // Adjust buffer size as needed
-        write!(buffer, "{}", format).unwrap();
-        self.tx.send_bytes(&buffer);
-        buffer.clear();
     }
 }
 
