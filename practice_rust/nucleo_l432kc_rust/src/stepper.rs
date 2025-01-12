@@ -1,3 +1,15 @@
+/*
+ * @file stepper.rs
+ * @brief Rust library for stepper motor control using STM32L4 microcontroller
+ * @details This file contains the implementation of the Stepper struct.
+ *          The Stepper struct is used to control a stepper motor using the STM32L4 microcontroller.
+ *          The stepper motor can be moved a certain number of degrees at a certain speed.
+ * 
+ * @author Sungsu Kim
+ * @date 2025-01-11
+ * @version 1.1.0
+ */
+
 use stm32l4xx_hal as hal;
 use hal::serial::Tx;
 use hal::pac::USART2;

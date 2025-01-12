@@ -1,3 +1,12 @@
+/*
+ * @file lib.rs
+ * @brief Rust library for stepper motor control using STM32L4 microcontroller
+ * 
+ * @author Sungsu Kim
+ * @date 2025-01-11
+ * @version 1.1.0
+ */
+
 #![no_std]
 
 extern crate cortex_m;

@@ -1,3 +1,14 @@
+/*
+ * @file main.rs
+ * @brief This file contains the main function and the CLI functions.
+ * @details The main function initializes the hardware and starts the CLI service.
+ *          The CLI service reads commands from the serial receiver and executes the corresponding functions.
+ *          The CLI functions control the state of the LED and the stepper motor based on the received commands.
+ * @author Sungsu Kim
+ * @date 2025-01-11
+ * @version 1.1.0
+ */
+
 #![no_main]
 #![no_std]
 

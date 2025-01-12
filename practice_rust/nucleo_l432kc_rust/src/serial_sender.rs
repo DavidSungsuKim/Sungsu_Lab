@@ -1,3 +1,15 @@
+/*
+ * @file serial_sender.rs
+ * @brief Rust library for stepper motor control using STM32L4 microcontroller
+ * @details This file contains the implementation of the SerialSender struct and the SendByte trait.
+ *          The SendByte trait is implemented for the Tx<USART2> struct to send bytes.
+ *          The SerialSender struct is used to send formatted strings over USART2.
+ * 
+ * @author Sungsu Kim
+ * @date 2025-01-11
+ * @version 1.1.0
+ */
+
 use stm32l4xx_hal as hal;
 use hal::prelude::*;
 use hal::serial::Tx;
