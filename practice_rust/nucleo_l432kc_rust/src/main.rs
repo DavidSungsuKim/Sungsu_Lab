@@ -444,7 +444,14 @@ impl<T: SendByte> SerialSender<T> {
  * 
  * @return The LED, TX, RX, and timer.
  */
-fn init_hardware() -> (MonoTimer, PB3<Output<PushPull>>, Tx<USART2>, hal::serial::Rx<USART2>, PA4<Output<PushPull>>, PA5<Output<PushPull>>, PA6<Output<PushPull>>, PA7<Output<PushPull>>) {
+fn init_hardware() -> ( MonoTimer, 
+                        PB3<Output<PushPull>>, 
+                        Tx<USART2>, 
+                        hal::serial::Rx<USART2>, 
+                        PA4<Output<PushPull>>, 
+                        PA5<Output<PushPull>>, 
+                        PA6<Output<PushPull>>, 
+                        PA7<Output<PushPull>>) {
 
     // Setup the clock and etc
     let p = hal::stm32::Peripherals::take().unwrap();
