@@ -42,7 +42,11 @@ fn main() -> ! {
     let mut sender = SerialSender::new(gpio_serial_tx);
     let mut str_buffer: String<SIZE_RX_BUFFER> = String::new();
     str_buffer.clear();
+
     let mut time_tick = timer.now();
+    let ticks_per_ms = timer.frequency().to_Hz() / 1000;
+    let ms_to_ticks = |ms: u32| -> u32 { ticks_per_ms * ms };
+
     let mut stepper = Stepper::new(gpio_stepper_a_pos, gpio_stepper_a_neg, gpio_stepper_b_pos, gpio_stepper_b_neg, timer.clone() );
 
     // start the service
@@ -50,14 +54,8 @@ fn main() -> ! {
     print!(sender, "Enter a command...\r\n");
 
     loop {
-        let get_tick_ms = |ms: u32| -> u32 { 
-            timer.frequency().to_Hz() / 1000 * ms
-        };
-
-        if time_tick.elapsed() > get_tick_ms(1000) {
+        if time_tick.elapsed() > ms_to_ticks(1000) {
             time_tick = timer.now();
-
-            // toggle led
             gpio_led3.toggle();
         }
 
