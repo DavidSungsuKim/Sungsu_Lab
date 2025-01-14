@@ -44,9 +44,9 @@ type SerialSenderType = SerialSender<Tx<USART2>>;
  * Main function.
  */
 fn main() -> ! {
-    let (timer, mut gpio_led3, gpio_serial_tx, mut gpio_serial_rx, gpio_stepper_a_pos, gpio_stepper_a_neg, gpio_stepper_b_pos, gpio_stepper_b_neg) = init_hardware();
+    let (timer, mut led3, uart_tx, mut uart_rx, pa4, pa5, pa6, pa7) = init_hardware();
 
-    let mut sender = SerialSender::new(gpio_serial_tx);
+    let mut sender = SerialSender::new(uart_tx);
     let mut str_buffer: String<SIZE_RX_BUFFER> = String::new();
     str_buffer.clear();
 
@@ -54,7 +54,7 @@ fn main() -> ! {
     let ticks_per_ms = timer.frequency().to_Hz() / 1000;
     let ms_to_ticks = |ms: u32| -> u32 { ticks_per_ms * ms };
 
-    let mut stepper = Stepper::new(gpio_stepper_a_pos, gpio_stepper_a_neg, gpio_stepper_b_pos, gpio_stepper_b_neg, timer.clone() );
+    let mut stepper = Stepper::new(pa4, pa5, pa6, pa7, timer.clone() );
 
     // start the service
     cli_print_info(&mut sender);
@@ -63,16 +63,16 @@ fn main() -> ! {
     loop {
         if time_tick.elapsed() > ms_to_ticks(1000) {
             time_tick = timer.now();
-            gpio_led3.toggle();
+            led3.toggle();
         }
 
-        if let Some(slices) = get_command_slices(&mut gpio_serial_rx, &mut str_buffer) {
+        if let Some(slices) = get_command_slices(&mut uart_rx, &mut str_buffer) {
             print!(sender, "CLI: #args={}\r\n", slices.len());
     
             let command = slices.get(0).unwrap();
             match command.as_str() {
                 "info"      => { cli_print_info(&mut sender); }
-                "led"       => { cli_led(slices.clone(), &mut sender, &mut gpio_led3); }
+                "led"       => { cli_led(slices.clone(), &mut sender, &mut led3); }
                 "stepper"   => { cli_stepper(slices.clone(), &mut sender, &mut stepper); }
                 _           => { print!(sender, "CLI: undefined command ({})\r\n", command.as_str());}
             }
@@ -257,10 +257,10 @@ fn init_hardware() -> ( MonoTimer,
     let tx = gpioa.pa2.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
     let rx = gpioa.pa3.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
 
-    let pin_stepper_a_pos = gpioa.pa4.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
-    let pin_stepper_a_neg = gpioa.pa5.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
-    let pin_stepper_b_pos = gpioa.pa6.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
-    let pin_stepper_b_neg = gpioa.pa7.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let pa4 = gpioa.pa4.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let pa5 = gpioa.pa5.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let pa6 = gpioa.pa6.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let pa7 = gpioa.pa7.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
 
     let mut gpiob = p.GPIOB.split(&mut rcc.ahb2);
     let led = gpiob.pb3.into_push_pull_output(&mut gpiob.moder, &mut gpiob.otyper);
@@ -275,7 +275,7 @@ fn init_hardware() -> ( MonoTimer,
     cp.DWT.enable_cycle_counter();
     let timer: MonoTimer = MonoTimer::new(cp.DWT, clocks);
 
-    (timer, led, tx, rx, pin_stepper_a_pos, pin_stepper_a_neg, pin_stepper_b_pos, pin_stepper_b_neg)
+    (timer, led, tx, rx, pa4, pa5, pa6, pa7)
 }
 
 /**
