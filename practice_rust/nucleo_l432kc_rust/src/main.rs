@@ -91,6 +91,9 @@ fn main() -> ! {
  */
 fn cli_print_info(sender: &mut SerialSenderType)
 {
+    print!(sender, "\x1b[H\x1b[2J");    // clear screen
+    print!(sender, "\x1b[96m");         // set color to cyan
+
     print!(sender, "\r\n");
     print!(sender, "************************************\r\n");
     print!(sender, "* Welcome to STM32L431 Rust Project\r\n");
