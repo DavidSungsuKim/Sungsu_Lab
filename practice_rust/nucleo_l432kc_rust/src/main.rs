@@ -254,9 +254,9 @@ fn init_hardware() -> ( MonoTimer,
 
     // Setup GPIO pins
     let mut gpioa = p.GPIOA.split(&mut rcc.ahb2);
-    let tx = gpioa.pa2.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
-    let rx = gpioa.pa3.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
 
+    let tx  = gpioa.pa2.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
+    let rx  = gpioa.pa3.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
     let pa4 = gpioa.pa4.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
     let pa5 = gpioa.pa5.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
     let pa6 = gpioa.pa6.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
