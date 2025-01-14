@@ -255,18 +255,19 @@ fn init_hardware() -> ( MonoTimer,
     // Setup GPIO pins
     let mut gpioa = p.GPIOA.split(&mut rcc.ahb2);
 
-    let tx  = gpioa.pa2.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
-    let rx  = gpioa.pa3.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
+    let pa2 = gpioa.pa2.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
+    let pa3 = gpioa.pa3.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
     let pa4 = gpioa.pa4.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
     let pa5 = gpioa.pa5.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
     let pa6 = gpioa.pa6.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
     let pa7 = gpioa.pa7.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
 
     let mut gpiob = p.GPIOB.split(&mut rcc.ahb2);
-    let led = gpiob.pb3.into_push_pull_output(&mut gpiob.moder, &mut gpiob.otyper);
+
+    let pb3 = gpiob.pb3.into_push_pull_output(&mut gpiob.moder, &mut gpiob.otyper);
 
     // Setup the serial pins
-    let serial = Serial::usart2(p.USART2, (tx, rx), 115_200.bps(), clocks, &mut rcc.apb1r1);
+    let serial = Serial::usart2(p.USART2, (pa2, pa3), 115_200.bps(), clocks, &mut rcc.apb1r1);
     let (tx, rx) = serial.split();
 
     // Setup the timer
@@ -275,7 +276,7 @@ fn init_hardware() -> ( MonoTimer,
     cp.DWT.enable_cycle_counter();
     let timer: MonoTimer = MonoTimer::new(cp.DWT, clocks);
 
-    (timer, led, tx, rx, pa4, pa5, pa6, pa7)
+    (timer, pb3, tx, rx, pa4, pa5, pa6, pa7)
 }
 
 /**
