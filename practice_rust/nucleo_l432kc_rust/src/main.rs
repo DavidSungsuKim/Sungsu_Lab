@@ -44,7 +44,7 @@ type SerialSenderType = SerialSender<Tx<USART2>>;
  * Main function.
  */
 fn main() -> ! {
-    let ( timer, mut gpio_led3, gpio_serial_tx, mut gpio_serial_rx, gpio_stepper_a_pos, gpio_stepper_a_neg, gpio_stepper_b_pos, gpio_stepper_b_neg) = init_hardware();
+    let (timer, mut gpio_led3, gpio_serial_tx, mut gpio_serial_rx, gpio_stepper_a_pos, gpio_stepper_a_neg, gpio_stepper_b_pos, gpio_stepper_b_neg) = init_hardware();
 
     let mut sender = SerialSender::new(gpio_serial_tx);
     let mut str_buffer: String<SIZE_RX_BUFFER> = String::new();
@@ -107,7 +107,9 @@ fn cli_print_info(sender: &mut SerialSenderType)
  * @param sender: A mutable reference to the `SerialSender` used to send responses.
  * @param led: A mutable reference to the LED to be controlled.
  */
-fn cli_led(slices: FixedStringSlices, sender: &mut SerialSenderType, led: &mut PB3<Output<PushPull>>)
+fn cli_led(slices: FixedStringSlices, 
+           sender: &mut SerialSenderType, 
+           led: &mut PB3<Output<PushPull>>)
 {
     if let Some(status) = slices.get(1) {
         print!(sender, "CLI: led {}\r\n", status.as_str());
@@ -127,9 +129,9 @@ fn cli_led(slices: FixedStringSlices, sender: &mut SerialSenderType, led: &mut P
  * @param slices: A vector of `String<SIZE_RX_BUFFER>`, each representing a slice of the received command.
  * @param sender: A mutable reference to the `SerialSender` used to send responses.
  */
-fn cli_stepper( slices: FixedStringSlices, 
-                sender: &mut SerialSenderType, 
-                stepper: &mut Stepper )
+fn cli_stepper(slices: FixedStringSlices, 
+               sender: &mut SerialSenderType, 
+               stepper: &mut Stepper)
 {
     if let Some(degrees) = slices.get(1) {
 
@@ -156,7 +158,8 @@ fn cli_stepper( slices: FixedStringSlices,
  * @param sender: A mutable reference to the `SerialSender` used to send responses.
  */
 #[allow(dead_code)]
-fn cli_peek_slices(slices: FixedStringSlices, sender: &mut SerialSenderType)
+fn cli_peek_slices(slices: FixedStringSlices, 
+                   sender: &mut SerialSenderType)
 {
     for slice in slices {
         let maybe_num: Result<i32, _> = slice.parse();
