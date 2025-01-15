@@ -63,6 +63,8 @@ fn main() -> ! {
     let mut monitor_adc = false;
 
     // start the service
+    cli_clear_screen(&mut sender);
+    //print!(sender, "\x1b[96m");  // set color to cyan
     cli_print_info(&mut sender);
     print!(sender, "Enter a command...\r\n");
 
@@ -72,12 +74,10 @@ fn main() -> ! {
             led3.toggle();
         }
 
-        if monitor_adc {
-            if adc_tick.elapsed() > ms_to_ticks(500) {
-                adc_tick = timer.now();
-                let value = ain0.read(&mut pa0).unwrap_or(0u16);
-                print!(sender, "ADC: {}\r\n", value);
-            }
+        if monitor_adc && adc_tick.elapsed() > ms_to_ticks(500) {
+            adc_tick = timer.now();
+            let value = ain0.read(&mut pa0).unwrap_or(0u16);
+            print!(sender, "ADC: {}\r\n", value);
         }
 
         if let Some(slices) = get_command_slices(&mut uart_rx, &mut str_buffer) {
@@ -114,9 +114,6 @@ fn cli_clear_screen(sender: &mut SerialSenderType)
  */
 fn cli_print_info(sender: &mut SerialSenderType)
 {
-    cli_clear_screen(sender);
-    //print!(sender, "\x1b[96m");         // set color to cyan
-
     print!(sender, "\r\n");
     print!(sender, "************************************\r\n");
     print!(sender, "* Welcome to STM32L431 Rust Project\r\n");
