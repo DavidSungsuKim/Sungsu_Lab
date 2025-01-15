@@ -20,12 +20,16 @@ use hal::serial::{Serial, Tx};
 use hal::pac::USART2;
 use hal::time::MonoTimer;
 use hal::gpio::gpiob::PB3;
+use hal::gpio::gpioa::PA0;
 use hal::gpio::gpioa::PA4;
 use hal::gpio::gpioa::PA5;
 use hal::gpio::gpioa::PA6;
 use hal::gpio::gpioa::PA7;
 use hal::gpio::Output;
 use hal::gpio::PushPull;
+use hal::gpio::Analog;
+use hal::adc::{ADC};
+use hal::delay::Delay;
 use heapless::String;
 use heapless::Vec;
 
@@ -44,26 +48,36 @@ type SerialSenderType = SerialSender<Tx<USART2>>;
  * Main function.
  */
 fn main() -> ! {
-    let (timer, mut led3, uart_tx, mut uart_rx, pa4, pa5, pa6, pa7) = init_hardware();
+    let (timer, mut led3, uart_tx, mut uart_rx, pa4, pa5, pa6, pa7, mut ain0, mut pa0) = init_hardware();
 
     let mut sender = SerialSender::new(uart_tx);
     let mut str_buffer: String<SIZE_RX_BUFFER> = String::new();
     str_buffer.clear();
 
-    let mut time_tick = timer.now();
     let ticks_per_ms = timer.frequency().to_Hz() / 1000;
     let ms_to_ticks = |ms: u32| -> u32 { ticks_per_ms * ms };
+    let mut led_tick = timer.now();
+    let mut adc_tick = timer.now();
 
     let mut stepper = Stepper::new(pa4, pa5, pa6, pa7, timer.clone() );
+    let mut monitor_adc = false;
 
     // start the service
     cli_print_info(&mut sender);
     print!(sender, "Enter a command...\r\n");
 
     loop {
-        if time_tick.elapsed() > ms_to_ticks(1000) {
-            time_tick = timer.now();
+        if led_tick.elapsed() > ms_to_ticks(1000) {
+            led_tick = timer.now();
             led3.toggle();
+        }
+
+        if monitor_adc {
+            if adc_tick.elapsed() > ms_to_ticks(500) {
+                adc_tick = timer.now();
+                let value = ain0.read(&mut pa0).unwrap_or(0u16);
+                print!(sender, "ADC: {}\r\n", value);
+            }
         }
 
         if let Some(slices) = get_command_slices(&mut uart_rx, &mut str_buffer) {
@@ -74,10 +88,23 @@ fn main() -> ! {
                 "info"      => { cli_print_info(&mut sender); }
                 "led"       => { cli_led(slices.clone(), &mut sender, &mut led3); }
                 "stepper"   => { cli_stepper(slices.clone(), &mut sender, &mut stepper); }
+                "adc"       => { cli_adc(slices.clone(), &mut sender, &mut monitor_adc); }
+                "cls"       => { cli_clear_screen(&mut sender); }
+                "clear"     => { cli_clear_screen(&mut sender); }
                 _           => { print!(sender, "CLI: undefined command ({})\r\n", command.as_str());}
             }
         }
     }
+}
+
+/**
+ * This function clears the screen by sending the ANSI escape sequence to the serial sender.
+ * 
+ * @param sender: A mutable reference to the `SerialSender` used to send the escape sequence.
+ */
+fn cli_clear_screen(sender: &mut SerialSenderType)
+{
+    print!(sender, "\x1b[H\x1b[2J");
 }
 
 /**
@@ -87,8 +114,8 @@ fn main() -> ! {
  */
 fn cli_print_info(sender: &mut SerialSenderType)
 {
-    print!(sender, "\x1b[H\x1b[2J");    // clear screen
-    print!(sender, "\x1b[96m");         // set color to cyan
+    cli_clear_screen(sender);
+    //print!(sender, "\x1b[96m");         // set color to cyan
 
     print!(sender, "\r\n");
     print!(sender, "************************************\r\n");
@@ -148,6 +175,29 @@ fn cli_stepper(slices: FixedStringSlices,
 
         stepper.set_parameters(move_degrees, speed_percent, sender);
         stepper.move_wait(sender);
+    }
+}
+
+/**
+ * This function controls the state of the ADC monitor based on the command received.
+ * 
+ * @param slices: A vector of `String<SIZE_RX_BUFFER>`, each representing a slice of the received command.
+ * @param sender: A mutable reference to the `SerialSender` used to send responses.
+ * @param switch: A mutable reference to the boolean that controls the state of the ADC monitor.
+ */
+fn cli_adc(slices: FixedStringSlices, 
+           sender: &mut SerialSenderType, switch: &mut bool)
+{
+    if let Some(status) = slices.get(1) {
+        print!(sender, "CLI: adc {}\r\n", status.as_str());
+        if status.as_str() == "on" {
+            *switch = true;
+            print!(sender, "ADC: monitor on\r\n");
+        }
+        else {
+            *switch = false;
+            print!(sender, "ADC: monitor off\r\n");
+        }
     }
 }
 
@@ -241,7 +291,9 @@ fn init_hardware() -> ( MonoTimer,
                         PA4<Output<PushPull>>, 
                         PA5<Output<PushPull>>, 
                         PA6<Output<PushPull>>, 
-                        PA7<Output<PushPull>>) {
+                        PA7<Output<PushPull>>,
+                        ADC,
+                        PA0<Analog> ) {
 
     // Setup the clock and etc
     let p = hal::stm32::Peripherals::take().unwrap();
@@ -255,6 +307,7 @@ fn init_hardware() -> ( MonoTimer,
     // Setup GPIO pins
     let mut gpioa = p.GPIOA.split(&mut rcc.ahb2);
 
+    let pa0 = gpioa.pa0.into_analog(&mut gpioa.moder, &mut gpioa.pupdr);
     let pa2 = gpioa.pa2.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
     let pa3 = gpioa.pa3.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
     let pa4 = gpioa.pa4.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
@@ -276,7 +329,11 @@ fn init_hardware() -> ( MonoTimer,
     cp.DWT.enable_cycle_counter();
     let timer: MonoTimer = MonoTimer::new(cp.DWT, clocks);
 
-    (timer, pb3, tx, rx, pa4, pa5, pa6, pa7)
+    // Setup the ADC
+    let mut delay = Delay::new(cp.SYST, clocks);
+    let adc = ADC::new(p.ADC1, p.ADC_COMMON, &mut rcc.ahb2, &mut rcc.ccipr, &mut delay);
+
+    (timer, pb3, tx, rx, pa4, pa5, pa6, pa7, adc, pa0)
 }
 
 /**
