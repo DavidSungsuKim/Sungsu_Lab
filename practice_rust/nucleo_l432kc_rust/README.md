@@ -14,5 +14,9 @@
 		### IN2 : A4 (PA5)
 		### IN3 : A5 (PA6)
 		### IN4 : A6 (PA7)
+      
+# ADC I/F
+   ## Pin (NucleoL432KC)
+      ### An0 : A0
 
 
