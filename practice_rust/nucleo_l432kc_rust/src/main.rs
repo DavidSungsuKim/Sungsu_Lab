@@ -78,7 +78,8 @@ fn main() -> ! {
         if monitor_adc && adc_tick.elapsed() > ms_to_ticks(interval_adc_mon) {
             adc_tick = timer.now();
             let value = ain0.read(&mut pa0).unwrap_or(0u16);
-            print!(sender, "ADC: {}\r\n", value);
+            let volts = (value as f32) * 3.3f32 / ain0.get_max_value() as f32;
+            print!(sender, "ADC: {}[cnt], {:.3}[v]\r\n", value, volts);
         }
 
         if let Some(slices) = get_command_slices(&mut uart_rx, &mut str_buffer) {
