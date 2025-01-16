@@ -61,6 +61,7 @@ fn main() -> ! {
 
     let mut stepper = Stepper::new(pa4, pa5, pa6, pa7, timer.clone() );
     let mut monitor_adc = false;
+    let mut interval_adc_mon = 500u32;
 
     // start the service
     cli_clear_screen(&mut sender);
@@ -74,7 +75,7 @@ fn main() -> ! {
             led3.toggle();
         }
 
-        if monitor_adc && adc_tick.elapsed() > ms_to_ticks(500) {
+        if monitor_adc && adc_tick.elapsed() > ms_to_ticks(interval_adc_mon) {
             adc_tick = timer.now();
             let value = ain0.read(&mut pa0).unwrap_or(0u16);
             print!(sender, "ADC: {}\r\n", value);
@@ -88,7 +89,7 @@ fn main() -> ! {
                 "info"      => { cli_print_info(&mut sender); }
                 "led"       => { cli_led(slices.clone(), &mut sender, &mut led3); }
                 "stepper"   => { cli_stepper(slices.clone(), &mut sender, &mut stepper); }
-                "adc"       => { cli_adc(slices.clone(), &mut sender, &mut monitor_adc); }
+                "adc"       => { cli_adc(slices.clone(), &mut sender, &mut monitor_adc, &mut interval_adc_mon); }
                 "cls"       => { cli_clear_screen(&mut sender); }
                 "clear"     => { cli_clear_screen(&mut sender); }
                 _           => { print!(sender, "CLI: undefined command ({})\r\n", command.as_str());}
@@ -183,13 +184,24 @@ fn cli_stepper(slices: FixedStringSlices,
  * @param switch: A mutable reference to the boolean that controls the state of the ADC monitor.
  */
 fn cli_adc(slices: FixedStringSlices, 
-           sender: &mut SerialSenderType, switch: &mut bool)
+           sender: &mut SerialSenderType, switch: &mut bool, interval_ms: &mut u32)
 {
     if let Some(status) = slices.get(1) {
         print!(sender, "CLI: adc {}\r\n", status.as_str());
         if status.as_str() == "on" {
+
+            const MIN_INTERVAL: u32 = 100u32;
+            const MAX_INTERVAL: u32 = 10000u32;
+
+            if let Some(interval) = slices.get(2) {
+                let interval_temp = interval.parse().unwrap_or(500u32);
+                if ( interval_temp >= MIN_INTERVAL ) && ( interval_temp <= MAX_INTERVAL ) {
+                    *interval_ms = interval_temp;
+                }
+            }
+
             *switch = true;
-            print!(sender, "ADC: monitor on\r\n");
+            print!(sender, "ADC: monitor on, interval={}ms\r\n", interval_ms);
         }
         else {
             *switch = false;
