@@ -14,27 +14,27 @@
 
 use core::panic::PanicInfo;
 use cortex_m_rt::entry;
-use stm32l4xx_hal as hal;
-use hal::prelude::*;
-use hal::serial::{Serial, Tx};
-use hal::pac::USART2;
-use hal::time::MonoTimer;
-use hal::gpio::gpiob::PB3;
+use hal::adc::ADC;
+use hal::delay::Delay;
 use hal::gpio::gpioa::PA0;
 use hal::gpio::gpioa::PA4;
 use hal::gpio::gpioa::PA5;
 use hal::gpio::gpioa::PA6;
 use hal::gpio::gpioa::PA7;
+use hal::gpio::gpiob::PB3;
+use hal::gpio::Analog;
 use hal::gpio::Output;
 use hal::gpio::PushPull;
-use hal::gpio::Analog;
-use hal::adc::{ADC};
-use hal::delay::Delay;
+use hal::pac::USART2;
+use hal::prelude::*;
+use hal::serial::{Serial, Tx};
+use hal::time::MonoTimer;
 use heapless::String;
 use heapless::Vec;
+use stm32l4xx_hal as hal;
 
-use nucleo_l432::serial_sender::SerialSender;
 use nucleo_l432::print;
+use nucleo_l432::serial_sender::SerialSender;
 use nucleo_l432::stepper::Stepper;
 
 const SIZE_RX_BUFFER: usize = 64;
@@ -44,6 +44,7 @@ type FixedStringSlices = Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>;
 type SerialSenderType = SerialSender<Tx<USART2>>;
 
 #[entry]
+
 /**
  * Main function.
  */
@@ -107,11 +108,10 @@ fn main() -> ! {
 
 /**
  * This function clears the screen by sending the ANSI escape sequence to the serial sender.
- * 
+ *
  * @param sender: A mutable reference to the `SerialSender` used to send the escape sequence.
  */
-fn cli_clear_screen(sender: &mut SerialSenderType)
-{
+fn cli_clear_screen(sender: &mut SerialSenderType) {
     print!(sender, "\x1b[H\x1b[2J");
 }
 
@@ -120,8 +120,7 @@ fn cli_clear_screen(sender: &mut SerialSenderType)
  *
  * @param sender: A mutable reference to the `SerialSender` used to send the information.
  */
-fn cli_print_info(sender: &mut SerialSenderType)
-{
+fn cli_print_info(sender: &mut SerialSenderType) {
     print!(sender, "\r\n");
     print!(sender, "************************************\r\n");
     print!(sender, "* Welcome to STM32L431 Rust Project\r\n");
@@ -139,16 +138,16 @@ fn cli_print_info(sender: &mut SerialSenderType)
  * @param sender: A mutable reference to the `SerialSender` used to send responses.
  * @param led: A mutable reference to the LED to be controlled.
  */
-fn cli_led(slices: FixedStringSlices, 
-           sender: &mut SerialSenderType, 
-           led: &mut PB3<Output<PushPull>>)
-{
+fn cli_led(
+    slices: FixedStringSlices,
+    sender: &mut SerialSenderType,
+    led: &mut PB3<Output<PushPull>>,
+) {
     if let Some(status) = slices.get(1) {
         print!(sender, "CLI: led {}\r\n", status.as_str());
         if status.as_str() == "on" {
             led.set_high();
-        }
-        else {
+        } else {
             led.set_low();
         }
     }
@@ -157,16 +156,12 @@ fn cli_led(slices: FixedStringSlices,
 /**
  * This function controls the stepper motor based on the command received.
  * The command is expected to be in the first slice of the `slices` vector.
- * 
+ *
  * @param slices: A vector of `String<SIZE_RX_BUFFER>`, each representing a slice of the received command.
  * @param sender: A mutable reference to the `SerialSender` used to send responses.
  */
-fn cli_stepper(slices: FixedStringSlices, 
-               sender: &mut SerialSenderType, 
-               stepper: &mut Stepper)
-{
+fn cli_stepper(slices: FixedStringSlices, sender: &mut SerialSenderType, stepper: &mut Stepper) {
     if let Some(degrees) = slices.get(1) {
-
         let move_degrees = degrees.parse().unwrap_or(0f32);
         if move_degrees == 0f32 {
             print!(sender, "Stepper: error, zero degree\r\n");
@@ -184,33 +179,37 @@ fn cli_stepper(slices: FixedStringSlices,
 
 /**
  * This function controls the state of the ADC monitor based on the command received.
- * 
+ *
  * @param slices: A vector of `String<SIZE_RX_BUFFER>`, each representing a slice of the received command.
  * @param sender: A mutable reference to the `SerialSender` used to send responses.
  * @param switch: A mutable reference to the boolean that controls the state of the ADC monitor.
  */
-fn cli_adc(slices: FixedStringSlices, 
-           sender: &mut SerialSenderType, switch: &mut bool, interval_ms: &mut u32)
-{
+fn cli_adc(
+    slices: FixedStringSlices,
+    sender: &mut SerialSenderType,
+    switch: &mut bool,
+    interval_ms: &mut u32,
+) {
     if let Some(status) = slices.get(1) {
         print!(sender, "CLI: adc {}\r\n", status.as_str());
         if status.as_str() == "on" {
-
             const MIN_INTERVAL: u32 = 10u32;
             const MAX_INTERVAL: u32 = 1000u32;
 
             if let Some(interval) = slices.get(2) {
                 let interval_temp = interval.parse().unwrap_or(500u32);
-                if ( interval_temp >= MIN_INTERVAL ) && ( interval_temp <= MAX_INTERVAL ) {
+                if (interval_temp >= MIN_INTERVAL) && (interval_temp <= MAX_INTERVAL) {
                     *interval_ms = interval_temp;
                 }
             }
 
             *switch = true;
             print!(sender, "ADC: monitor on, interval={}ms\r\n", interval_ms);
-            print!(sender, "ADC: simply enter or type 'adc off' to stop monitoring\r\n");
-        }
-        else {
+            print!(
+                sender,
+                "ADC: simply enter or type 'adc off' to stop monitoring\r\n"
+            );
+        } else {
             *switch = false;
             print!(sender, "ADC: monitor off\r\n");
         }
@@ -224,9 +223,7 @@ fn cli_adc(slices: FixedStringSlices,
  * @param sender: A mutable reference to the `SerialSender` used to send responses.
  */
 #[allow(dead_code)]
-fn cli_peek_slices(slices: FixedStringSlices, 
-                   sender: &mut SerialSenderType)
-{
+fn cli_peek_slices(slices: FixedStringSlices, sender: &mut SerialSenderType) {
     for slice in slices {
         let maybe_num: Result<i32, _> = slice.parse();
         match maybe_num {
@@ -250,11 +247,12 @@ fn cli_peek_slices(slices: FixedStringSlices,
  * @param str_buffer: A mutable reference to a `String<SIZE_RX_BUFFER>` that is used as a buffer to store the received data.
  * @return: An `Option` that contains a `Vec` of `String<SIZE_RX_BUFFER>` if the received data ends with a newline character, or `None` otherwise.
  */
-fn get_command_slices( serial_rx: &mut hal::serial::Rx<USART2>, 
-                       str_buffer: &mut String<SIZE_RX_BUFFER>) -> Option<FixedStringSlices> {
-                        
+fn get_command_slices(
+    serial_rx: &mut hal::serial::Rx<USART2>,
+    str_buffer: &mut String<SIZE_RX_BUFFER>,
+) -> Option<FixedStringSlices> {
     let received = serial_rx.read().ok();
- 
+
     if let Some(ch) = received {
         if ch != b'\n' {
             // push byte into the string buffer
@@ -297,20 +295,21 @@ fn get_command_slices( serial_rx: &mut hal::serial::Rx<USART2>,
 
 /**
  * Initialize the hardware.
- * 
+ *
  * @return The LED, TX, RX, and timer.
  */
-fn init_hardware() -> ( MonoTimer, 
-                        PB3<Output<PushPull>>, 
-                        Tx<USART2>, 
-                        hal::serial::Rx<USART2>, 
-                        PA4<Output<PushPull>>, 
-                        PA5<Output<PushPull>>, 
-                        PA6<Output<PushPull>>, 
-                        PA7<Output<PushPull>>,
-                        ADC,
-                        PA0<Analog> ) {
-
+fn init_hardware() -> (
+    MonoTimer,
+    PB3<Output<PushPull>>,
+    Tx<USART2>,
+    hal::serial::Rx<USART2>,
+    PA4<Output<PushPull>>,
+    PA5<Output<PushPull>>,
+    PA6<Output<PushPull>>,
+    PA7<Output<PushPull>>,
+    ADC,
+    PA0<Analog>,
+) {
     // Setup the clock and etc
     let p = hal::stm32::Peripherals::take().unwrap();
     let mut rcc = p.RCC.constrain();
@@ -318,22 +317,41 @@ fn init_hardware() -> ( MonoTimer,
     let mut flash = p.FLASH.constrain();
     let mut pwr = p.PWR.constrain(&mut rcc.apb1r1);
 
-    let clocks = rcc.cfgr.sysclk(80.MHz()).pclk1(80.MHz()).pclk2(80.MHz()).freeze(&mut flash.acr, &mut pwr);
+    let clocks = rcc
+        .cfgr
+        .sysclk(80.MHz())
+        .pclk1(80.MHz())
+        .pclk2(80.MHz())
+        .freeze(&mut flash.acr, &mut pwr);
 
     // Setup GPIO pins
     let mut gpioa = p.GPIOA.split(&mut rcc.ahb2);
 
     let pa0 = gpioa.pa0.into_analog(&mut gpioa.moder, &mut gpioa.pupdr);
-    let pa2 = gpioa.pa2.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
-    let pa3 = gpioa.pa3.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
-    let pa4 = gpioa.pa4.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
-    let pa5 = gpioa.pa5.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
-    let pa6 = gpioa.pa6.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
-    let pa7 = gpioa.pa7.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let pa2 = gpioa
+        .pa2
+        .into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
+    let pa3 = gpioa
+        .pa3
+        .into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
+    let pa4 = gpioa
+        .pa4
+        .into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let pa5 = gpioa
+        .pa5
+        .into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let pa6 = gpioa
+        .pa6
+        .into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let pa7 = gpioa
+        .pa7
+        .into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
 
     let mut gpiob = p.GPIOB.split(&mut rcc.ahb2);
 
-    let pb3 = gpiob.pb3.into_push_pull_output(&mut gpiob.moder, &mut gpiob.otyper);
+    let pb3 = gpiob
+        .pb3
+        .into_push_pull_output(&mut gpiob.moder, &mut gpiob.otyper);
 
     // Setup the serial pins
     let serial = Serial::usart2(p.USART2, (pa2, pa3), 115_200.bps(), clocks, &mut rcc.apb1r1);
@@ -347,7 +365,13 @@ fn init_hardware() -> ( MonoTimer,
 
     // Setup the ADC
     let mut delay = Delay::new(cp.SYST, clocks);
-    let adc = ADC::new(p.ADC1, p.ADC_COMMON, &mut rcc.ahb2, &mut rcc.ccipr, &mut delay);
+    let adc = ADC::new(
+        p.ADC1,
+        p.ADC_COMMON,
+        &mut rcc.ahb2,
+        &mut rcc.ccipr,
+        &mut delay,
+    );
 
     (timer, pb3, tx, rx, pa4, pa5, pa6, pa7, adc, pa0)
 }
