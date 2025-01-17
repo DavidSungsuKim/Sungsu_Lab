@@ -67,7 +67,7 @@ fn main() -> ! {
     cli_clear_screen(&mut sender);
     //print!(sender, "\x1b[96m");  // set color to cyan
     cli_print_info(&mut sender);
-    print!(sender, "Enter a command...\r\n");
+    print!(sender, "CLI: Enter a command...\r\n");
 
     loop {
         if led_tick.elapsed() > ms_to_ticks(1000) {
