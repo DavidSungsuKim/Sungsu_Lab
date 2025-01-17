@@ -100,6 +100,10 @@ fn main() -> ! {
             } else {
                 if monitor_adc {
                     monitor_adc = false;
+                    print!(sender, "ADC: monitor stopped\r\n");
+                }
+                if stepper.is_moving() {
+                    stepper.stop_and_reset(&mut sender);
                 }
             }
         }

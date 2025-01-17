@@ -176,6 +176,23 @@ impl Stepper {
     }
 
     /**
+     * Stop the stepper motor and reset the internal states.
+     */
+    pub fn stop_and_reset(&mut self, sender: &mut SerialSenderType) {
+        self.steps_move = 0;
+        self.ready_move_params = false;
+        self.is_moving = false;
+        print!(sender, "Stepper: stop and reset\r\n");
+    }
+
+    /**
+     * Check if the stepper motor is moving.
+     */
+    pub fn is_moving(&self) -> bool {
+        self.is_moving
+    }
+
+    /**
      * Task function to move the stepper motor in the main by being periodically called based on the parameters set by the `set_parameters` function.
      *
      * @param sender: A mutable reference to the `SerialSender` used to send responses.
@@ -189,11 +206,7 @@ impl Stepper {
         let ms_to_ticks = |ms: u32| -> u32 { ticks_per_ms * ms };
 
         if self.steps_move == 0 {
-            print!(
-                sender,
-                "Stepper: ...move async done, elapsed={}ms\r\n",
-                self.time_total.elapsed() / ms_to_ticks(1)
-            );
+            print!(sender, "Stepper: ...move async done, elapsed={}ms\r\n", self.time_total.elapsed() / ms_to_ticks(1));
             self.ready_move_params = false;
             self.is_moving = false;
             return;
