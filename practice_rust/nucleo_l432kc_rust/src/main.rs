@@ -83,17 +83,21 @@ fn main() -> ! {
         }
 
         if let Some(slices) = get_command_slices(&mut uart_rx, &mut str_buffer) {
-            print!(sender, "CLI: #args={}\r\n", slices.len());
-    
-            let command = slices.get(0).unwrap();
-            match command.as_str() {
-                "info"      => { cli_print_info(&mut sender); }
-                "led"       => { cli_led(slices.clone(), &mut sender, &mut led3); }
-                "stepper"   => { cli_stepper(slices.clone(), &mut sender, &mut stepper); }
-                "adc"       => { cli_adc(slices.clone(), &mut sender, &mut monitor_adc, &mut interval_adc_mon); }
-                "cls"       => { cli_clear_screen(&mut sender); }
-                "clear"     => { cli_clear_screen(&mut sender); }
-                _           => { print!(sender, "CLI: undefined command ({})\r\n", command.as_str());}
+            if let Some( command ) = slices.get(0) {
+                print!(sender, "CLI: #args={}\r\n", slices.len());
+                match command.as_str() {
+                    "info"      => { cli_print_info(&mut sender); }
+                    "led"       => { cli_led(slices.clone(), &mut sender, &mut led3); }
+                    "stepper"   => { cli_stepper(slices.clone(), &mut sender, &mut stepper); }
+                    "adc"       => { cli_adc(slices.clone(), &mut sender, &mut monitor_adc, &mut interval_adc_mon); }
+                    "cls"       => { cli_clear_screen(&mut sender); }
+                    "clear"     => { cli_clear_screen(&mut sender); }
+                    _           => { print!(sender, "CLI: undefined command ({})\r\n", command.as_str());}
+                }
+            } else {
+                if monitor_adc {
+                    monitor_adc = false;
+                }
             }
         }
     }
@@ -191,8 +195,8 @@ fn cli_adc(slices: FixedStringSlices,
         print!(sender, "CLI: adc {}\r\n", status.as_str());
         if status.as_str() == "on" {
 
-            const MIN_INTERVAL: u32 = 100u32;
-            const MAX_INTERVAL: u32 = 10000u32;
+            const MIN_INTERVAL: u32 = 10u32;
+            const MAX_INTERVAL: u32 = 1000u32;
 
             if let Some(interval) = slices.get(2) {
                 let interval_temp = interval.parse().unwrap_or(500u32);
@@ -203,6 +207,7 @@ fn cli_adc(slices: FixedStringSlices,
 
             *switch = true;
             print!(sender, "ADC: monitor on, interval={}ms\r\n", interval_ms);
+            print!(sender, "ADC: simply enter or type 'adc off' to stop monitoring\r\n");
         }
         else {
             *switch = false;
