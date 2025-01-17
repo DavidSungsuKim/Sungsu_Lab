@@ -82,6 +82,8 @@ fn main() -> ! {
             print!(sender, "ADC: {}[cnt], {:.3}[v]\r\n", value, volts);
         }
 
+        stepper.run_task(&mut sender);
+
         if let Some(slices) = get_command_slices(&mut uart_rx, &mut str_buffer) {
             if let Some( command ) = slices.get(0) {
                 print!(sender, "CLI: #args={}\r\n", slices.len());
@@ -177,7 +179,6 @@ fn cli_stepper(slices: FixedStringSlices,
         }
 
         stepper.set_parameters(move_degrees, speed_percent, sender);
-        stepper.move_wait(sender);
     }
 }
 

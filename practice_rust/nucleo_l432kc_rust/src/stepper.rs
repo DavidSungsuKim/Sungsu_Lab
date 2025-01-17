@@ -13,7 +13,7 @@
 use stm32l4xx_hal as hal;
 use hal::serial::Tx;
 use hal::pac::USART2;
-use hal::time::MonoTimer;
+use hal::time::{MonoTimer, Instant};
 use hal::gpio::gpioa::PA4;
 use hal::gpio::gpioa::PA5;
 use hal::gpio::gpioa::PA6;
@@ -53,6 +53,9 @@ pub struct Stepper {
    move_dir_cw: bool,
    ready_move_params: bool,
    stepper_seq: StepperSeq,
+   time: Instant,
+   time_total: Instant,
+   is_moving: bool
 }
 
 /**
@@ -67,7 +70,10 @@ impl Stepper {
            step_interval_ms: 0.0,
            move_dir_cw: false,
            ready_move_params: false,
-           stepper_seq: StepperSeq::Seq1
+           stepper_seq: StepperSeq::Seq1,
+           time: timer.now(),
+           time_total: timer.now(),        
+           is_moving: false
        }
    }
 
@@ -142,6 +148,40 @@ impl Stepper {
 
        self.ready_move_params = false;
        true
+   }
+
+   /**
+    * Task function to move the stepper motor in the main by being periodically called based on the parameters set by the `set_parameters` function.
+    *
+    * @param sender: A mutable reference to the `SerialSender` used to send responses.
+    */
+   pub fn run_task(&mut self, sender: &mut SerialSenderType) {
+       
+       if !self.ready_move_params {           
+            return;
+       }
+
+       let ticks_per_ms = self.timer.frequency().to_Hz() / 1000;
+       let ms_to_ticks = |ms: u32| -> u32 { ticks_per_ms * ms };
+
+       if self.steps_move == 0 {
+          print!(sender, "Stepper: ...move async done, elapsed={}ms\r\n", self.time_total.elapsed() / ms_to_ticks(1));
+          self.ready_move_params = false;
+          self.is_moving = false;
+          return;
+       }
+
+       if self.time.elapsed() > ms_to_ticks(self.step_interval_ms as u32) {
+           if !self.is_moving {
+              print!(sender, "Stepper: move async...\r\n");
+              self.time_total = self.timer.now();
+              self.is_moving = true;
+           }
+
+           self.run_stepper_sequence();
+           self.steps_move -= 1;
+           self.time = self.timer.now();
+       }
    }
 
    /**
