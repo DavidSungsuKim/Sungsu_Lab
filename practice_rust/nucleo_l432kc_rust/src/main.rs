@@ -21,11 +21,18 @@ use hal::gpio::gpioa::PA4;
 use hal::gpio::gpioa::PA5;
 use hal::gpio::gpioa::PA6;
 use hal::gpio::gpioa::PA7;
+use hal::gpio::gpiob::PB0;
 use hal::gpio::gpiob::PB3;
 use hal::gpio::Analog;
 use hal::gpio::Output;
+use hal::gpio::Input;
 use hal::gpio::PushPull;
+use hal::gpio::Edge;
+use hal::pac::Peripherals;
 use hal::pac::USART2;
+use hal::pac::interrupt;
+use stm32l4xx_hal::gpio::PullDown;
+use stm32l4xx_hal::pac::Interrupt;
 use hal::prelude::*;
 use hal::serial::{Serial, Tx};
 use hal::time::MonoTimer;
@@ -43,13 +50,15 @@ const MAX_ARGS: usize = 20;
 type FixedStringSlices = Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>;
 type SerialSenderType = SerialSender<Tx<USART2>>;
 
+static mut EXTI0_COUNT: u32 = 0;
+
 #[entry]
 
 /**
  * Main function.
  */
 fn main() -> ! {
-    let (timer, mut led3, uart_tx, mut uart_rx, pa4, pa5, pa6, pa7, mut ain0, mut pa0) = init_hardware();
+    let (timer, mut led3, uart_tx, mut uart_rx, pa4, pa5, pa6, pa7, mut ain0, mut pa0, pb0) = init_hardware();
 
     let mut sender = SerialSender::new(uart_tx);
     let mut str_buffer: String<SIZE_RX_BUFFER> = String::new();
@@ -64,6 +73,8 @@ fn main() -> ! {
     let mut monitor_adc = false;
     let mut interval_adc_mon = 500u32;
 
+    let mut exti0_count = 0u32;
+
     // start the service
     cli_clear_screen(&mut sender);
     //print!(sender, "\x1b[96m");  // set color to cyan
@@ -73,7 +84,7 @@ fn main() -> ! {
     loop {
         if led_tick.elapsed() > ms_to_ticks(1000) {
             led_tick = timer.now();
-            led3.toggle();
+            led3.toggle();            
         }
 
         if monitor_adc && adc_tick.elapsed() > ms_to_ticks(interval_adc_mon) {
@@ -81,6 +92,11 @@ fn main() -> ! {
             let value = ain0.read(&mut pa0).unwrap_or(0u16);
             let volts = (value as f32) * 3.3f32 / ain0.get_max_value() as f32;
             print!(sender, "ADC: {}[cnt], {:.3}[v]\r\n", value, volts);
+        }
+
+        if unsafe { EXTI0_COUNT } != exti0_count {
+            exti0_count = unsafe { EXTI0_COUNT };
+            print!(sender, "EXTI0: {}, pin={}\r\n", exti0_count, pb0.is_high());
         }
 
         stepper.run_task(&mut sender);
@@ -302,6 +318,7 @@ fn get_command_slices(
  *
  * @return The LED, TX, RX, and timer.
  */
+#[rustfmt::skip]
 fn init_hardware() -> (
     MonoTimer,
     PB3<Output<PushPull>>,
@@ -313,9 +330,10 @@ fn init_hardware() -> (
     PA7<Output<PushPull>>,
     ADC,
     PA0<Analog>,
-) {
+    PB0<Input<PullDown>>,
+    ) {
     // Setup the clock and etc
-    let p = hal::stm32::Peripherals::take().unwrap();
+    let mut p = hal::stm32::Peripherals::take().unwrap();
     let mut rcc = p.RCC.constrain();
 
     let mut flash = p.FLASH.constrain();
@@ -330,32 +348,27 @@ fn init_hardware() -> (
 
     // Setup GPIO pins
     let mut gpioa = p.GPIOA.split(&mut rcc.ahb2);
-
     let pa0 = gpioa.pa0.into_analog(&mut gpioa.moder, &mut gpioa.pupdr);
-    let pa2 = gpioa
-        .pa2
-        .into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
-    let pa3 = gpioa
-        .pa3
-        .into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
-    let pa4 = gpioa
-        .pa4
-        .into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
-    let pa5 = gpioa
-        .pa5
-        .into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
-    let pa6 = gpioa
-        .pa6
-        .into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
-    let pa7 = gpioa
-        .pa7
-        .into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let pa2 = gpioa.pa2.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
+    let pa3 = gpioa.pa3.into_alternate(&mut gpioa.moder, &mut gpioa.otyper, &mut gpioa.afrl);
+    let pa4 = gpioa.pa4.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let pa5 = gpioa.pa5.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let pa6 = gpioa.pa6.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let pa7 = gpioa.pa7.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper);
 
     let mut gpiob = p.GPIOB.split(&mut rcc.ahb2);
+    let pb3 = gpiob.pb3.into_push_pull_output(&mut gpiob.moder, &mut gpiob.otyper);
 
-    let pb3 = gpiob
-        .pb3
-        .into_push_pull_output(&mut gpiob.moder, &mut gpiob.otyper);
+    // External interrupts
+    let mut pb0 = gpiob.pb0.into_pull_down_input(&mut gpiob.moder, &mut gpiob.pupdr);
+    pb0.make_interrupt_source(&mut p.SYSCFG, &mut rcc.apb2);
+    pb0.trigger_on_edge(&mut p.EXTI, Edge::Rising);
+    pb0.enable_interrupt(&mut p.EXTI);
+
+    unsafe { 
+        cortex_m::peripheral::NVIC::unmask(Interrupt::EXTI0); 
+        cortex_m::peripheral::NVIC::pend(Interrupt::EXTI0); 
+    }
 
     // Setup the serial pins
     let serial = Serial::usart2(p.USART2, (pa2, pa3), 115_200.bps(), clocks, &mut rcc.apb1r1);
@@ -377,7 +390,7 @@ fn init_hardware() -> (
         &mut delay,
     );
 
-    (timer, pb3, tx, rx, pa4, pa5, pa6, pa7, adc, pa0)
+    (timer, pb3, tx, rx, pa4, pa5, pa6, pa7, adc, pa0, pb0)
 }
 
 /**
@@ -386,4 +399,18 @@ fn init_hardware() -> (
 #[panic_handler]
 fn panic(_panic: &PanicInfo<'_>) -> ! {
     loop {}
+}
+
+/**
+ * EXTI0 interrupt handler.
+ */
+#[interrupt] 
+fn EXTI0() { 
+    cortex_m::peripheral::NVIC::unpend(hal::pac::Interrupt::EXTI0);
+    let dp = unsafe { Peripherals::steal() };
+    dp.EXTI.pr1.write(|w| w.pr0().set_bit());
+
+    unsafe { 
+        EXTI0_COUNT += 1; 
+    }
 }

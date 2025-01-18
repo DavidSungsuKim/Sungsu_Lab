@@ -17,6 +17,11 @@
       
 # ADC I/F
    ## Pin (NucleoL432KC)
-      ### An0 : A0
+      ### An0 : A0 (PA0)
+      
+# Interrupt
+   ## Pin (NucleoL432KC)
+      ### D3 (PB0)
+
 
 
