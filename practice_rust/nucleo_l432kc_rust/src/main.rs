@@ -14,24 +14,21 @@
 
 use core::panic::PanicInfo;
 use cortex_m_rt::entry;
+use stm32l4xx_hal as hal;
+use hal::pac::{Peripherals, USART2, interrupt, Interrupt};
 use hal::gpio::gpioa::{PA0, PA4, PA5, PA6, PA7};
 use hal::gpio::gpiob::{PB0, PB3};
 use hal::gpio::{Analog, Input, Output, PushPull, PullDown, Edge};
-use hal::pac::Peripherals;
-use hal::pac::USART2;
-use hal::pac::interrupt;
 use hal::adc::ADC;
 use hal::delay::Delay;
 use hal::serial::{Serial, Tx};
-use stm32l4xx_hal::pac::Interrupt;
 use hal::prelude::*;
 use hal::time::MonoTimer;
 use heapless::{String, Vec};
-use stm32l4xx_hal as hal;
 
-use nucleo_l432::print;
-use nucleo_l432::serial_sender::SerialSender;
-use nucleo_l432::stepper::Stepper;
+use my_nucleo_l432::print;
+use my_nucleo_l432::serial_sender::SerialSender;
+use my_nucleo_l432::stepper::Stepper;
 
 const SIZE_RX_BUFFER: usize = 64;
 const MAX_ARGS: usize = 20;
