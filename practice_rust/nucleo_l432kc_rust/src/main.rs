@@ -14,30 +14,19 @@
 
 use core::panic::PanicInfo;
 use cortex_m_rt::entry;
-use hal::adc::ADC;
-use hal::delay::Delay;
-use hal::gpio::gpioa::PA0;
-use hal::gpio::gpioa::PA4;
-use hal::gpio::gpioa::PA5;
-use hal::gpio::gpioa::PA6;
-use hal::gpio::gpioa::PA7;
-use hal::gpio::gpiob::PB0;
-use hal::gpio::gpiob::PB3;
-use hal::gpio::Analog;
-use hal::gpio::Output;
-use hal::gpio::Input;
-use hal::gpio::PushPull;
-use hal::gpio::Edge;
+use hal::gpio::gpioa::{PA0, PA4, PA5, PA6, PA7};
+use hal::gpio::gpiob::{PB0, PB3};
+use hal::gpio::{Analog, Input, Output, PushPull, PullDown, Edge};
 use hal::pac::Peripherals;
 use hal::pac::USART2;
 use hal::pac::interrupt;
-use stm32l4xx_hal::gpio::PullDown;
+use hal::adc::ADC;
+use hal::delay::Delay;
+use hal::serial::{Serial, Tx};
 use stm32l4xx_hal::pac::Interrupt;
 use hal::prelude::*;
-use hal::serial::{Serial, Tx};
 use hal::time::MonoTimer;
-use heapless::String;
-use heapless::Vec;
+use heapless::{String, Vec};
 use stm32l4xx_hal as hal;
 
 use nucleo_l432::print;
