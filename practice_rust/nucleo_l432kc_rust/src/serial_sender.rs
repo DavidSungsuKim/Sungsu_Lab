@@ -17,10 +17,13 @@ use hal::serial::Tx;
 use stm32l4xx_hal as hal;
 use spin::Mutex;
 
-const SIZE_TX_BUFFER: usize = 128;
-
+// aliases
 type SerialSenderType = SerialSender<Tx<USART2>>;
 
+// consts
+const SIZE_TX_BUFFER: usize = 128;
+
+// global variable
 pub static SENDER: Mutex<Option<SerialSenderType>> = Mutex::new(None);
 
 /**
@@ -83,7 +86,8 @@ pub fn connect(sender: SerialSenderType) {
 macro_rules! print {
     ($($arg:tt)*) => {{
         let mut guard = SENDER.lock();
-        let sender = guard.as_mut().unwrap();
-        sender.send_formatted(format_args!($($arg)*));
+        if let Some(sender) = guard.as_mut() {
+            sender.send_formatted(format_args!($($arg)*));
+        }
     }};
 }

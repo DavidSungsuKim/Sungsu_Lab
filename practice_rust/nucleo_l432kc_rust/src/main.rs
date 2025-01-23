@@ -31,11 +31,14 @@ use my_nucleo_l432::serial_sender::SerialSender;
 use my_nucleo_l432::stepper::Stepper;
 use my_nucleo_l432::serial_sender::SENDER;
 
+// aliases
+type FixedStringSlices = Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>;
+
+// constants
 const SIZE_RX_BUFFER: usize = 64;
 const MAX_ARGS: usize = 20;
 
-type FixedStringSlices = Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>;
-
+// global variable
 static mut EXTI0_COUNT: u32 = 0;
 
 #[entry]
