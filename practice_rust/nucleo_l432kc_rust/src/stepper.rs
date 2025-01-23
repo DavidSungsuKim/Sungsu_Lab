@@ -23,6 +23,7 @@ use stm32l4xx_hal as hal;
 
 use crate::print;
 use crate::serial_sender::SerialSender;
+use crate::serial_sender::SENDER;
 
 type SerialSenderType = SerialSender<Tx<USART2>>;
 
@@ -97,7 +98,6 @@ impl Stepper {
         &mut self,
         degrees: f32,
         speed_percent: f32,
-        sender: &mut SerialSenderType,
     ) -> bool {
         const MAX_STEPS: f32 = 2048.0;
         const MIN_TIME_EACH_STEP_MS: u32 = 3;
@@ -117,7 +117,7 @@ impl Stepper {
         } else {
             -steps as u32
         };
-        print!(sender, "Stepper: deg={} steps={}\r\n", degrees, steps);
+        print!("Stepper: deg={} steps={}\r\n", degrees, steps);
 
         // direction
         self.move_dir_cw = steps >= 0;
@@ -127,12 +127,7 @@ impl Stepper {
         if speed_percent == 0.0 || speed_percent > 100.0 {
             percent = 100.0;
         }
-        print!(
-            sender,
-            "Stepper: speed={}%, RPM={:.2}\r\n",
-            percent,
-            MAX_RPM * percent / 100f32
-        );
+        print!("Stepper: speed={}%, RPM={:.2}\r\n", percent, MAX_RPM * percent / 100f32 );
 
         self.step_interval_ms = MIN_TIME_EACH_STEP_MS as f32 * 100f32 / percent;
         self.ready_move_params = true;
@@ -153,7 +148,7 @@ impl Stepper {
         let ticks_per_ms = self.timer.frequency().to_Hz() / 1000;
         let ms_to_ticks = |ms: u32| -> u32 { ticks_per_ms * ms };
 
-        print!(sender, "Stepper: move...\r\n");
+        print!("Stepper: move...\r\n");
         while self.steps_move > 0 {
             self.run_stepper_sequence();
 
@@ -165,11 +160,7 @@ impl Stepper {
             }
             self.steps_move -= 1;
         }
-        print!(
-            sender,
-            "Stepper: ...done, elapsed={}ms\r\n",
-            time_move.elapsed() / ms_to_ticks(1)
-        );
+        print!("Stepper: ...done, elapsed={}ms\r\n", time_move.elapsed() / ms_to_ticks(1));
 
         self.ready_move_params = false;
         true
@@ -178,11 +169,11 @@ impl Stepper {
     /**
      * Stop the stepper motor and reset the internal states.
      */
-    pub fn stop_and_reset(&mut self, sender: &mut SerialSenderType) {
+    pub fn stop_and_reset(&mut self) {
         self.steps_move = 0;
         self.ready_move_params = false;
         self.is_moving = false;
-        print!(sender, "Stepper: stop and reset\r\n");
+        print!("Stepper: stop and reset\r\n");
     }
 
     /**
@@ -197,7 +188,7 @@ impl Stepper {
      *
      * @param sender: A mutable reference to the `SerialSender` used to send responses.
      */
-    pub fn run_task(&mut self, sender: &mut SerialSenderType) {
+    pub fn run_task(&mut self) {
         if !self.ready_move_params {
             return;
         }
@@ -206,7 +197,7 @@ impl Stepper {
         let ms_to_ticks = |ms: u32| -> u32 { ticks_per_ms * ms };
 
         if self.steps_move == 0 {
-            print!(sender, "Stepper: ...move async done, elapsed={}ms\r\n", self.time_total.elapsed() / ms_to_ticks(1));
+            print!("Stepper: ...move async done, elapsed={}ms\r\n", self.time_total.elapsed() / ms_to_ticks(1));
             self.ready_move_params = false;
             self.is_moving = false;
             return;
@@ -214,7 +205,7 @@ impl Stepper {
 
         if self.time.elapsed() > ms_to_ticks(self.step_interval_ms as u32) {
             if !self.is_moving {
-                print!(sender, "Stepper: move async...\r\n");
+                print!("Stepper: move async...\r\n");
                 self.time_total = self.timer.now();
                 self.is_moving = true;
             }

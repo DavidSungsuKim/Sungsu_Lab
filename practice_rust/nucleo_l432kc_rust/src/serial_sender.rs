@@ -15,8 +15,13 @@ use hal::pac::USART2;
 use hal::prelude::*;
 use hal::serial::Tx;
 use stm32l4xx_hal as hal;
+use spin::Mutex;
 
 const SIZE_TX_BUFFER: usize = 128;
+
+type SerialSenderType = SerialSender<Tx<USART2>>;
+
+pub static SENDER: Mutex<Option<SerialSenderType>> = Mutex::new(None);
 
 /**
  * Trait for sending bytes.
@@ -65,11 +70,20 @@ impl<T: SendByte> SerialSender<T> {
 }
 
 /**
+ * Function to connect the sender to the global SENDER for the print! macro.
+ */
+pub fn connect(sender: SerialSenderType) {
+    SENDER.lock().replace(sender); 
+}
+
+/**
  * Macro to simplify sending formatted strings.
  */
 #[macro_export]
 macro_rules! print {
-    ($sender:expr, $($arg:tt)*) => {{
-        $sender.send_formatted(format_args!($($arg)*));
+    ($($arg:tt)*) => {{
+        let mut guard = SENDER.lock();
+        let sender = guard.as_mut().unwrap();
+        sender.send_formatted(format_args!($($arg)*));
     }};
 }

@@ -12,7 +12,10 @@
 #![no_main]
 #![no_std]
 
+use core::cell::RefCell;
 use core::panic::PanicInfo;
+use core::borrow::{Borrow, BorrowMut};
+use core::ops::Deref;
 use cortex_m_rt::entry;
 use stm32l4xx_hal as hal;
 use hal::pac::{Peripherals, USART2, interrupt, Interrupt};
@@ -25,10 +28,12 @@ use hal::serial::{Serial, Tx};
 use hal::prelude::*;
 use hal::time::MonoTimer;
 use heapless::{String, Vec};
+use spin::Mutex;
 
 use my_nucleo_l432::print;
 use my_nucleo_l432::serial_sender::SerialSender;
 use my_nucleo_l432::stepper::Stepper;
+use my_nucleo_l432::serial_sender::SENDER;
 
 const SIZE_RX_BUFFER: usize = 64;
 const MAX_ARGS: usize = 20;
@@ -37,6 +42,24 @@ type FixedStringSlices = Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>;
 type SerialSenderType = SerialSender<Tx<USART2>>;
 
 static mut EXTI0_COUNT: u32 = 0;
+
+//********************************************
+// mutex testing...
+pub struct TestStruct {
+    value: u32,
+}
+
+static mut TEST: Mutex<u32> = Mutex::new(0u32);
+static mut TEST_STRUCT: Mutex<TestStruct> = Mutex::new(TestStruct { value: 0 });
+static mut TEST2: Mutex<RefCell<u32>> = Mutex::new(RefCell::new(0u32));
+//static SENDER: Mutex<Option<SerialSenderType>> = Mutex::new(None);
+
+pub struct Data {
+    value: u32,
+}
+static GLOBAL_DATA: Mutex<RefCell<Option<Data>>> = Mutex::new(RefCell::new(None));
+static GLOBAL_DATA2: Mutex<Option<Data>> = Mutex::new(None);
+//********************************************
 
 #[entry]
 
@@ -47,6 +70,8 @@ fn main() -> ! {
     let (timer, mut led3, uart_tx, mut uart_rx, pa4, pa5, pa6, pa7, mut ain0, mut pa0, pb0) = init_hardware();
 
     let mut sender = SerialSender::new(uart_tx);
+    my_nucleo_l432::serial_sender::connect(sender);
+
     let mut str_buffer: String<SIZE_RX_BUFFER> = String::new();
     str_buffer.clear();
 
@@ -61,11 +86,45 @@ fn main() -> ! {
 
     let mut exti0_count = 0u32;
 
+    //********************************************
+    // mutex testing...
+    //*SENDER.borrow().borrow_mut() = &Mutex::new(RefCell::new(Some(sender)));
+    // SENDER.get_mut().borrow().borrow_mut().as_mut().unwrap().send_bytes("Hello, world!\r\n");
+    //let sender_ref = SENDER.lock();
+    //let sender_ = sender_ref.borrow().as_ref().unwrap();
+    //print!(sender_, "Hello, world!\r\n");
+    //********************************************
+
     // start the service
-    cli_clear_screen(&mut sender);
+    cli_clear_screen();
     //print!(sender, "\x1b[96m");  // set color to cyan
-    cli_print_info(&mut sender);
-    print!(sender, "CLI: Enter a command...\r\n");
+    cli_print_info();
+    print!("CLI: Enter a command...\r\n");
+
+    //********************************************
+    // mutex testing...
+    unsafe {
+        *TEST.lock() += 1;        
+        //print!(sender, "Test mutex: {}\r\n", *TEST.lock() );
+
+        *TEST.lock() += 1;        
+        //print!(sender, "Test mutex: {}\r\n", *TEST.lock() );
+
+        let mut obj = TEST_STRUCT.lock();
+        obj.value = 3;
+
+        let data = Data{value: 42}; 
+        GLOBAL_DATA.lock().replace(Some(data));
+        let guard = GLOBAL_DATA.lock(); 
+        // let data_ref = &guard.borrow().
+        // if let Some(data) = data_ref {        
+        // }
+
+        let data2 = Data{value: 45};
+        GLOBAL_DATA2.lock().replace(data2);
+        GLOBAL_DATA2.lock().as_mut().unwrap().value = 50;
+    }
+    //********************************************
 
     loop {
         if led_tick.elapsed() > ms_to_ticks(1000) {
@@ -77,62 +136,61 @@ fn main() -> ! {
             adc_tick = timer.now();
             let value = ain0.read(&mut pa0).unwrap_or(0u16);
             let volts = (value as f32) * 3.3f32 / ain0.get_max_value() as f32;
-            print!(sender, "ADC: {}[cnt], {:.3}[v]\r\n", value, volts);
+            print!("ADC: {}[cnt], {:.3}[v]\r\n", value, volts);
         }
 
         if unsafe { EXTI0_COUNT } != exti0_count {
             exti0_count = unsafe { EXTI0_COUNT };
-            print!(sender, "EXTI0: {}, pin={}\r\n", exti0_count, pb0.is_high());
+            print!("EXTI0: {}, pin={}\r\n", exti0_count, pb0.is_high());
         }
 
-        stepper.run_task(&mut sender);
+        stepper.run_task();
 
         if let Some(slices) = get_command_slices(&mut uart_rx, &mut str_buffer) {
             if let Some( command ) = slices.get(0) {
-                print!(sender, "CLI: #args={}\r\n", slices.len());
+                print!("CLI: #args={}\r\n", slices.len());
                 match command.as_str() {
-                    "info"      => { cli_print_info(&mut sender); }
-                    "led"       => { cli_led(slices.clone(), &mut sender, &mut led3); }
-                    "stepper"   => { cli_stepper(slices.clone(), &mut sender, &mut stepper); }
-                    "adc"       => { cli_adc(slices.clone(), &mut sender, &mut monitor_adc, &mut interval_adc_mon); }
-                    "cls"       => { cli_clear_screen(&mut sender); }
-                    "clear"     => { cli_clear_screen(&mut sender); }
-                    _           => { print!(sender, "CLI: undefined command ({})\r\n", command.as_str());}
+                    "info"      => { cli_print_info(); }
+                    "led"       => { cli_led(slices.clone(), &mut led3); }
+                    "stepper"   => { cli_stepper(slices.clone(), &mut stepper); }
+                    "adc"       => { cli_adc(slices.clone(), &mut monitor_adc, &mut interval_adc_mon); }
+                    "cls"       => { cli_clear_screen(); }
+                    "clear"     => { cli_clear_screen(); }
+                    _           => { print!("CLI: undefined command ({})\r\n", command.as_str());}
                 }
             } else {
                 if monitor_adc {
                     monitor_adc = false;
-                    print!(sender, "ADC: monitor stopped\r\n");
+                    print!("ADC: monitor stopped\r\n");
                 }
                 if stepper.is_moving() {
-                    stepper.stop_and_reset(&mut sender);
+                    stepper.stop_and_reset();
                 }
             }
         }
     }
+
+    loop {
+    }
 }
 
 /**
- * This function clears the screen by sending the ANSI escape sequence to the serial sender.
- *
- * @param sender: A mutable reference to the `SerialSender` used to send the escape sequence.
+ * This function clears the screen by sending the ANSI escape sequence.
  */
-fn cli_clear_screen(sender: &mut SerialSenderType) {
-    print!(sender, "\x1b[H\x1b[2J");
+fn cli_clear_screen() {
+    print!("\x1b[H\x1b[2J");
 }
 
 /**
- * This function prints the welcome message and project information to the serial sender.
- *
- * @param sender: A mutable reference to the `SerialSender` used to send the information.
+ * This function prints the welcome message and project information.
  */
-fn cli_print_info(sender: &mut SerialSenderType) {
-    print!(sender, "\r\n");
-    print!(sender, "************************************\r\n");
-    print!(sender, "* Welcome to STM32L431 Rust Project\r\n");
-    print!(sender, "* Version: 1.1.0\r\n");
-    print!(sender, "* Author: SSKIM \r\n");
-    print!(sender, "************************************\r\n");
+fn cli_print_info() {
+    print!("\r\n");
+    print!("************************************\r\n");
+    print!("* Welcome to STM32L431 Rust Project\r\n");
+    print!("* Version: 1.1.0\r\n");
+    print!("* Author: SSKIM \r\n");
+    print!("************************************\r\n");
 }
 
 /**
@@ -141,16 +199,14 @@ fn cli_print_info(sender: &mut SerialSenderType) {
  * If the command is "on", the LED is set to high. Otherwise, the LED is set to low.
  *
  * @param slices: A vector of `String<SIZE_RX_BUFFER>`, each representing a slice of the received command.
- * @param sender: A mutable reference to the `SerialSender` used to send responses.
  * @param led: A mutable reference to the LED to be controlled.
  */
 fn cli_led(
     slices: FixedStringSlices,
-    sender: &mut SerialSenderType,
     led: &mut PB3<Output<PushPull>>,
 ) {
     if let Some(status) = slices.get(1) {
-        print!(sender, "CLI: led {}\r\n", status.as_str());
+        print!("CLI: led {}\r\n", status.as_str());
         if status.as_str() == "on" {
             led.set_high();
         } else {
@@ -164,13 +220,12 @@ fn cli_led(
  * The command is expected to be in the first slice of the `slices` vector.
  *
  * @param slices: A vector of `String<SIZE_RX_BUFFER>`, each representing a slice of the received command.
- * @param sender: A mutable reference to the `SerialSender` used to send responses.
  */
-fn cli_stepper(slices: FixedStringSlices, sender: &mut SerialSenderType, stepper: &mut Stepper) {
+fn cli_stepper(slices: FixedStringSlices, stepper: &mut Stepper) {
     if let Some(degrees) = slices.get(1) {
         let move_degrees = degrees.parse().unwrap_or(0f32);
         if move_degrees == 0f32 {
-            print!(sender, "Stepper: error, zero degree\r\n");
+            print!("Stepper: error, zero degree\r\n");
             return;
         }
 
@@ -179,7 +234,7 @@ fn cli_stepper(slices: FixedStringSlices, sender: &mut SerialSenderType, stepper
             speed_percent = speed.parse().unwrap_or(0f32);
         }
 
-        stepper.set_parameters(move_degrees, speed_percent, sender);
+        stepper.set_parameters(move_degrees, speed_percent);
     }
 }
 
@@ -187,17 +242,15 @@ fn cli_stepper(slices: FixedStringSlices, sender: &mut SerialSenderType, stepper
  * This function controls the state of the ADC monitor based on the command received.
  *
  * @param slices: A vector of `String<SIZE_RX_BUFFER>`, each representing a slice of the received command.
- * @param sender: A mutable reference to the `SerialSender` used to send responses.
  * @param switch: A mutable reference to the boolean that controls the state of the ADC monitor.
  */
 fn cli_adc(
     slices: FixedStringSlices,
-    sender: &mut SerialSenderType,
     switch: &mut bool,
     interval_ms: &mut u32,
 ) {
     if let Some(status) = slices.get(1) {
-        print!(sender, "CLI: adc {}\r\n", status.as_str());
+        print!("CLI: adc {}\r\n", status.as_str());
         if status.as_str() == "on" {
             const MIN_INTERVAL: u32 = 10u32;
             const MAX_INTERVAL: u32 = 1000u32;
@@ -210,14 +263,11 @@ fn cli_adc(
             }
 
             *switch = true;
-            print!(sender, "ADC: monitor on, interval={}ms\r\n", interval_ms);
-            print!(
-                sender,
-                "ADC: simply enter or type 'adc off' to stop monitoring\r\n"
-            );
+            print!("ADC: monitor on, interval={}ms\r\n", interval_ms);
+            print!("ADC: simply enter or type 'adc off' to stop monitoring\r\n");
         } else {
             *switch = false;
-            print!(sender, "ADC: monitor off\r\n");
+            print!("ADC: monitor off\r\n");
         }
     }
 }
@@ -226,18 +276,17 @@ fn cli_adc(
  * This function iterates over the slices of the received command and prints each slice to the serial sender.
  *
  * @param slices: A vector of `String<SIZE_RX_BUFFER>`, each representing a slice of the received command.
- * @param sender: A mutable reference to the `SerialSender` used to send responses.
  */
 #[allow(dead_code)]
-fn cli_peek_slices(slices: FixedStringSlices, sender: &mut SerialSenderType) {
+fn cli_peek_slices(slices: FixedStringSlices) {
     for slice in slices {
         let maybe_num: Result<i32, _> = slice.parse();
         match maybe_num {
             Ok(num) => {
-                print!(sender, "arg(num): {}\r\n", num);
+                print!("arg(num): {}\r\n", num);
             }
             Err(_) => {
-                print!(sender, "arg(str): {}\r\n", slice);
+                print!("arg(str): {}\r\n", slice);
             }
         }
     }
@@ -398,5 +447,9 @@ fn EXTI0() {
 
     unsafe { 
         EXTI0_COUNT += 1; 
+    }
+
+    unsafe {
+        *TEST.lock() = 10;        
     }
 }
