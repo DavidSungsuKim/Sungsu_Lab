@@ -16,16 +16,11 @@ use hal::gpio::gpioa::PA6;
 use hal::gpio::gpioa::PA7;
 use hal::gpio::Output;
 use hal::gpio::PushPull;
-use hal::pac::USART2;
-use hal::serial::Tx;
 use hal::time::{Instant, MonoTimer};
 use stm32l4xx_hal as hal;
 
 use crate::print;
-use crate::serial_sender::SerialSender;
 use crate::serial_sender::SENDER;
-
-type SerialSenderType = SerialSender<Tx<USART2>>;
 
 /**
  * Enum for the stepper motor sequence.
@@ -141,7 +136,7 @@ impl Stepper {
      * @param sender: A mutable reference to the `SerialSender` used to send responses.
      * @return: `true` if the stepper motor has moved, `false` otherwise.
      */
-    pub fn move_wait(&mut self, sender: &mut SerialSenderType) -> bool {
+    pub fn move_wait(&mut self) -> bool {
         let mut time = self.timer.now();
         let time_move = self.timer.now();
 

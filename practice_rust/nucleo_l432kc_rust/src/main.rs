@@ -12,10 +12,7 @@
 #![no_main]
 #![no_std]
 
-use core::cell::RefCell;
 use core::panic::PanicInfo;
-use core::borrow::{Borrow, BorrowMut};
-use core::ops::Deref;
 use cortex_m_rt::entry;
 use stm32l4xx_hal as hal;
 use hal::pac::{Peripherals, USART2, interrupt, Interrupt};
@@ -28,7 +25,6 @@ use hal::serial::{Serial, Tx};
 use hal::prelude::*;
 use hal::time::MonoTimer;
 use heapless::{String, Vec};
-use spin::Mutex;
 
 use my_nucleo_l432::print;
 use my_nucleo_l432::serial_sender::SerialSender;
@@ -39,27 +35,8 @@ const SIZE_RX_BUFFER: usize = 64;
 const MAX_ARGS: usize = 20;
 
 type FixedStringSlices = Vec<String<SIZE_RX_BUFFER>, MAX_ARGS>;
-type SerialSenderType = SerialSender<Tx<USART2>>;
 
 static mut EXTI0_COUNT: u32 = 0;
-
-//********************************************
-// mutex testing...
-pub struct TestStruct {
-    value: u32,
-}
-
-static mut TEST: Mutex<u32> = Mutex::new(0u32);
-static mut TEST_STRUCT: Mutex<TestStruct> = Mutex::new(TestStruct { value: 0 });
-static mut TEST2: Mutex<RefCell<u32>> = Mutex::new(RefCell::new(0u32));
-//static SENDER: Mutex<Option<SerialSenderType>> = Mutex::new(None);
-
-pub struct Data {
-    value: u32,
-}
-static GLOBAL_DATA: Mutex<RefCell<Option<Data>>> = Mutex::new(RefCell::new(None));
-static GLOBAL_DATA2: Mutex<Option<Data>> = Mutex::new(None);
-//********************************************
 
 #[entry]
 
@@ -69,7 +46,7 @@ static GLOBAL_DATA2: Mutex<Option<Data>> = Mutex::new(None);
 fn main() -> ! {
     let (timer, mut led3, uart_tx, mut uart_rx, pa4, pa5, pa6, pa7, mut ain0, mut pa0, pb0) = init_hardware();
 
-    let mut sender = SerialSender::new(uart_tx);
+    let sender = SerialSender::new(uart_tx);
     my_nucleo_l432::serial_sender::connect(sender);
 
     let mut str_buffer: String<SIZE_RX_BUFFER> = String::new();
@@ -86,45 +63,11 @@ fn main() -> ! {
 
     let mut exti0_count = 0u32;
 
-    //********************************************
-    // mutex testing...
-    //*SENDER.borrow().borrow_mut() = &Mutex::new(RefCell::new(Some(sender)));
-    // SENDER.get_mut().borrow().borrow_mut().as_mut().unwrap().send_bytes("Hello, world!\r\n");
-    //let sender_ref = SENDER.lock();
-    //let sender_ = sender_ref.borrow().as_ref().unwrap();
-    //print!(sender_, "Hello, world!\r\n");
-    //********************************************
-
     // start the service
     cli_clear_screen();
     //print!(sender, "\x1b[96m");  // set color to cyan
     cli_print_info();
     print!("CLI: Enter a command...\r\n");
-
-    //********************************************
-    // mutex testing...
-    unsafe {
-        *TEST.lock() += 1;        
-        //print!(sender, "Test mutex: {}\r\n", *TEST.lock() );
-
-        *TEST.lock() += 1;        
-        //print!(sender, "Test mutex: {}\r\n", *TEST.lock() );
-
-        let mut obj = TEST_STRUCT.lock();
-        obj.value = 3;
-
-        let data = Data{value: 42}; 
-        GLOBAL_DATA.lock().replace(Some(data));
-        let guard = GLOBAL_DATA.lock(); 
-        // let data_ref = &guard.borrow().
-        // if let Some(data) = data_ref {        
-        // }
-
-        let data2 = Data{value: 45};
-        GLOBAL_DATA2.lock().replace(data2);
-        GLOBAL_DATA2.lock().as_mut().unwrap().value = 50;
-    }
-    //********************************************
 
     loop {
         if led_tick.elapsed() > ms_to_ticks(1000) {
@@ -168,9 +111,6 @@ fn main() -> ! {
                 }
             }
         }
-    }
-
-    loop {
     }
 }
 
@@ -447,9 +387,5 @@ fn EXTI0() {
 
     unsafe { 
         EXTI0_COUNT += 1; 
-    }
-
-    unsafe {
-        *TEST.lock() = 10;        
     }
 }
