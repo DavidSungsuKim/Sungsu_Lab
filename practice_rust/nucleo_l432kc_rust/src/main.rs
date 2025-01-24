@@ -27,7 +27,6 @@ use hal::time::MonoTimer;
 use heapless::{String, Vec};
 
 use my_nucleo_l432::print;
-use my_nucleo_l432::serial_sender::SerialSender;
 use my_nucleo_l432::stepper::Stepper;
 use my_nucleo_l432::serial_sender::SENDER;
 
@@ -49,8 +48,7 @@ static mut EXTI0_COUNT: u32 = 0;
 fn main() -> ! {
     let (timer, mut led3, uart_tx, mut uart_rx, pa4, pa5, pa6, pa7, mut ain0, mut pa0, pb0) = init_hardware();
 
-    let sender = SerialSender::new(uart_tx);
-    my_nucleo_l432::serial_sender::connect(sender);
+    my_nucleo_l432::serial_sender::create_singleton(uart_tx);
 
     let mut str_buffer: String<SIZE_RX_BUFFER> = String::new();
     str_buffer.clear();

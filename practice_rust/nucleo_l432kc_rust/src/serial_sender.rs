@@ -75,7 +75,8 @@ impl<T: SendByte> SerialSender<T> {
 /**
  * Function to connect the sender to the global SENDER for the print! macro.
  */
-pub fn connect(sender: SerialSenderType) {
+pub fn create_singleton(tx: Tx<USART2>) {
+    let sender = SerialSender::new(tx);
     SENDER.lock().replace(sender); 
 }
 
