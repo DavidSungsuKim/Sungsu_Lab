@@ -10,6 +10,8 @@ use embassy_time::Timer;
 use heapless::String;
 use {defmt_rtt as _, panic_probe as _};
 
+const SIZE_BUFFER: usize = 128;
+
 bind_interrupts!(struct Irqs {
     USART2 => usart::InterruptHandler<peripherals::USART2>;
 });
@@ -22,25 +24,25 @@ async fn main(_spawner: Spawner) {
 
     let config = Config::default();
     let mut serial = Uart::new(p.USART2, p.PA3, p.PA2, Irqs, p.DMA1_CH7, p.DMA1_CH6, config).unwrap();
-    let mut s: String<128> = String::new();
+    let mut str_buffer: String<SIZE_BUFFER> = String::new();
 
     // Clear the screen
-    core::write!(&mut s, "\x1b[H\x1b[2J").unwrap();
-    serial.write(s.as_bytes()).await.ok();
-    s.clear();
+    core::write!(&mut str_buffer, "\x1b[H\x1b[2J").unwrap();
+    serial.write(str_buffer.as_bytes()).await.ok();
+    str_buffer.clear();
 
     let mut i = 0;
     loop {        
         // Write to the serial. Transmission starts immediately.
-        core::write!(&mut s, "Hello DMA World {}!\r\n", i).unwrap();
-        let future = serial.write(s.as_bytes());
+        core::write!(&mut str_buffer, "Hello DMA World {}!\r\n", i).unwrap();
+        let future = serial.write(str_buffer.as_bytes());
     
         // Turn on the LED 
         led.set_high();
 
         // Wait for the serial to finish writing
         future.await.ok();
-        s.clear();
+        str_buffer.clear();
 
         // Wait for 1 seconds
         Timer::after_millis(1000).await;   
