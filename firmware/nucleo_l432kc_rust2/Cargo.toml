@@ -2,6 +2,7 @@
 name = "nucleo_l432kc_embassy"
 version = "0.1.0"
 edition = "2021"
+authors = ["SSKIM"]
 
 [dependencies]
 # Change stm32l4s5vi to your chip name, if necessary.
