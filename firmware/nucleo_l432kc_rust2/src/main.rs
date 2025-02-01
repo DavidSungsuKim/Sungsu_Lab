@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 
+use defmt::debug;
 use core::fmt::Write;
 use embassy_executor::Spawner;
 use embassy_stm32::gpio::{Level, Output, Speed};
@@ -33,22 +34,27 @@ async fn main(_spawner: Spawner) {
 
     let mut i = 0;
     loop {        
-        // Write to the serial. Transmission starts immediately.
-        core::write!(&mut str_buffer, "Hello DMA World {}!\r\n", i).unwrap();
-        let future = serial.write(str_buffer.as_bytes());
-    
-        // Turn on the LED 
+
         led.set_high();
+        debug!("time");
+        let future_time = Timer::after_millis(1000);
 
-        // Wait for the serial to finish writing
-        future.await.ok();
+        debug!("serial");
+        core::write!(&mut str_buffer, "Serial DMA{}!\r\n", i).unwrap();
+        let future_serial = serial.write(str_buffer.as_bytes());
+
+        future_serial.await.ok();
+        debug!("serial done");
+
+        future_time.await;
+        debug!("time wait done");
+
         str_buffer.clear();
-
-        // Wait for 1 seconds
-        Timer::after_millis(1000).await;   
-
-        // Turn off the LED
+      
         led.set_low();
+        debug!("time2");
+        Timer::after_millis(1000).await;
+        debug!("time2 wait done");
 
         i += 1;
     }
