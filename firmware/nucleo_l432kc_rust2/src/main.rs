@@ -4,10 +4,11 @@
 use defmt::debug;
 use core::fmt::Write;
 use embassy_executor::Spawner;
+use embassy_futures::join::join;
 use embassy_stm32::gpio::{Level, Output, Speed};
 use embassy_stm32::usart::{Config, Uart};
 use embassy_stm32::{bind_interrupts, peripherals, usart};
-use embassy_time::Timer;
+use embassy_time::{Timer, Instant};
 use heapless::String;
 use {defmt_rtt as _, panic_probe as _};
 
@@ -33,24 +34,22 @@ async fn main(_spawner: Spawner) {
     str_buffer.clear();
 
     let mut i = 0;
-    loop {        
+    loop {    
+        let delay_fut = Timer::after_millis(100);
+
+        core::write!(&mut str_buffer, "Serial DMA{}!\r\n", i).unwrap();
+        let serial_fut = serial.write(str_buffer.as_bytes());
+
+        // Wait for both futures to complete
+        let start = Instant::now();
 
         led.set_high();
-        debug!("time");
-        let future_time = Timer::after_millis(1000);
-
-        debug!("serial");
-        core::write!(&mut str_buffer, "Serial DMA{}!\r\n", i).unwrap();
-        let future_serial = serial.write(str_buffer.as_bytes());
-
-        future_serial.await.ok();
-        debug!("serial done");
-
-        future_time.await;
-        debug!("time wait done");
-
+        let _ = join(delay_fut, serial_fut).await;
         str_buffer.clear();
       
+        let elapsed = start.elapsed();
+        debug!("Elapsed: {:?}", elapsed.as_millis());
+
         led.set_low();
         debug!("time2");
         Timer::after_millis(1000).await;
