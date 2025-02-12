@@ -40,6 +40,15 @@
    - Crossworks
       . change tapsize - [Tools] - [Options] - [Languages] - Indent Size --> 3
       . allow multiple windows - [Tools] - [Options] - [Environment] - [Startup] --> Yes 
+   - VS Studio
+      . shortcuts 
+         ※ Remove Git first from the top menu
+         . Edit.GoToDefinition        --> Alt + G
+         . Edit.PeekDefinition        --> Alt + E
+         . Edit.FindAllReferences     --> Ctrl + Shift + R 
+         . Edit.FindinFiles           --> Ctrl + Shift + F
+         . Window.MovetoNavigationBar --> Ctrl + Shirt + N
+      
    - VS Code
       . Font size (in Commonly Used) --> 14 
       . Tap Size (in Commonly Used)  --> 3 spaces 
