@@ -1,8 +1,0 @@
-D:\git_repository\Sungsu_Lab\practice_C#\PracticeCsharp\PracticeCsharp\bin\Debug\PracticeCsharp.exe.config
-D:\git_repository\Sungsu_Lab\practice_C#\PracticeCsharp\PracticeCsharp\bin\Debug\PracticeCsharp.exe
-D:\git_repository\Sungsu_Lab\practice_C#\PracticeCsharp\PracticeCsharp\bin\Debug\PracticeCsharp.pdb
-D:\git_repository\Sungsu_Lab\practice_C#\PracticeCsharp\PracticeCsharp\obj\Debug\PracticeCsharp.csproj.AssemblyReference.cache
-D:\git_repository\Sungsu_Lab\practice_C#\PracticeCsharp\PracticeCsharp\obj\Debug\PracticeCsharp.csproj.CoreCompileInputs.cache
-D:\git_repository\Sungsu_Lab\practice_C#\PracticeCsharp\PracticeCsharp\obj\Debug\PracticeCsharp.exe
-D:\git_repository\Sungsu_Lab\practice_C#\PracticeCsharp\PracticeCsharp\obj\Debug\PracticeCsharp.pdb
-D:\git_repository\Sungsu_Lab\practice_C#\PracticeCsharp\PracticeCsharp\obj\Debug\PracticeCsharp.csproj.SuggestedBindingRedirects.cache
