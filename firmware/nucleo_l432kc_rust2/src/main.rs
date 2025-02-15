@@ -24,7 +24,7 @@ type FixedStringSlices = Vec<String<SIZE_CLI_RX_BUFFER>, MAX_CLI_ARGS>;
 type StringCLI = String<SIZE_CLI_RX_BUFFER>;
 
 // global variables
-static LED_PERIOD_MS: Mutex<embassy_sync::blocking_mutex::raw::ThreadModeRawMutex, u64> = Mutex::new(0);
+static LED_PERIOD_MS: Mutex<embassy_sync::blocking_mutex::raw::ThreadModeRawMutex, u64> = Mutex::new(1000);
 
 // interrupt bindings
 bind_interrupts!(struct Irqs {
@@ -115,7 +115,10 @@ async fn main(spawner: Spawner) {
     let _ = spawner.spawn(led_task(led)).unwrap();
     let _ = spawner.spawn(cli_task(serial_rx)).unwrap();
 
-    loop {    
+    loop {
+        // Yield the CPU to the executor by waiting for a timer to expire; 
+        // this loop is supposed be sleeping most of the time.
+        Timer::after_millis(1000).await;
     }
 }
 
