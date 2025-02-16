@@ -9,13 +9,14 @@ use embassy_stm32::gpio::{Level, Output, Speed};
 use embassy_stm32::usart::{Config, Uart, UartRx};
 use embassy_stm32::mode::Async;
 use embassy_stm32::{bind_interrupts, peripherals, usart};
-use embassy_time::{Timer, Instant};
+use embassy_time::Timer;
 use embassy_sync::mutex::Mutex;
 use heapless::{String, Vec};
 use {defmt_rtt as _, panic_probe as _};
 
-// constants
+use nucleo_l432kc_embassy::stepper::{Stepper};
 
+// constants
 const MAX_CLI_ARGS: usize = 20;
 const SIZE_CLI_RX_BUFFER: usize = 64;
 
@@ -25,6 +26,7 @@ type StringCLI = String<SIZE_CLI_RX_BUFFER>;
 
 // global variables
 static LED_PERIOD_MS: Mutex<embassy_sync::blocking_mutex::raw::ThreadModeRawMutex, u64> = Mutex::new(1000);
+static STEPPER_DEG: Mutex<embassy_sync::blocking_mutex::raw::ThreadModeRawMutex, f32> = Mutex::new(0f32);
 
 // interrupt bindings
 bind_interrupts!(struct Irqs {
@@ -48,13 +50,32 @@ async fn led_task(mut led: Output<'static>) {
 }
 
 /**
+ * @brief Stepper task
+ * @param stepper: the stepper motor
+ */
+#[embassy_executor::task]
+async fn stepper_task(mut stepper: Stepper<'static>) {
+    loop {
+        let degree = STEPPER_DEG.lock().await.clone();
+        if degree > 0f32 {
+            stepper.set_parameters(degree, 100.0);
+            stepper.move_relative().await;
+            *STEPPER_DEG.lock().await = 0f32;
+        }
+
+        // to yield the CPU
+        Timer::after_millis(100).await;
+    }
+}
+
+/**
  * @brief CLI task
  * @param rx: the UART receiver
  */
 #[embassy_executor::task]
 async fn cli_task(mut rx: UartRx<'static, Async>) {
-    let mut cli_buffer: StringCLI = String::new();
-    cli_buffer.clear();
+    let mut cmd_buffer: StringCLI = String::new();
+    cmd_buffer.clear();
 
     loop {
         // wait a character
@@ -62,12 +83,17 @@ async fn cli_task(mut rx: UartRx<'static, Async>) {
         let _ = rx.read(&mut buffer).await;
 
         // parse the command
-        if let Some(slices) = parse_cli_command(buffer[0], &mut cli_buffer) {            
+        if let Some(slices) = parse_cli_command(buffer[0], &mut cmd_buffer) {            
             let command = slices.get(0).unwrap();
             match command.as_str() {
                 "led"  => { 
                     if let Some(period) = slices.get(1).and_then(|s| s.parse::<u64>().ok()) {
                         *LED_PERIOD_MS.lock().await = period;
+                    }
+                }
+                "stepper" => {
+                    if let Some(steps) = slices.get(1).and_then(|s| s.parse::<f32>().ok()) {
+                        *STEPPER_DEG.lock().await = steps;
                     }
                 }
                 _ => { debug!("Undefined command: {}", command); }
@@ -88,22 +114,20 @@ async fn main(spawner: Spawner) {
 
     let config = Config::default();
     let serial = Uart::new(p.USART2, p.PA3, p.PA2, Irqs, p.DMA1_CH7, p.DMA1_CH6, config).unwrap();
-
     let (serial_tx, serial_rx) = serial.split();
+
+    let a_pos = Output::new(p.PA4, Level::Low, Speed::Low);
+    let a_neg = Output::new(p.PA5, Level::Low, Speed::Low);
+    let b_pos = Output::new(p.PA6, Level::Low, Speed::Low);
+    let b_neg = Output::new(p.PA7, Level::Low, Speed::Low);
+    let stepper = Stepper::new(a_pos, a_neg, b_pos, b_neg);
 
     /*
     const SIZE_BUFFER: usize = 128;
     let mut str_buffer: String<SIZE_BUFFER> = String::new();
-
     core::write!(&mut str_buffer, "Serial DMA\r\n").unwrap();
     let serial_fut = serial_tx.write(str_buffer.as_bytes());
     let _ = serial_fut.await;
-    */
-
-    /*
-    let start = Instant::now();
-    let elapsed = start.elapsed();
-    debug!("Elapsed: {:?}", elapsed.as_millis());
     */
 
     /*
@@ -114,6 +138,7 @@ async fn main(spawner: Spawner) {
     // Spawn the LED task
     let _ = spawner.spawn(led_task(led)).unwrap();
     let _ = spawner.spawn(cli_task(serial_rx)).unwrap();
+    let _ = spawner.spawn(stepper_task(stepper)).unwrap();
 
     loop {
         // Yield the CPU to the executor by waiting for a timer to expire; 
@@ -124,6 +149,9 @@ async fn main(spawner: Spawner) {
 
 /**
  * @brief Parse the CLI command
+ * @details This function gets a character and pushed it into a buffer until a carriage return is received.
+ *          When a carriage return is received, the buffer is parsed into a vector of fixed string slices to form the command.
+ * 
  * @param ch: the character to be parsed
  * @param buffer: the buffer to store the parsed command
  */
