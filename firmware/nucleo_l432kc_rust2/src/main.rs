@@ -14,14 +14,7 @@ use embassy_sync::mutex::Mutex;
 use heapless::{String, Vec};
 use {defmt_rtt as _, panic_probe as _};
 use nucleo_l432kc_embassy::stepper::{Stepper};
-
-// Constants
-const MAX_CLI_ARGS: usize = 20;
-const SIZE_CLI_RX_BUFFER: usize = 64;
-
-// Aliases
-type FixedStringSlices = Vec<String<SIZE_CLI_RX_BUFFER>, MAX_CLI_ARGS>;
-type StringCLI = String<SIZE_CLI_RX_BUFFER>;
+use nucleo_l432kc_embassy::cli::{*};
 
 // Global variables for communication between tasks
 static LED_PERIOD_MS: Mutex<embassy_sync::blocking_mutex::raw::ThreadModeRawMutex, u64> = Mutex::new(1000);
@@ -77,17 +70,17 @@ async fn cli_task(mut rx: UartRx<'static, Async>) {
         let _ = rx.read(&mut buffer).await;
 
         // parse the command
-        if let Some(slices) = parse_cli_command(buffer[0], &mut cmd_buffer) {            
-            let command = slices.get(0).unwrap();
+        if let Some(args) = cli_get_args(buffer[0], &mut cmd_buffer) {            
+            let command = args.get(0).unwrap();
             match command.as_str() {
                 "led"  => { 
-                    if let Some(period) = slices.get(1).and_then(|s| s.parse::<u64>().ok()) {
+                    if let Some(period) = args.get(1).and_then(|s| s.parse::<u64>().ok()) {
                         *LED_PERIOD_MS.lock().await = period;
                     }
                 }
                 "stepper" => {
-                    if let Some(steps) = slices.get(1).and_then(|s| s.parse::<f32>().ok()) {
-                        let speed_percent = slices.get(2).and_then(|s| s.parse::<f32>().ok()).unwrap_or(100f32);
+                    if let Some(steps) = args.get(1).and_then(|s| s.parse::<f32>().ok()) {
+                        let speed_percent = args.get(2).and_then(|s| s.parse::<f32>().ok()).unwrap_or(100f32);
                         *STEPPER_PARAMS.lock().await = (steps, speed_percent);
                     }
                 }
@@ -142,52 +135,7 @@ async fn main(spawner: Spawner) {
     }
 }
 
-/**
- * @brief Parse the CLI command
- * @details This function gets a character and pushed it into a buffer until a carriage return is received.
- *          When a carriage return is received, the buffer is parsed into a vector of fixed string slices to form the command.
- * 
- * @param ch: the character to be parsed
- * @param buffer: the buffer to store the parsed command
- */
-fn parse_cli_command(ch: u8, buffer: &mut StringCLI) -> Option<FixedStringSlices> {
-    if ch != b'\r' {
-        // push byte into the string buffer
-        buffer.push(ch as char).unwrap();
-        None
-    } else {
-        buffer.push(' ').unwrap(); // to fix a problem with the last number to be treated as a string when parsed.
-    
-        let mut slices: FixedStringSlices = Vec::new();
-        let mut start = 0;
-
-        for (index, char) in buffer.char_indices() {
-            if char == ' ' {
-                if start != index {
-                    let slice_str = &buffer[start..index];
-                    let mut slice_string: StringCLI = String::new();
-                    slice_string.push_str(slice_str).unwrap();
-                    let _ = slices.push(slice_string);
-                }
-                start = index + 1;
-            }
-        }
-
-        if start < buffer.len() {
-            let slice_str = &buffer[start..];
-            let mut slice_string: StringCLI = String::new();
-            slice_string.push_str(slice_str).unwrap();
-            let _ = slices.push(slice_string);
-        }
-
-        buffer.clear();
-        Some(slices)
-    }
-}
-
-/**
- * @brief Bind the USART2 interrupts
- */
+// Bind the USART2 interrupts
 bind_interrupts!(struct Irqs {
     USART2 => usart::InterruptHandler<peripherals::USART2>;
 });
