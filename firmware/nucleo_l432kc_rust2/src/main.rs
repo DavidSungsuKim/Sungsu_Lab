@@ -13,25 +13,19 @@ use embassy_time::Timer;
 use embassy_sync::mutex::Mutex;
 use heapless::{String, Vec};
 use {defmt_rtt as _, panic_probe as _};
-
 use nucleo_l432kc_embassy::stepper::{Stepper};
 
-// constants
+// Constants
 const MAX_CLI_ARGS: usize = 20;
 const SIZE_CLI_RX_BUFFER: usize = 64;
 
-// aliases
+// Aliases
 type FixedStringSlices = Vec<String<SIZE_CLI_RX_BUFFER>, MAX_CLI_ARGS>;
 type StringCLI = String<SIZE_CLI_RX_BUFFER>;
 
-// global variables
+// Global variables for communication between tasks
 static LED_PERIOD_MS: Mutex<embassy_sync::blocking_mutex::raw::ThreadModeRawMutex, u64> = Mutex::new(1000);
-static STEPPER_DEG: Mutex<embassy_sync::blocking_mutex::raw::ThreadModeRawMutex, f32> = Mutex::new(0f32);
-
-// interrupt bindings
-bind_interrupts!(struct Irqs {
-    USART2 => usart::InterruptHandler<peripherals::USART2>;
-});
+static STEPPER_PARAMS: Mutex<embassy_sync::blocking_mutex::raw::ThreadModeRawMutex, (f32, f32)> = Mutex::new((0f32, 0f32));
 
 /**
  * @brief LED task
@@ -56,11 +50,11 @@ async fn led_task(mut led: Output<'static>) {
 #[embassy_executor::task]
 async fn stepper_task(mut stepper: Stepper<'static>) {
     loop {
-        let degree = STEPPER_DEG.lock().await.clone();
+        let (degree, speed_percent) = STEPPER_PARAMS.lock().await.clone();
         if degree > 0f32 {
-            stepper.set_parameters(degree, 100.0);
+            stepper.set_parameters(degree, speed_percent);
             stepper.move_relative().await;
-            *STEPPER_DEG.lock().await = 0f32;
+            *STEPPER_PARAMS.lock().await = (0f32, 0f32);
         }
 
         // to yield the CPU
@@ -93,7 +87,8 @@ async fn cli_task(mut rx: UartRx<'static, Async>) {
                 }
                 "stepper" => {
                     if let Some(steps) = slices.get(1).and_then(|s| s.parse::<f32>().ok()) {
-                        *STEPPER_DEG.lock().await = steps;
+                        let speed_percent = slices.get(2).and_then(|s| s.parse::<f32>().ok()).unwrap_or(100f32);
+                        *STEPPER_PARAMS.lock().await = (steps, speed_percent);
                     }
                 }
                 _ => { debug!("Undefined command: {}", command); }
@@ -189,3 +184,10 @@ fn parse_cli_command(ch: u8, buffer: &mut StringCLI) -> Option<FixedStringSlices
         Some(slices)
     }
 }
+
+/**
+ * @brief Bind the USART2 interrupts
+ */
+bind_interrupts!(struct Irqs {
+    USART2 => usart::InterruptHandler<peripherals::USART2>;
+});
