@@ -11,14 +11,16 @@ use embassy_stm32::mode::Async;
 use embassy_stm32::{bind_interrupts, peripherals, usart};
 use embassy_time::Timer;
 use embassy_sync::mutex::Mutex;
-use heapless::{String, Vec};
+use heapless::String;
 use {defmt_rtt as _, panic_probe as _};
 use nucleo_l432kc_embassy::stepper::{Stepper};
-use nucleo_l432kc_embassy::cli::{*};
+use nucleo_l432kc_embassy::cli::{self, *};
+use nucleo_l432kc_embassy::print;
+use nucleo_l432kc_embassy::MutexEmbassy;
 
 // Global variables for communication between tasks
-static LED_PERIOD_MS: Mutex<embassy_sync::blocking_mutex::raw::ThreadModeRawMutex, u64> = Mutex::new(1000);
-static STEPPER_PARAMS: Mutex<embassy_sync::blocking_mutex::raw::ThreadModeRawMutex, (f32, f32)> = Mutex::new((0f32, 0f32));
+static LED_PERIOD_MS: Mutex<MutexEmbassy, u64> = Mutex::new(1000);
+static STEPPER_PARAMS: Mutex<MutexEmbassy, (f32, f32)> = Mutex::new((0f32, 0f32));
 
 /**
  * @brief LED task
@@ -50,7 +52,7 @@ async fn stepper_task(mut stepper: Stepper<'static>) {
             *STEPPER_PARAMS.lock().await = (0f32, 0f32);
         }
 
-        // to yield the CPU
+        // Yield the CPU
         Timer::after_millis(100).await;
     }
 }
@@ -64,13 +66,16 @@ async fn cli_task(mut rx: UartRx<'static, Async>) {
     let mut cmd_buffer: StringCLI = String::new();
     cmd_buffer.clear();
 
+    cli::clear_screen().await;
+    cli::print_welcome().await;
+
     loop {
-        // wait a character
+        // Wait a character
         let mut buffer = [0u8; 1];
         let _ = rx.read(&mut buffer).await;
 
-        // parse the command
-        if let Some(args) = cli_get_args(buffer[0], &mut cmd_buffer) {            
+        // Parse the command
+        if let Some(args) = cli::get_args(buffer[0], &mut cmd_buffer) {            
             let command = args.get(0).unwrap();
             match command.as_str() {
                 "led"  => { 
@@ -103,6 +108,7 @@ async fn main(spawner: Spawner) {
     let config = Config::default();
     let serial = Uart::new(p.USART2, p.PA3, p.PA2, Irqs, p.DMA1_CH7, p.DMA1_CH6, config).unwrap();
     let (serial_tx, serial_rx) = serial.split();
+    cli::create_singleton_sender(serial_tx);
 
     let a_pos = Output::new(p.PA4, Level::Low, Speed::Low);
     let a_neg = Output::new(p.PA5, Level::Low, Speed::Low);
