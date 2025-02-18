@@ -2,8 +2,6 @@ use crate::print;
 use core::fmt::Write;
 use embassy_stm32::mode::Async;
 use embassy_stm32::usart::{UartTx};
-
-use cortex_m_rt::entry;
 use heapless::{String, Vec};
 use spin::Mutex;
 
@@ -81,11 +79,11 @@ pub async fn clear_screen() {
  */
 pub async fn print_welcome() {
    print!("\r\n");
-   print!("************************************\r\n");
-   print!("* Welcome to STM32L431 Rust Project - II\r\n");
-   print!("* Version: 1.0.0\r\n");
-   print!("* Author: SSKIM \r\n");
-   print!("************************************\r\n");
+   print!(" ************************************\r\n");
+   print!(" * Welcome to STM32L431 Rust Project - II\r\n");
+   print!(" * Version: 1.0.0\r\n");
+   print!(" * Author: SSKIM \r\n");
+   print!(" ************************************\r\n");
 }
 
 /**

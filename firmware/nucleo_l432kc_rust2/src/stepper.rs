@@ -1,6 +1,9 @@
+use core::fmt::Write;
 use defmt::debug;
 use embassy_time::{Timer, Instant};
 use embassy_stm32::gpio::{Output};
+use crate::print;
+use crate::cli::SERIAL_TX;
 
 /**
  * @brief Enum for the stepper motor sequence.
@@ -106,7 +109,7 @@ impl<'d> Stepper<'d> {
    pub async fn move_relative(&mut self) -> bool {
       let time_start = Instant::now();
 
-      debug!("Stepper: move...\r\n");
+      print!("Stepper: move...\r\n");
       while self.steps_move > 0 {
             self.run_stepper_sequence();
 
@@ -115,7 +118,7 @@ impl<'d> Stepper<'d> {
       }
 
       let time_elapsed = time_start.elapsed();
-      debug!("Stepper: ...done, elapsed={}ms\r\n", time_elapsed.as_millis());
+      print!("Stepper: ...done, elapsed={}ms\r\n", time_elapsed.as_millis());
 
       self.ready_move_params = false;
       true

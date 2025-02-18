@@ -1,9 +1,11 @@
 #![no_std]
 #![no_main]
 
+#[allow(unused_imports)]
 use defmt::debug;
 use core::fmt::Write;
 use embassy_executor::Spawner;
+#[allow(unused_imports)]
 use embassy_futures::join::join;
 use embassy_stm32::gpio::{Level, Output, Speed};
 use embassy_stm32::usart::{Config, Uart, UartRx};
@@ -89,7 +91,7 @@ async fn cli_task(mut rx: UartRx<'static, Async>) {
                         *STEPPER_PARAMS.lock().await = (steps, speed_percent);
                     }
                 }
-                _ => { debug!("Undefined command: {}", command); }
+                _ => { print!("Undefined command: {}", command); }
             }
         }
     }
@@ -115,19 +117,6 @@ async fn main(spawner: Spawner) {
     let b_pos = Output::new(p.PA6, Level::Low, Speed::Low);
     let b_neg = Output::new(p.PA7, Level::Low, Speed::Low);
     let stepper = Stepper::new(a_pos, a_neg, b_pos, b_neg);
-
-    /*
-    const SIZE_BUFFER: usize = 128;
-    let mut str_buffer: String<SIZE_BUFFER> = String::new();
-    core::write!(&mut str_buffer, "Serial DMA\r\n").unwrap();
-    let serial_fut = serial_tx.write(str_buffer.as_bytes());
-    let _ = serial_fut.await;
-    */
-
-    /*
-    let delay_fut = Timer::after_millis(100);
-    let _ = delay_fut.await;
-    */
 
     // Spawn the LED task
     let _ = spawner.spawn(led_task(led)).unwrap();
