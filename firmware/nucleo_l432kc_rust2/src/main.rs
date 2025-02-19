@@ -8,7 +8,9 @@ use embassy_executor::Spawner;
 #[allow(unused_imports)]
 use embassy_futures::join::join;
 use embassy_stm32::gpio::{Level, Output, Speed};
-use embassy_stm32::usart::{Config, Uart, UartRx};
+use embassy_stm32::adc::{Adc, Resolution, SampleTime};
+use embassy_stm32::peripherals::{ADC1, PA0};
+use embassy_stm32::usart::{Uart, UartRx};
 use embassy_stm32::mode::Async;
 use embassy_stm32::{bind_interrupts, peripherals, usart};
 use embassy_time::Timer;
@@ -20,9 +22,15 @@ use nucleo_l432kc_embassy::cli::{self, *};
 use nucleo_l432kc_embassy::print;
 use nucleo_l432kc_embassy::MutexEmbassy;
 
+// Aliases
+type StepperDegree = f32;
+type StepperSpeedPercent = f32;
+type AdcReadIntervalMs = u64;
+
 // Global variables for communication between tasks
 static LED_PERIOD_MS: Mutex<MutexEmbassy, u64> = Mutex::new(1000);
-static STEPPER_PARAMS: Mutex<MutexEmbassy, (f32, f32)> = Mutex::new((0f32, 0f32));
+static STEPPER_PARAMS: Mutex<MutexEmbassy, (StepperDegree, StepperSpeedPercent)> = Mutex::new((0f32, 0f32));
+static ADC_READ: Mutex<MutexEmbassy, AdcReadIntervalMs> = Mutex::new(0);
 
 /**
  * @brief LED task
@@ -60,6 +68,25 @@ async fn stepper_task(mut stepper: Stepper<'static>) {
 }
 
 /**
+ * @brief ADC task
+ * @param adc: the ADC peripheral
+ */
+#[embassy_executor::task]
+async fn adc_task(mut adc: Adc<'static, ADC1>, mut channel: PA0) {
+    loop {
+        let read_interval_ms = ADC_READ.lock().await.clone();                
+        if read_interval_ms > 0 {
+            let value = adc.blocking_read(&mut channel);
+            print!("ADC: value: {}\r\n", value);
+            Timer::after_millis(read_interval_ms).await;
+            continue;
+        }
+
+        Timer::after_millis(100).await;
+    }
+}
+
+/**
  * @brief CLI task
  * @param rx: the UART receiver
  */
@@ -78,20 +105,25 @@ async fn cli_task(mut rx: UartRx<'static, Async>) {
 
         // Parse the command
         if let Some(args) = cli::get_args(buffer[0], &mut cmd_buffer) {            
-            let command = args.get(0).unwrap();
-            match command.as_str() {
-                "led"  => { 
-                    if let Some(period) = args.get(1).and_then(|s| s.parse::<u64>().ok()) {
-                        *LED_PERIOD_MS.lock().await = period;
+            if let Some(command) = args.get(0) {
+                match command.as_str() {
+                    "led"  => { 
+                        if let Some(period) = args.get(1).and_then(|s| s.parse::<u64>().ok()) {
+                            *LED_PERIOD_MS.lock().await = period;
+                        }
                     }
-                }
-                "stepper" => {
-                    if let Some(steps) = args.get(1).and_then(|s| s.parse::<f32>().ok()) {
-                        let speed_percent = args.get(2).and_then(|s| s.parse::<f32>().ok()).unwrap_or(100f32);
-                        *STEPPER_PARAMS.lock().await = (steps, speed_percent);
+                    "stepper" => {
+                        if let Some(steps) = args.get(1).and_then(|s| s.parse::<f32>().ok()) {
+                            let speed_percent = args.get(2).and_then(|s| s.parse::<f32>().ok()).unwrap_or(100f32);
+                            *STEPPER_PARAMS.lock().await = (steps, speed_percent);
+                        }
                     }
+                    "adc" => {
+                        let interval = args.get(1).and_then(|s| s.parse::<u64>().ok()).unwrap_or(0);
+                        *ADC_READ.lock().await = interval;
+                    }
+                    _ => { print!("Undefined command: {}", command); }
                 }
-                _ => { print!("Undefined command: {}", command); }
             }
         }
     }
@@ -103,25 +135,41 @@ async fn cli_task(mut rx: UartRx<'static, Async>) {
  */
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
-    let p = embassy_stm32::init(Default::default());
+    // Initialize the peripherals
+    let mut config = embassy_stm32::Config::default();
+    {
+        use embassy_stm32::rcc::*;
+        config.rcc.mux.adcsel = mux::Adcsel::SYS;
+    }
+    let p = embassy_stm32::init(config);
 
+    // LED
     let led = Output::new(p.PB3, Level::High, Speed::Low);
 
-    let config = Config::default();
+    // USART2
+    let config = embassy_stm32::usart::Config::default();    
     let serial = Uart::new(p.USART2, p.PA3, p.PA2, Irqs, p.DMA1_CH7, p.DMA1_CH6, config).unwrap();
     let (serial_tx, serial_rx) = serial.split();
     cli::create_singleton_sender(serial_tx);
 
+    // Stepper motor
     let a_pos = Output::new(p.PA4, Level::Low, Speed::Low);
     let a_neg = Output::new(p.PA5, Level::Low, Speed::Low);
     let b_pos = Output::new(p.PA6, Level::Low, Speed::Low);
     let b_neg = Output::new(p.PA7, Level::Low, Speed::Low);
     let stepper = Stepper::new(a_pos, a_neg, b_pos, b_neg);
 
+    // ADC
+    let mut adc = Adc::new(p.ADC1);
+    adc.set_resolution(Resolution::BITS12);
+    adc.set_sample_time(SampleTime::CYCLES2_5);
+    let channel = p.PA0;
+
     // Spawn the LED task
     let _ = spawner.spawn(led_task(led)).unwrap();
     let _ = spawner.spawn(cli_task(serial_rx)).unwrap();
     let _ = spawner.spawn(stepper_task(stepper)).unwrap();
+    let _ = spawner.spawn(adc_task(adc, channel)).unwrap();
 
     loop {
         // Yield the CPU to the executor by waiting for a timer to expire; 
