@@ -57,7 +57,7 @@ async fn stepper_task(mut stepper: Stepper<'static>) {
     loop {
         let (degree, speed_percent) = STEPPER_PARAMS.lock().await.clone();
         if degree > 0f32 {
-            stepper.set_parameters(degree, speed_percent);
+            stepper.set_parameters(degree, speed_percent).await;
             stepper.move_relative().await;
             *STEPPER_PARAMS.lock().await = (0f32, 0f32);
         }

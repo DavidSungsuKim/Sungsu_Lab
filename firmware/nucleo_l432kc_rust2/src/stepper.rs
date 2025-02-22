@@ -62,14 +62,14 @@ impl<'d> Stepper<'d> {
     * @brief Set the parameters for the stepper motor.
     * @param degrees: the degrees to move.
     */
-   pub fn set_parameters(
+   pub async fn set_parameters(
       &mut self,
       degrees: f32,
       speed_percent: f32,
    ) -> bool {
       const MAX_STEPS: f32 = 2048.0;
-      const MIN_TIME_EACH_STEP_MS: u32 = 3;
-      const MAX_RPM: f32 = 60f32 / (MAX_STEPS * MIN_TIME_EACH_STEP_MS as f32 * 0.001);
+      const MIN_TIME_EACH_STEP_MS: f32 = 1.0;
+      const MAX_RPM: f32 = 60f32 / (MAX_STEPS * MIN_TIME_EACH_STEP_MS * 0.001);
 
       self.ready_move_params = false;
 
@@ -85,7 +85,7 @@ impl<'d> Stepper<'d> {
       } else {
           -steps as u32
       };
-      debug!("Stepper: deg={} steps={}\r\n", degrees, steps);
+      print!("Stepper: deg={} steps={}\r\n", degrees, steps);
 
       // direction
       self.move_dir_cw = steps >= 0;
@@ -95,9 +95,9 @@ impl<'d> Stepper<'d> {
       if speed_percent == 0.0 || speed_percent > 100.0 {
           percent = 100.0;
       }
-      debug!("Stepper: speed={}%, RPM={}\r\n", percent, MAX_RPM * percent / 100f32 );
+      print!("Stepper: speed={}%, RPM={}\r\n", percent, MAX_RPM * percent / 100f32 );
 
-      self.step_interval_ms = MIN_TIME_EACH_STEP_MS as f32 * 100f32 / percent;
+      self.step_interval_ms = MIN_TIME_EACH_STEP_MS * 100f32 / percent;
       self.ready_move_params = true;
 
       true
