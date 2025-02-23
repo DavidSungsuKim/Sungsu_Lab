@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using MyLibrary;
 class Program
 {
     static async Task Main(string[] args)
@@ -7,6 +8,10 @@ class Program
         var task = DoSomethingAsync();
         Console.WriteLine("Main: start working...");
         task.Wait();
+
+        var obj = new MyLibrary.Functions();
+        obj.greeting();
+
     }
 
     private static async Task DoSomethingAsync()
