@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
-
 class Program
 {
     static async Task Main(string[] args)
     {
         var task = DoSomethingAsync();
-        
         Console.WriteLine("Main: start working...");
-
         task.Wait();
     }
 
