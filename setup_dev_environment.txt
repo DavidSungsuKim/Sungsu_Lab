@@ -91,8 +91,12 @@
          . .NET Extention Pack
          . Git / Git Graph / Git Histrory / Git Blame / Git Extension Pack
          . Rust Macro Expand
+         . Python
+         . Python Debugger
+         . Pylance
          . ...
    - restore *.exe in .cargo
       . [Users] - [SungsuKim] - [.cargo]
    - Python 
-      . pip install numpy scipy matplotlib ipython scikit-learn pandas pillow imageio xlsxwriter openpyxl argparse      
+      . pip install numpy scipy matplotlib ipython scikit-learn pandas pillow imageio xlsxwriter openpyxl argparse   
+      . configure 'venv' on project directories
