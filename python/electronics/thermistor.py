@@ -26,7 +26,6 @@ def calculate_temperature(V_measured, printLog = True):
 
 if __name__ == "__main__":
    # Example usage
-   calculate_temperature(3.88)
-   calculate_temperature(3.84)
+   calculate_temperature(3.86)
 
 
