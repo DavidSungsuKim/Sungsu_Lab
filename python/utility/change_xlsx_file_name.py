@@ -4,7 +4,8 @@ import re
 def rename_excel_files(directory):
     """
     Renames all .xlsx files in the given directory.
-    Removes '[' from the filename and replaces ']' with '_'.
+    Removes '[' from the filename, replaces ']' with '_',
+    and removes spaces after '_'.
 
     Args:
         directory (str): The directory path to search and rename files.
@@ -13,6 +14,7 @@ def rename_excel_files(directory):
         if filename.endswith(".xlsx"):
             new_filename = re.sub(r'\[', '', filename)
             new_filename = re.sub(r'\]', '_', new_filename)
+            new_filename = re.sub(r'_(\s+)', '_', new_filename)  # Remove spaces after '_'
             if new_filename != filename:
                 old_path = os.path.join(directory, filename)
                 new_path = os.path.join(directory, new_filename)
