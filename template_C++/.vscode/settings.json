@@ -3,6 +3,7 @@
    "files.associations": {
       ".fantomasignore": "ignore",
       "ostream": "cpp",
-      "cstring": "cpp"
+      "cstring": "cpp",
+      "cstddef": "cpp"
    }
 }
